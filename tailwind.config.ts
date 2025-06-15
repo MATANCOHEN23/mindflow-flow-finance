@@ -20,7 +20,7 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				'assistant': ['Assistant', 'sans-serif'],
+				'assistant': ['Assistant', 'Inter', 'sans-serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
@@ -29,8 +29,8 @@ export default {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
 				primary: {
-					DEFAULT: '#1B4F72',  // כחול כהה מהפלייר
-					light: '#2E86C1',    // כחול בהיר מהפלייר
+					DEFAULT: '#1C6DD0',  // כחול כהה
+					light: '#38AEEB',    // כחול בהיר
 					foreground: '#ffffff'
 				},
 				secondary: {
@@ -46,8 +46,8 @@ export default {
 					foreground: 'hsl(var(--muted-foreground))'
 				},
 				accent: {
-					DEFAULT: '#F39C12',  // כתום זוהר מהפלייר
-					dark: '#E67E22',     // כתום כהה יותר
+					DEFAULT: '#FF8D3A',  // כתום לכפתורי פעולה
+					dark: '#E67E22',
 					foreground: '#ffffff'
 				},
 				popover: {
@@ -58,13 +58,13 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
-				gold: '#F4D03F',       // זהב בהיר מהמסגרת
-				goldBorder: '#D4AC0D', // זהב כהה למסגרות
-				success: '#27AE60',
-				warning: '#F39C12',
-				danger: '#E74C3C',
-				skyBlue: '#85C1E9',    // תכלת רקע מהפלייר
-				teal: '#17A2B8',       // ירוק-כחול מהפלייר
+				skyBlue: '#85C1E9',    // תכלת רקע מהפלייר - להחליף את הצהוב
+				borderGold: '#D4AF37', // זהב דק למסגרות
+				success: '#4CAF50',    // ✅
+				warning: '#FFC107',    // ⚠️
+				danger: '#F44336',     // ❌
+				neutralBG: '#F2F4F7',  // רקע אפור בהיר
+				teal: '#17A2B8',
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
@@ -120,8 +120,8 @@ export default {
 				'shine': 'shine 2s ease-in-out infinite'
 			},
 			backgroundImage: {
-				'gradient-gold': 'linear-gradient(135deg, #F4D03F, #D4AC0D, #F39C12)',
-				'gradient-blue': 'linear-gradient(135deg, #85C1E9, #2E86C1, #1B4F72)',
+				'gradient-skyblue': 'linear-gradient(135deg, #85C1E9, #38AEEB, #1C6DD0)',
+				'gradient-blue': 'linear-gradient(135deg, #38AEEB, #1C6DD0)',
 				'gradient-shine': 'linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)'
 			}
 		}

@@ -60,11 +60,11 @@ export function AppSidebar() {
   const location = useLocation();
 
   return (
-    <Sidebar className="border-l-4 border-goldBorder bg-gradient-to-b from-white via-skyBlue/10 to-primary/5">
+    <Sidebar className="border-l-4 border-borderGold bg-gradient-to-b from-white via-skyBlue/10 to-primary/5">
       <SidebarHeader className="p-8">
         <div className="premium-card shine-effect">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 bg-gradient-to-br from-primary to-primary-light rounded-2xl flex items-center justify-center text-white font-black text-2xl shadow-lg border-2 border-goldBorder/50">
+            <div className="w-14 h-14 bg-gradient-to-br from-primary to-primary-light rounded-2xl flex items-center justify-center text-white font-black text-2xl shadow-lg border-2 border-borderGold/50">
               M
             </div>
             <div>
@@ -89,8 +89,8 @@ export function AppSidebar() {
                     isActive={location.pathname === item.url}
                     className={`text-lg py-4 px-6 rounded-2xl font-bold transition-all duration-300 hover:scale-105 ${
                       location.pathname === item.url 
-                        ? 'bg-gradient-to-r from-primary to-primary-light text-white shadow-lg border-2 border-goldBorder/50' 
-                        : 'hover:bg-gradient-to-r hover:from-accent/20 hover:to-primary/20 hover:text-primary'
+                        ? 'bg-gradient-to-r from-primary to-primary-light text-white shadow-lg border-2 border-borderGold/50' 
+                        : 'hover:bg-gradient-to-r hover:from-skyBlue/20 hover:to-primary/20 hover:text-primary'
                     }`}
                   >
                     <Link to={item.url} className="flex items-center gap-4">
@@ -106,7 +106,7 @@ export function AppSidebar() {
       </SidebarContent>
       
       <SidebarFooter className="p-6">
-        <div className="premium-card bg-gradient-to-r from-primary/10 via-accent/10 to-teal/10">
+        <div className="premium-card bg-gradient-to-r from-primary/10 via-skyBlue/10 to-teal/10">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-gradient-to-br from-accent to-accent-dark rounded-2xl flex items-center justify-center text-white text-lg font-black shadow-lg">
               A
