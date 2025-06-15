@@ -14,21 +14,25 @@ interface StatsCardProps {
 
 export function StatsCard({ title, value, icon, trend, className = "" }: StatsCardProps) {
   return (
-    <div className={`bg-white gold-border rounded-xl p-6 card-shadow card-hover ${className}`}>
-      <div className="flex items-center justify-between mb-4">
-        <div className="text-3xl">{icon}</div>
+    <div className={`premium-card card-hover shine-effect group ${className}`}>
+      <div className="flex items-center justify-between mb-6">
+        <div className="text-4xl p-3 bg-gradient-to-br from-accent/20 to-primary/20 rounded-2xl border-2 border-goldBorder/50 group-hover:scale-110 transition-transform duration-300">
+          {icon}
+        </div>
         {trend && (
-          <div className={`flex items-center gap-1 text-sm font-medium ${
-            trend.isPositive ? 'text-success' : 'text-danger'
+          <div className={`flex items-center gap-2 text-sm font-bold px-3 py-1 rounded-full border-2 ${
+            trend.isPositive 
+              ? 'text-success bg-success/10 border-success/30' 
+              : 'text-danger bg-danger/10 border-danger/30'
           }`}>
-            <span>{trend.isPositive ? '↗' : '↘'}</span>
+            <span className="text-lg">{trend.isPositive ? '↗' : '↘'}</span>
             <span>{Math.abs(trend.value)}%</span>
           </div>
         )}
       </div>
       <div>
-        <h3 className="text-2xl font-bold text-primary mb-1">{value}</h3>
-        <p className="text-muted-foreground text-sm">{title}</p>
+        <h3 className="text-3xl font-black gradient-text mb-2">{value}</h3>
+        <p className="text-primary/70 text-base font-semibold">{title}</p>
       </div>
     </div>
   );
