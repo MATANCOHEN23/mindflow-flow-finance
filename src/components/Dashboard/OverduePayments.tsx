@@ -59,17 +59,17 @@ export function OverduePayments() {
   };
 
   return (
-    <div className="bg-white gold-border rounded-xl p-6 card-shadow">
+    <div className="premium-card">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-xl font-bold text-primary">תשלומים באיחור</h3>
-        <span className="status-badge bg-danger/10 text-danger border-danger/20">
+        <span className="status-badge bg-danger/10 text-danger border border-danger/20">
           {overduePayments.length} פריטים
         </span>
       </div>
       
       <div className="space-y-3">
         {overduePayments.map((payment) => (
-          <div key={payment.id} className="flex items-center justify-between p-4 bg-neutralBG/50 rounded-lg hover:bg-skyBlue/10 transition-colors">
+          <div key={payment.id} className="flex items-center justify-between p-4 bg-secondary/30 rounded-lg hover:bg-secondary/50 transition-colors">
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-1">
                 <h4 className="font-semibold text-gray-900">{payment.clientName}</h4>
@@ -94,7 +94,12 @@ export function OverduePayments() {
       </div>
       
       <div className="mt-4 pt-4 border-t border-borderGold/30">
-        <button className="w-full bg-primary hover:bg-primary/90 text-white py-2 px-4 rounded-lg font-medium transition-colors">
+        <button 
+          className="w-full btn-primary py-2 px-4 rounded-lg font-medium transition-colors"
+          aria-label="שלח תזכורות WhatsApp"
+          tabIndex={0}
+          onKeyPress={(e) => e.key === 'Enter' && e.currentTarget.click()}
+        >
           שלח תזכורות WhatsApp
         </button>
       </div>

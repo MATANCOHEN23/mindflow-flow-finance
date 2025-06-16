@@ -7,55 +7,70 @@ import { MainLayout } from "@/components/Layout/MainLayout";
 const Basketball = () => {
   return (
     <MainLayout>
-      <div className="space-y-8">
-        <div className="premium-card shine-effect">
+      <div className="space-y-6 animate-fade-in">
+        <div className="premium-card">
           <div className="flex justify-between items-center mb-6">
             <div>
-              <h1 className="text-4xl font-black gradient-text mb-2">🏀 אימוני כדורסל</h1>
-              <p className="text-primary/70 text-xl font-semibold">ניהול שחקנים ורישום לעונות אימונים</p>
+              <h1 className="text-3xl font-black gradient-text mb-2">🏀 אימוני כדורסל</h1>
+              <p className="text-primary/70 text-lg font-semibold">ניהול עונת הכדורסל וחבילות אימונים</p>
             </div>
-            <Button className="btn-accent text-lg px-8 py-4">
+            <Button className="btn-accent text-base px-6 py-3" aria-label="הוסף שחקן חדש" tabIndex={0}>
               ➕ הוסף שחקן חדש
             </Button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
-          <Card className="premium-card text-center">
-            <CardContent className="p-6">
-              <h3 className="font-black text-lg text-primary mb-2">לא רשום</h3>
-              <div className="text-3xl font-black gradient-text">0</div>
+        {/* Kanban Board */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          <Card className="premium-card">
+            <CardHeader className="bg-secondary/30 rounded-t-xl">
+              <CardTitle className="text-lg font-black text-primary text-center">
+                לא רשום
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="min-h-[300px] p-4">
+              <div className="text-center text-muted-foreground py-8">
+                <div className="text-4xl mb-3">🏀</div>
+                <p className="font-semibold">אין שחקנים ברשימה</p>
+              </div>
             </CardContent>
           </Card>
-          <Card className="premium-card text-center">
-            <CardContent className="p-6">
-              <h3 className="font-black text-lg text-primary mb-2">טרום רישום</h3>
-              <div className="text-3xl font-black gradient-text">0</div>
+
+          <Card className="premium-card">
+            <CardHeader className="bg-accent/10 rounded-t-xl">
+              <CardTitle className="text-lg font-black text-primary text-center">
+                רשום - ממתין תשלום
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="min-h-[300px] p-4">
+              <div className="text-center text-muted-foreground py-8">
+                <div className="text-4xl mb-3">⏳</div>
+                <p className="font-semibold">אין שחקנים ממתינים</p>
+              </div>
             </CardContent>
           </Card>
-          <Card className="premium-card text-center">
-            <CardContent className="p-6">
-              <h3 className="font-black text-lg text-primary mb-2">ממתין תשלום</h3>
-              <div className="text-3xl font-black gradient-text">0</div>
-            </CardContent>
-          </Card>
-          <Card className="premium-card text-center">
-            <CardContent className="p-6">
-              <h3 className="font-black text-lg text-primary mb-2">פעיל</h3>
-              <div className="text-3xl font-black gradient-text">0</div>
-            </CardContent>
-          </Card>
-          <Card className="premium-card text-center">
-            <CardContent className="p-6">
-              <h3 className="font-black text-lg text-primary mb-2">עזב</h3>
-              <div className="text-3xl font-black gradient-text">0</div>
+
+          <Card className="premium-card">
+            <CardHeader className="bg-success/10 rounded-t-xl">
+              <CardTitle className="text-lg font-black text-primary text-center">
+                פעיל
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="min-h-[300px] p-4">
+              <div className="text-center text-muted-foreground py-8">
+                <div className="text-4xl mb-3">✅</div>
+                <p className="font-semibold">אין שחקנים פעילים</p>
+              </div>
             </CardContent>
           </Card>
         </div>
 
+        <div className="section-divider"></div>
+
+        {/* Full Table View */}
         <Card className="premium-card">
-          <CardHeader className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-t-2xl">
-            <CardTitle className="text-2xl font-black gradient-text text-center">
+          <CardHeader className="bg-secondary/30 rounded-t-xl">
+            <CardTitle className="text-xl font-black gradient-text text-center">
               רשימת שחקני כדורסל
             </CardTitle>
           </CardHeader>
@@ -64,28 +79,28 @@ const Basketball = () => {
               <Table>
                 <TableHeader>
                   <TableRow className="table-header">
-                    <TableHead className="text-right font-black text-lg">שם השחקן</TableHead>
-                    <TableHead className="text-right font-black text-lg">גיל</TableHead>
-                    <TableHead className="text-right font-black text-lg">קבוצת גיל</TableHead>
-                    <TableHead className="text-right font-black text-lg">סטטוס רישום</TableHead>
-                    <TableHead className="text-right font-black text-lg">מחיר עונה</TableHead>
-                    <TableHead className="text-right font-black text-lg">סכום ששולם</TableHead>
-                    <TableHead className="text-right font-black text-lg">יתרת חוב</TableHead>
-                    <TableHead className="text-right font-black text-lg">ימי אימון</TableHead>
-                    <TableHead className="text-right font-black text-lg">הורה/אחראי</TableHead>
-                    <TableHead className="text-right font-black text-lg">פעולות</TableHead>
+                    <TableHead className="text-right font-black text-base">שם שחקן</TableHead>
+                    <TableHead className="text-right font-black text-base">גיל</TableHead>
+                    <TableHead className="text-right font-black text-base">טלפון הורה</TableHead>
+                    <TableHead className="text-right font-black text-base">סטטוס רישום</TableHead>
+                    <TableHead className="text-right font-black text-base">חבילת אימונים</TableHead>
+                    <TableHead className="text-right font-black text-base">סכום כולל</TableHead>
+                    <TableHead className="text-right font-black text-base">שולם</TableHead>
+                    <TableHead className="text-right font-black text-base">סטטוס תשלום</TableHead>
+                    <TableHead className="text-right font-black text-base">תאריך אימון הבא</TableHead>
+                    <TableHead className="text-right font-black text-base">פעולות</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   <TableRow className="table-row">
                     <TableCell colSpan={10} className="py-16">
                       <div className="empty-state">
-                        <div className="text-8xl mb-6">🏀</div>
-                        <h3 className="text-3xl font-black gradient-text mb-4">אין שחקנים במערכת</h3>
-                        <p className="text-xl text-primary/70 font-semibold mb-8">
+                        <div className="text-6xl mb-4">🏀</div>
+                        <h3 className="text-2xl font-black gradient-text mb-3">אין שחקנים במערכת</h3>
+                        <p className="text-lg text-primary/70 font-semibold mb-6">
                           לחץ על "הוסף שחקן חדש" כדי להתחיל
                         </p>
-                        <Button className="btn-primary text-xl px-12 py-4">
+                        <Button className="btn-primary text-lg px-8 py-3" aria-label="הוסף שחקן ראשון" tabIndex={0}>
                           ➕ הוסף שחקן ראשון
                         </Button>
                       </div>

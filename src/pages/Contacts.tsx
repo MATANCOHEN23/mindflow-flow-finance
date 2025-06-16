@@ -7,22 +7,22 @@ import { MainLayout } from "@/components/Layout/MainLayout";
 const Contacts = () => {
   return (
     <MainLayout>
-      <div className="space-y-8">
-        <div className="premium-card shine-effect">
+      <div className="space-y-6 animate-fade-in">
+        <div className="premium-card">
           <div className="flex justify-between items-center mb-6">
             <div>
-              <h1 className="text-4xl font-black gradient-text mb-2">👥 ניהול לקוחות</h1>
-              <p className="text-primary/70 text-xl font-semibold">רשימת כל הלקוחות במערכת</p>
+              <h1 className="text-3xl font-black gradient-text mb-2">👥 ניהול לקוחות</h1>
+              <p className="text-primary/70 text-lg font-semibold">רשימת כל הלקוחות במערכת</p>
             </div>
-            <Button className="btn-accent text-lg px-8 py-4">
+            <Button className="btn-accent text-base px-6 py-3" aria-label="הוסף לקוח חדש" tabIndex={0}>
               ➕ הוסף לקוח חדש
             </Button>
           </div>
         </div>
 
         <Card className="premium-card">
-          <CardHeader className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-t-2xl">
-            <CardTitle className="text-2xl font-black gradient-text text-center">
+          <CardHeader className="bg-secondary/30 rounded-t-xl">
+            <CardTitle className="text-xl font-black gradient-text text-center">
               רשימת לקוחות
             </CardTitle>
           </CardHeader>
@@ -31,27 +31,26 @@ const Contacts = () => {
               <Table>
                 <TableHeader>
                   <TableRow className="table-header">
-                    <TableHead className="text-right font-black text-lg">שם פרטי</TableHead>
-                    <TableHead className="text-right font-black text-lg">שם משפחה</TableHead>
-                    <TableHead className="text-right font-black text-lg">טלפון</TableHead>
-                    <TableHead className="text-right font-black text-lg">טלפון הורה</TableHead>
-                    <TableHead className="text-right font-black text-lg">אימייל</TableHead>
-                    <TableHead className="text-right font-black text-lg">תגיות</TableHead>
-                    <TableHead className="text-right font-black text-lg">שם ילד</TableHead>
-                    <TableHead className="text-right font-black text-lg">הערות</TableHead>
-                    <TableHead className="text-right font-black text-lg">פעולות</TableHead>
+                    <TableHead className="text-right font-black text-base">שם פרטי</TableHead>
+                    <TableHead className="text-right font-black text-base">שם משפחה</TableHead>
+                    <TableHead className="text-right font-black text-base">תפקיד</TableHead>
+                    <TableHead className="text-right font-black text-base">שם ילד</TableHead>
+                    <TableHead className="text-right font-black text-base">טלפון הורה</TableHead>
+                    <TableHead className="text-right font-black text-base">אימייל</TableHead>
+                    <TableHead className="text-right font-black text-base">הערות</TableHead>
+                    <TableHead className="text-right font-black text-base">פעולות</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   <TableRow className="table-row">
-                    <TableCell colSpan={9} className="py-16">
+                    <TableCell colSpan={8} className="py-16">
                       <div className="empty-state">
-                        <div className="text-8xl mb-6">👥</div>
-                        <h3 className="text-3xl font-black gradient-text mb-4">אין לקוחות במערכת</h3>
-                        <p className="text-xl text-primary/70 font-semibold mb-8">
+                        <div className="text-6xl mb-4">👥</div>
+                        <h3 className="text-2xl font-black gradient-text mb-3">אין לקוחות במערכת</h3>
+                        <p className="text-lg text-primary/70 font-semibold mb-6">
                           לחץ על "הוסף לקוח חדש" כדי להתחיל
                         </p>
-                        <Button className="btn-primary text-xl px-12 py-4">
+                        <Button className="btn-primary text-lg px-8 py-3" aria-label="הוסף לקוח ראשון" tabIndex={0}>
                           ➕ הוסף לקוח ראשון
                         </Button>
                       </div>

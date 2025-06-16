@@ -15,12 +15,12 @@ export default {
 			center: true,
 			padding: '2rem',
 			screens: {
-				'2xl': '1400px'
+				'2xl': '1280px'
 			}
 		},
 		extend: {
 			fontFamily: {
-				'assistant': ['Assistant', 'Inter', 'sans-serif'],
+				'assistant': ['Assistant', 'sans-serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
@@ -29,13 +29,13 @@ export default {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
 				primary: {
-					DEFAULT: '#1C6DD0',  // כחול כהה
-					light: '#38AEEB',    // כחול בהיר
+					DEFAULT: '#1C6DD0',  // כחול כהה לסיידבר
+					light: '#2563eb',
 					foreground: '#ffffff'
 				},
 				secondary: {
-					DEFAULT: 'hsl(var(--secondary))',
-					foreground: 'hsl(var(--secondary-foreground))'
+					DEFAULT: '#F2F4F7',  // אפור בהיר לרקע תוכן
+					foreground: '#1C6DD0'
 				},
 				destructive: {
 					DEFAULT: 'hsl(var(--destructive))',
@@ -46,8 +46,7 @@ export default {
 					foreground: 'hsl(var(--muted-foreground))'
 				},
 				accent: {
-					DEFAULT: '#FF8D3A',  // כתום לכפתורי פעולה
-					dark: '#E67E22',
+					DEFAULT: '#FF8D3A',  // כתום לכפתורי פעולה בלבד
 					foreground: '#ffffff'
 				},
 				popover: {
@@ -55,16 +54,15 @@ export default {
 					foreground: 'hsl(var(--popover-foreground))'
 				},
 				card: {
-					DEFAULT: 'hsl(var(--card))',
-					foreground: 'hsl(var(--card-foreground))'
+					DEFAULT: '#FFFFFF',  // לבן לכרטיסים
+					foreground: '#1C6DD0'
 				},
-				skyBlue: '#85C1E9',    // תכלת רקע מהפלייר - להחליף את הצהוב
-				borderGold: '#D4AF37', // זהב דק למסגרות
-				success: '#4CAF50',    // ✅
-				warning: '#FFC107',    // ⚠️
-				danger: '#F44336',     // ❌
-				neutralBG: '#F2F4F7',  // רקע אפור בהיר
-				teal: '#17A2B8',
+				neutral: '#FFFFFF',      // רקע כרטיסים
+				borderGold: '#D4AF37',   // מסגרת זהב דקה
+				contentBG: '#F2F4F7',   // רקע תוכן
+				success: '#4CAF50',      // ✅
+				warning: '#FFC107',      // ⚠️
+				danger: '#F44336',       // ❌
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
@@ -107,22 +105,12 @@ export default {
 						opacity: '1',
 						transform: 'translateY(0)'
 					}
-				},
-				'shine': {
-					'0%': { backgroundPosition: '-200% 0' },
-					'100%': { backgroundPosition: '200% 0' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
-				'fade-in': 'fade-in 0.3s ease-out',
-				'shine': 'shine 2s ease-in-out infinite'
-			},
-			backgroundImage: {
-				'gradient-skyblue': 'linear-gradient(135deg, #85C1E9, #38AEEB, #1C6DD0)',
-				'gradient-blue': 'linear-gradient(135deg, #38AEEB, #1C6DD0)',
-				'gradient-shine': 'linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)'
+				'fade-in': 'fade-in 0.3s ease-out'
 			}
 		}
 	},

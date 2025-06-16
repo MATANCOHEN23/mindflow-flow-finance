@@ -12,6 +12,7 @@ import {
   SidebarFooter,
 } from "@/components/ui/sidebar";
 import { useLocation, Link } from "react-router-dom";
+import { UserPlus, BriefcasePlus } from "lucide-react";
 
 const menuItems = [
   {
@@ -60,41 +61,63 @@ export function AppSidebar() {
   const location = useLocation();
 
   return (
-    <Sidebar className="border-l-4 border-borderGold bg-gradient-to-b from-white via-skyBlue/10 to-primary/5">
-      <SidebarHeader className="p-8">
-        <div className="premium-card shine-effect">
+    <Sidebar className="sidebar-fixed bg-primary border-l border-borderGold">
+      <SidebarHeader className="p-6 bg-primary">
+        <div className="premium-card bg-white/10 backdrop-blur-sm border-white/20">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 bg-gradient-to-br from-primary to-primary-light rounded-2xl flex items-center justify-center text-white font-black text-2xl shadow-lg border-2 border-borderGold/50">
+            <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-primary font-black text-xl shadow-lg">
               M
             </div>
             <div>
-              <h2 className="text-2xl font-black gradient-text">MindFlow</h2>
-              <p className="text-primary/70 font-bold">CRM System</p>
+              <h2 className="text-xl font-black text-white">MindFlow</h2>
+              <p className="text-white/80 font-semibold text-sm">CRM System</p>
             </div>
           </div>
         </div>
       </SidebarHeader>
       
+      {/* Quick Action Buttons */}
+      <div className="px-4 py-4 space-y-2">
+        <button 
+          className="w-full btn-accent text-sm py-2 px-4 flex items-center gap-2"
+          aria-label="הוסף לקוח חדש"
+          tabIndex={0}
+          onKeyPress={(e) => e.key === 'Enter' && e.currentTarget.click()}
+        >
+          <UserPlus size={16} />
+          לקוח חדש
+        </button>
+        <button 
+          className="w-full bg-white/20 hover:bg-white/30 text-white text-sm py-2 px-4 rounded-lg font-semibold transition-all duration-300 hover:scale-102 flex items-center gap-2"
+          aria-label="הוסף עסקה חדשה"
+          tabIndex={0}
+          onKeyPress={(e) => e.key === 'Enter' && e.currentTarget.click()}
+        >
+          <BriefcasePlus size={16} />
+          עסקה חדשה
+        </button>
+      </div>
+      
       <SidebarContent className="px-4">
         <SidebarGroup>
-          <SidebarGroupLabel className="text-xl font-black gradient-text mb-6 text-center">
+          <SidebarGroupLabel className="text-lg font-black text-white/90 mb-4 text-center">
             ניהול העסק
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu className="space-y-3">
+            <SidebarMenu className="space-y-2">
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton 
                     asChild 
                     isActive={location.pathname === item.url}
-                    className={`text-lg py-4 px-6 rounded-2xl font-bold transition-all duration-300 hover:scale-105 ${
+                    className={`text-base py-3 px-4 rounded-xl font-semibold transition-all duration-300 hover:scale-102 focus:outline-none focus:ring-2 focus:ring-white/30 ${
                       location.pathname === item.url 
-                        ? 'bg-gradient-to-r from-primary to-primary-light text-white shadow-lg border-2 border-borderGold/50' 
-                        : 'hover:bg-gradient-to-r hover:from-skyBlue/20 hover:to-primary/20 hover:text-primary'
+                        ? 'bg-white text-primary shadow-lg' 
+                        : 'hover:bg-white/20 text-white/90 hover:text-white'
                     }`}
                   >
-                    <Link to={item.url} className="flex items-center gap-4">
-                      <span className="text-2xl">{item.icon}</span>
+                    <Link to={item.url} className="flex items-center gap-3" tabIndex={0}>
+                      <span className="text-xl" aria-hidden="true">{item.icon}</span>
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -105,15 +128,15 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
       
-      <SidebarFooter className="p-6">
-        <div className="premium-card bg-gradient-to-r from-primary/10 via-skyBlue/10 to-teal/10">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-accent to-accent-dark rounded-2xl flex items-center justify-center text-white text-lg font-black shadow-lg">
+      <SidebarFooter className="p-4">
+        <div className="premium-card bg-white/10 backdrop-blur-sm border-white/20">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-accent rounded-xl flex items-center justify-center text-white text-sm font-black shadow-lg">
               A
             </div>
             <div>
-              <p className="font-black text-primary">מנהל המערכת</p>
-              <p className="text-primary/70 font-semibold">admin@mindflow.co.il</p>
+              <p className="font-black text-white text-sm">מנהל המערכת</p>
+              <p className="text-white/70 font-semibold text-xs">admin@mindflow.co.il</p>
             </div>
           </div>
         </div>
