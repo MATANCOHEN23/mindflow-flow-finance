@@ -135,16 +135,24 @@
 
   .btn-primary {
     @apply bg-primary hover:bg-primary/90 text-white font-bold py-3 px-6 rounded-xl;
-    @apply transition-all duration-300 hover:scale-102;
+    @apply transition-all duration-300;
     @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
     tabindex: 0;
   }
 
+  .btn-primary:hover {
+    transform: scale(1.02);
+  }
+
   .btn-accent {
     @apply bg-accent hover:bg-accent/90 text-white font-bold py-3 px-6 rounded-xl;
-    @apply transition-all duration-300 hover:scale-102;
+    @apply transition-all duration-300;
     @apply focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2;
     tabindex: 0;
+  }
+
+  .btn-accent:hover {
+    transform: scale(1.02);
   }
 
   .gradient-text {
@@ -190,10 +198,6 @@
 
 /* Accessibility improvements */
 @layer utilities {
-  .hover\:scale-102:hover {
-    transform: scale(1.02);
-  }
-  
   .focus-visible\:outline-primary:focus-visible {
     outline: 2px solid #1C6DD0;
     outline-offset: 2px;
