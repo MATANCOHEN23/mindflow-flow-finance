@@ -48,8 +48,8 @@ const data = [
 
 export function RevenueChart() {
   return (
-    <div className="bg-white gold-border rounded-xl p-6 card-shadow">
-      <h3 className="text-xl font-bold text-primary mb-4">הכנסות חודשיות לפי קטגוריה</h3>
+    <div className="chart-container">
+      <h3 className="text-2xl font-black text-cream mb-6 text-center text-shadow">📊 הכנסות חודשיות לפי קטגוריה</h3>
       <div className="h-80">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
@@ -61,39 +61,49 @@ export function RevenueChart() {
               bottom: 5,
             }}
           >
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+            <CartesianGrid strokeDasharray="3 3" stroke="#FFD700" strokeWidth={2} />
             <XAxis 
               dataKey="month" 
-              stroke="#6b7280"
-              style={{ fontSize: '12px' }}
+              stroke="#FFF8DC"
+              style={{ fontSize: '14px', fontWeight: 'bold' }}
             />
             <YAxis 
-              stroke="#6b7280"
-              style={{ fontSize: '12px' }}
+              stroke="#FFF8DC"
+              style={{ fontSize: '14px', fontWeight: 'bold' }}
               tickFormatter={(value) => `₪${(value / 1000).toFixed(0)}K`}
             />
             <Tooltip 
               formatter={(value: any, name: string) => [
                 `₪${value.toLocaleString()}`, 
-                name === 'coaching' ? 'אימון כדורסל' :
-                name === 'therapy' ? 'טיפולים' :
-                name === 'birthday' ? 'ימי הולדת' : 'סדנאות'
+                name === 'coaching' ? '🏀 אימון כדורסל' :
+                name === 'therapy' ? '🧠 טיפולים' :
+                name === 'birthday' ? '🎂 ימי הולדת' : '🎓 סדנאות'
               ]}
-              labelStyle={{ direction: 'rtl' }}
-              contentStyle={{ direction: 'rtl' }}
+              labelStyle={{ direction: 'rtl', color: '#191970', fontWeight: 'bold' }}
+              contentStyle={{ 
+                direction: 'rtl',
+                backgroundColor: '#FFF8DC',
+                border: '2px solid #FFD700',
+                borderRadius: '12px',
+                boxShadow: '0 4px 12px rgba(255, 215, 0, 0.5)'
+              }}
             />
             <Legend 
-              wrapperStyle={{ direction: 'rtl' }}
+              wrapperStyle={{ 
+                direction: 'rtl',
+                color: '#FFF8DC',
+                fontWeight: 'bold'
+              }}
               formatter={(value) => 
-                value === 'coaching' ? 'אימון כדורסל' :
-                value === 'therapy' ? 'טיפולים' :
-                value === 'birthday' ? 'ימי הולדת' : 'סדנאות'
+                value === 'coaching' ? '🏀 אימון כדורסל' :
+                value === 'therapy' ? '🧠 טיפולים' :
+                value === 'birthday' ? '🎂 ימי הולדת' : '🎓 סדנאות'
               }
             />
-            <Bar dataKey="coaching" fill="#1C6DD0" radius={[4, 4, 0, 0]} />
-            <Bar dataKey="therapy" fill="#38AEEB" radius={[4, 4, 0, 0]} />
-            <Bar dataKey="birthday" fill="#FF8D3A" radius={[4, 4, 0, 0]} />
-            <Bar dataKey="school" fill="#D4AF37" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="coaching" fill="#FF8C00" radius={[8, 8, 0, 0]} stroke="#FFD700" strokeWidth={2} />
+            <Bar dataKey="therapy" fill="#1E90FF" radius={[8, 8, 0, 0]} stroke="#FFD700" strokeWidth={2} />
+            <Bar dataKey="birthday" fill="#FF6347" radius={[8, 8, 0, 0]} stroke="#FFD700" strokeWidth={2} />
+            <Bar dataKey="school" fill="#32CD32" radius={[8, 8, 0, 0]} stroke="#FFD700" strokeWidth={2} />
           </BarChart>
         </ResponsiveContainer>
       </div>

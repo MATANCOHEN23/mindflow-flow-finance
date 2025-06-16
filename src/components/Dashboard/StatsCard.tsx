@@ -14,25 +14,25 @@ interface StatsCardProps {
 
 export function StatsCard({ title, value, icon, trend, className = "" }: StatsCardProps) {
   return (
-    <div className={`premium-card card-hover shine-effect group ${className}`}>
+    <div className={`flyer-card shine-effect hover-scale transition-all duration-300 ${className}`}>
       <div className="flex items-center justify-between mb-6">
-        <div className="text-4xl p-3 bg-gradient-to-br from-accent/20 to-primary/20 rounded-2xl border-2 border-goldBorder/50 group-hover:scale-110 transition-transform duration-300">
+        <div className="stats-icon">
           {icon}
         </div>
         {trend && (
-          <div className={`flex items-center gap-2 text-sm font-bold px-3 py-1 rounded-full border-2 ${
+          <div className={`flex items-center gap-2 text-base font-black px-4 py-2 rounded-full border-3 ${
             trend.isPositive 
-              ? 'text-success bg-success/10 border-success/30' 
-              : 'text-danger bg-danger/10 border-danger/30'
+              ? 'trend-positive' 
+              : 'trend-negative'
           }`}>
-            <span className="text-lg">{trend.isPositive ? '↗' : '↘'}</span>
+            <span className="text-2xl">{trend.isPositive ? '📈' : '📉'}</span>
             <span>{Math.abs(trend.value)}%</span>
           </div>
         )}
       </div>
       <div>
-        <h3 className="text-3xl font-black gradient-text mb-2">{value}</h3>
-        <p className="text-primary/70 text-base font-semibold">{title}</p>
+        <h3 className="text-4xl font-black text-cream mb-3 text-shadow-lg">{value}</h3>
+        <p className="text-cream/90 text-lg font-bold text-shadow">{title}</p>
       </div>
     </div>
   );

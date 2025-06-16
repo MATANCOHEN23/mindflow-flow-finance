@@ -3,47 +3,47 @@
 @tailwind components;
 @tailwind utilities;
 
-/* RTL Support and Hebrew Font */
+/* Vibrant Flyer Design - Sky Blue Background with Bright Colors */
 @layer base {
   :root {
-    --background: 242 244 247;  /* contentBG */
-    --foreground: 28 109 208;   /* primary */
+    --background: 135 206 235;  /* sky blue like flyer */
+    --foreground: 255 248 220;   /* cream text */
 
-    --card: 255 255 255;        /* neutral white */
-    --card-foreground: 28 109 208;
+    --card: 30 144 255;        /* bright blue cards */
+    --card-foreground: 255 248 220;
 
-    --popover: 255 255 255;
-    --popover-foreground: 28 109 208;
+    --popover: 30 144 255;
+    --popover-foreground: 255 248 220;
 
-    --primary: 28 109 208;      /* #1C6DD0 */
-    --primary-foreground: 255 255 255;
+    --primary: 25 25 112;      /* dark navy blue */
+    --primary-foreground: 255 248 220;
 
-    --secondary: 242 244 247;   /* contentBG */
-    --secondary-foreground: 28 109 208;
+    --secondary: 70 130 180;   /* steel blue */
+    --secondary-foreground: 255 248 220;
 
-    --muted: 245 250 255;
-    --muted-foreground: 108 117 125;
+    --muted: 100 149 237;
+    --muted-foreground: 255 248 220;
 
-    --accent: 255 141 58;       /* #FF8D3A */
-    --accent-foreground: 255 255 255;
+    --accent: 255 140 0;       /* bright orange */
+    --accent-foreground: 255 248 220;
 
-    --destructive: 244 67 54;   /* danger */
-    --destructive-foreground: 255 255 255;
+    --destructive: 220 20 60;   
+    --destructive-foreground: 255 248 220;
 
-    --border: 212 175 55;       /* borderGold */
-    --input: 206 212 218;
-    --ring: 28 109 208;
+    --border: 255 215 0;       /* bright gold borders */
+    --input: 70 130 180;
+    --ring: 255 215 0;
 
-    --radius: 12px;
+    --radius: 16px;
 
-    --sidebar-background: 28 109 208;      /* primary dark blue */
-    --sidebar-foreground: 255 255 255;
-    --sidebar-primary: 255 255 255;
-    --sidebar-primary-foreground: 28 109 208;
-    --sidebar-accent: 255 141 58;          /* accent orange */
-    --sidebar-accent-foreground: 255 255 255;
-    --sidebar-border: 212 175 55;
-    --sidebar-ring: 28 109 208;
+    --sidebar-background: 25 25 112;      /* dark navy */
+    --sidebar-foreground: 255 248 220;
+    --sidebar-primary: 255 140 0;         /* orange accent */
+    --sidebar-primary-foreground: 255 248 220;
+    --sidebar-accent: 255 215 0;          /* gold accent */
+    --sidebar-accent-foreground: 25 25 112;
+    --sidebar-border: 255 215 0;
+    --sidebar-ring: 255 215 0;
   }
 }
 
@@ -57,149 +57,229 @@
   }
 
   body {
-    @apply bg-contentBG text-foreground font-assistant;
+    background: linear-gradient(135deg, #87CEEB 0%, #4682B4 50%, #1E90FF 100%);
+    @apply text-foreground font-assistant;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     min-height: 100vh;
-    font-weight: 400;
+    font-weight: 600;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-weight: 700;
-    color: #1C6DD0;
+    font-weight: 800;
+    color: #FFF8DC;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
+    text-stroke: 1px #000;
+    -webkit-text-stroke: 1px rgba(0, 0, 0, 0.5);
   }
 
-  /* Custom scrollbar for RTL */
+  /* Custom scrollbar */
   ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 12px;
+    height: 12px;
   }
 
   ::-webkit-scrollbar-track {
-    @apply bg-muted;
+    background: rgba(30, 144, 255, 0.3);
+    border-radius: 8px;
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-primary rounded-full;
+    background: linear-gradient(45deg, #FF8C00, #FFD700);
+    border-radius: 8px;
+    border: 2px solid rgba(25, 25, 112, 0.3);
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-accent;
+    background: linear-gradient(45deg, #FF6347, #FFA500);
   }
 }
 
 @layer components {
-  .gold-border {
-    @apply border border-borderGold;
-    box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.2);
-  }
-
-  .premium-card {
-    @apply bg-neutral gold-border rounded-xl p-6;
+  .flyer-card {
+    background: linear-gradient(135deg, #1E90FF 0%, #4169E1 50%, #0000CD 100%);
+    border: 3px solid #FFD700;
+    border-radius: 20px;
     box-shadow: 
-      0 4px 12px rgba(28, 109, 208, 0.08),
-      0 0 0 1px rgba(212, 175, 55, 0.2);
+      0 8px 24px rgba(255, 140, 0, 0.4),
+      0 0 0 2px rgba(255, 215, 0, 0.6),
+      inset 0 2px 4px rgba(255, 255, 255, 0.2);
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
   }
 
-  .status-badge {
-    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-bold;
+  .flyer-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+    pointer-events: none;
   }
 
-  .status-paid {
-    @apply bg-success text-white;
-  }
-
-  .status-partial {
-    @apply bg-accent text-white;
-  }
-
-  .status-pending {
-    @apply bg-danger text-white;
-  }
-
-  .card-shadow {
+  .orange-box {
+    background: linear-gradient(135deg, #FF8C00 0%, #FF6347 100%);
+    border: 2px solid #FFD700;
+    border-radius: 16px;
+    padding: 16px;
     box-shadow: 
-      0 4px 12px rgba(28, 109, 208, 0.08),
-      0 0 0 1px rgba(212, 175, 55, 0.15);
-  }
-
-  .card-hover {
-    transition: all 0.3s ease;
-  }
-
-  .card-hover:hover {
-    transform: scale(1.02);
-    box-shadow: 
-      0 8px 24px rgba(28, 109, 208, 0.12),
-      0 0 0 2px rgba(212, 175, 55, 0.3);
-  }
-
-  .btn-primary {
-    @apply bg-primary hover:bg-primary/90 text-white font-bold py-3 px-6 rounded-xl;
-    @apply transition-all duration-300;
-    @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
-    tabindex: 0;
-  }
-
-  .btn-primary:hover {
-    transform: scale(1.02);
-  }
-
-  .btn-accent {
-    @apply bg-accent hover:bg-accent/90 text-white font-bold py-3 px-6 rounded-xl;
-    @apply transition-all duration-300;
-    @apply focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2;
-    tabindex: 0;
-  }
-
-  .btn-accent:hover {
-    transform: scale(1.02);
-  }
-
-  .gradient-text {
-    background: linear-gradient(135deg, #1C6DD0, #FF8D3A);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
+      0 6px 20px rgba(255, 140, 0, 0.5),
+      inset 0 2px 4px rgba(255, 255, 255, 0.3);
+    color: #FFF8DC;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
     font-weight: 700;
   }
 
-  .page-header {
-    @apply bg-primary text-white shadow-lg;
-    position: relative;
+  .stats-icon {
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+    border: 3px solid #FF8C00;
+    border-radius: 50%;
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    box-shadow: 
+      0 4px 16px rgba(255, 215, 0, 0.6),
+      inset 0 2px 4px rgba(255, 255, 255, 0.4);
+    animation: pulse-glow 2s infinite;
   }
 
-  .empty-state {
-    @apply premium-card text-center p-12 my-8;
+  @keyframes pulse-glow {
+    0%, 100% { 
+      box-shadow: 
+        0 4px 16px rgba(255, 215, 0, 0.6),
+        inset 0 2px 4px rgba(255, 255, 255, 0.4);
+    }
+    50% { 
+      box-shadow: 
+        0 6px 24px rgba(255, 215, 0, 0.9),
+        inset 0 2px 4px rgba(255, 255, 255, 0.6);
+    }
   }
 
-  .table-header {
-    @apply bg-secondary/50 font-bold text-primary;
-    @apply border-b border-borderGold;
+  .btn-flyer {
+    background: linear-gradient(135deg, #FF8C00 0%, #FF4500 100%);
+    border: 2px solid #FFD700;
+    color: #FFF8DC;
+    font-weight: 800;
+    padding: 12px 24px;
+    border-radius: 16px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+    box-shadow: 
+      0 4px 12px rgba(255, 140, 0, 0.5),
+      inset 0 2px 4px rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+    cursor: pointer;
   }
 
-  .table-row {
-    @apply hover:bg-secondary/30;
-    @apply transition-all duration-200 border-b border-borderGold/30;
+  .btn-flyer:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 
+      0 8px 20px rgba(255, 140, 0, 0.7),
+      inset 0 2px 4px rgba(255, 255, 255, 0.4);
   }
 
-  .sidebar-fixed {
-    width: 240px;
+  .page-header-flyer {
+    background: linear-gradient(135deg, #191970 0%, #000080 50%, #4169E1 100%);
+    border-bottom: 4px solid #FFD700;
+    box-shadow: 0 4px 16px rgba(255, 215, 0, 0.4);
   }
 
-  .content-boxed {
-    max-width: 1280px;
-    margin: 0 auto;
+  .sidebar-flyer {
+    background: linear-gradient(180deg, #191970 0%, #000080 100%);
+    border-left: 3px solid #FFD700;
+    box-shadow: 4px 0 16px rgba(255, 215, 0, 0.3);
   }
 
-  .section-divider {
-    @apply border-t border-borderGold my-6;
+  .trend-positive {
+    background: linear-gradient(135deg, #32CD32 0%, #228B22 100%);
+    color: #FFF8DC;
+    border: 2px solid #FFD700;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  }
+
+  .trend-negative {
+    background: linear-gradient(135deg, #DC143C 0%, #B22222 100%);
+    color: #FFF8DC;
+    border: 2px solid #FFD700;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  }
+
+  .chart-container {
+    background: linear-gradient(135deg, #4169E1 0%, #1E90FF 100%);
+    border: 3px solid #FFD700;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 
+      0 8px 24px rgba(255, 215, 0, 0.4),
+      inset 0 2px 4px rgba(255, 255, 255, 0.2);
+  }
+
+  .logo-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-brain {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #87CEEB 0%, #1E90FF 100%);
+    border: 2px solid #FFD700;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.5);
+  }
+
+  .empty-state-flyer {
+    @apply flyer-card text-center p-16 my-8;
+    background: linear-gradient(135deg, rgba(30, 144, 255, 0.8) 0%, rgba(65, 105, 225, 0.8) 100%);
   }
 }
 
-/* Accessibility improvements */
+/* Animation utilities */
 @layer utilities {
-  .focus-visible\:outline-primary:focus-visible {
-    outline: 2px solid #1C6DD0;
+  .hover-scale:hover {
+    transform: scale(1.05);
+  }
+  
+  .focus-visible\:outline-gold:focus-visible {
+    outline: 3px solid #FFD700;
     outline-offset: 2px;
+  }
+
+  .shine-effect {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .shine-effect::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+      45deg,
+      transparent,
+      rgba(255, 255, 255, 0.1),
+      transparent
+    );
+    transform: rotate(45deg);
+    animation: shine 3s infinite;
+  }
+
+  @keyframes shine {
+    0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+    100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
   }
 }

@@ -29,13 +29,13 @@ export default {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
 				primary: {
-					DEFAULT: '#1C6DD0',  // כחול כהה לסיידבר
-					light: '#2563eb',
-					foreground: '#ffffff'
+					DEFAULT: '#191970',  // dark navy blue
+					light: '#4169E1',
+					foreground: '#FFF8DC'
 				},
 				secondary: {
-					DEFAULT: '#F2F4F7',  // אפור בהיר לרקע תוכן
-					foreground: '#1C6DD0'
+					DEFAULT: '#4682B4',  // steel blue
+					foreground: '#FFF8DC'
 				},
 				destructive: {
 					DEFAULT: 'hsl(var(--destructive))',
@@ -46,23 +46,25 @@ export default {
 					foreground: 'hsl(var(--muted-foreground))'
 				},
 				accent: {
-					DEFAULT: '#FF8D3A',  // כתום לכפתורי פעולה בלבד
-					foreground: '#ffffff'
+					DEFAULT: '#FF8C00',  // bright orange
+					foreground: '#FFF8DC'
 				},
 				popover: {
 					DEFAULT: 'hsl(var(--popover))',
 					foreground: 'hsl(var(--popover-foreground))'
 				},
 				card: {
-					DEFAULT: '#FFFFFF',  // לבן לכרטיסים
-					foreground: '#1C6DD0'
+					DEFAULT: '#1E90FF',  // bright blue cards
+					foreground: '#FFF8DC'
 				},
-				neutral: '#FFFFFF',      // רקע כרטיסים
-				borderGold: '#D4AF37',   // מסגרת זהב דקה
-				contentBG: '#F2F4F7',   // רקע תוכן
-				success: '#4CAF50',      // ✅
-				warning: '#FFC107',      // ⚠️
-				danger: '#F44336',       // ❌
+				// Flyer-inspired colors
+				cream: '#FFF8DC',           // cream text
+				gold: '#FFD700',            // bright gold borders
+				skyBlue: '#87CEEB',         // sky blue background
+				brightBlue: '#1E90FF',      // bright blue
+				navyBlue: '#191970',        // dark navy
+				brightOrange: '#FF8C00',    // bright orange
+				steelBlue: '#4682B4',       // steel blue
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
