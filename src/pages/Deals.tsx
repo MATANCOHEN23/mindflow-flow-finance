@@ -3,8 +3,17 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { MainLayout } from "@/components/Layout/MainLayout";
+import { useState } from "react";
+import { AddDealForm } from "@/components/Forms/AddDealForm";
 
 const Deals = () => {
+  const [isDealFormOpen, setIsDealFormOpen] = useState(false);
+
+  const handleAddDeal = (dealData: any) => {
+    console.log('Adding deal:', dealData);
+    // TODO: Here we'll integrate with Supabase to save the deal
+  };
+
   return (
     <MainLayout>
       <div className="space-y-8">
@@ -14,7 +23,10 @@ const Deals = () => {
               <h1 className="text-4xl font-black gradient-text mb-2">💼 ניהול עסקאות</h1>
               <p className="text-primary/70 text-xl font-semibold">מעקב אחר כל העסקאות והפרויקטים</p>
             </div>
-            <Button className="btn-accent text-lg px-8 py-4">
+            <Button 
+              className="btn-accent text-lg px-8 py-4"
+              onClick={() => setIsDealFormOpen(true)}
+            >
               ➕ הוסף עסקה חדשה
             </Button>
           </div>
@@ -52,7 +64,10 @@ const Deals = () => {
                         <p className="text-xl text-primary/70 font-semibold mb-8">
                           לחץ על "הוסף עסקה חדשה" כדי להתחיל
                         </p>
-                        <Button className="btn-primary text-xl px-12 py-4">
+                        <Button 
+                          className="btn-primary text-xl px-12 py-4"
+                          onClick={() => setIsDealFormOpen(true)}
+                        >
                           ➕ הוסף עסקה ראשונה
                         </Button>
                       </div>
@@ -63,6 +78,12 @@ const Deals = () => {
             </div>
           </CardContent>
         </Card>
+
+        <AddDealForm 
+          isOpen={isDealFormOpen}
+          onClose={() => setIsDealFormOpen(false)}
+          onSubmit={handleAddDeal}
+        />
       </div>
     </MainLayout>
   );

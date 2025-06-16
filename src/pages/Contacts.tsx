@@ -3,8 +3,17 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { MainLayout } from "@/components/Layout/MainLayout";
+import { useState } from "react";
+import { AddClientForm } from "@/components/Forms/AddClientForm";
 
 const Contacts = () => {
+  const [isClientFormOpen, setIsClientFormOpen] = useState(false);
+
+  const handleAddClient = (clientData: any) => {
+    console.log('Adding client:', clientData);
+    // TODO: Here we'll integrate with Supabase to save the client
+  };
+
   return (
     <MainLayout>
       <div className="space-y-6 animate-fade-in">
@@ -14,7 +23,12 @@ const Contacts = () => {
               <h1 className="text-3xl font-black gradient-text mb-2">👥 ניהול לקוחות</h1>
               <p className="text-primary/70 text-lg font-semibold">רשימת כל הלקוחות במערכת</p>
             </div>
-            <Button className="btn-accent text-base px-6 py-3" aria-label="הוסף לקוח חדש" tabIndex={0}>
+            <Button 
+              className="btn-accent text-base px-6 py-3" 
+              aria-label="הוסף לקוח חדש" 
+              tabIndex={0}
+              onClick={() => setIsClientFormOpen(true)}
+            >
               ➕ הוסף לקוח חדש
             </Button>
           </div>
@@ -50,7 +64,12 @@ const Contacts = () => {
                         <p className="text-lg text-primary/70 font-semibold mb-6">
                           לחץ על "הוסף לקוח חדש" כדי להתחיל
                         </p>
-                        <Button className="btn-primary text-lg px-8 py-3" aria-label="הוסף לקוח ראשון" tabIndex={0}>
+                        <Button 
+                          className="btn-primary text-lg px-8 py-3" 
+                          aria-label="הוסף לקוח ראשון" 
+                          tabIndex={0}
+                          onClick={() => setIsClientFormOpen(true)}
+                        >
                           ➕ הוסף לקוח ראשון
                         </Button>
                       </div>
@@ -61,6 +80,12 @@ const Contacts = () => {
             </div>
           </CardContent>
         </Card>
+
+        <AddClientForm 
+          isOpen={isClientFormOpen}
+          onClose={() => setIsClientFormOpen(false)}
+          onSubmit={handleAddClient}
+        />
       </div>
     </MainLayout>
   );
