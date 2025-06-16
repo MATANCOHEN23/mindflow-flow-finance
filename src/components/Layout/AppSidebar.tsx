@@ -11,7 +11,7 @@ import {
   SidebarFooter,
 } from "@/components/ui/sidebar";
 import { useLocation, Link } from "react-router-dom";
-import { UserPlus, BriefcasePlus } from "lucide-react";
+import { UserPlus, Briefcase } from "lucide-react";
 
 const menuItems = [
   {
@@ -92,7 +92,7 @@ export function AppSidebar() {
           tabIndex={0}
           onKeyPress={(e) => e.key === 'Enter' && e.currentTarget.click()}
         >
-          <BriefcasePlus size={16} />
+          <Briefcase size={16} />
           עסקה חדשה
         </button>
       </div>
