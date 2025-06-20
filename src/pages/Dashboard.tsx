@@ -11,11 +11,6 @@ export function Dashboard() {
   const [isClientFormOpen, setIsClientFormOpen] = useState(false);
   const [isDealFormOpen, setIsDealFormOpen] = useState(false);
 
-  const handleAddClient = (clientData: any) => {
-    console.log('Adding client:', clientData);
-    // TODO: Here we'll integrate with Supabase to save the client
-  };
-
   const handleAddDeal = (dealData: any) => {
     console.log('Adding deal:', dealData);
     // TODO: Here we'll integrate with Supabase to save the deal
@@ -104,7 +99,6 @@ export function Dashboard() {
       <AddClientForm 
         isOpen={isClientFormOpen}
         onClose={() => setIsClientFormOpen(false)}
-        onSubmit={handleAddClient}
       />
 
       <AddDealForm 
