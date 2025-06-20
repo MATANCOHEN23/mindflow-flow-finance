@@ -29,13 +29,13 @@ export default {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
 				primary: {
-					DEFAULT: '#191970',  // dark navy blue
-					light: '#4169E1',
-					foreground: '#FFF8DC'
+					DEFAULT: '#1e3a8a',  // Brand dark blue
+					light: '#3b82f6',    // Brand light blue
+					foreground: '#ffffff'
 				},
 				secondary: {
-					DEFAULT: '#4682B4',  // steel blue
-					foreground: '#FFF8DC'
+					DEFAULT: '#3b82f6',  // Brand light blue
+					foreground: '#ffffff'
 				},
 				destructive: {
 					DEFAULT: 'hsl(var(--destructive))',
@@ -46,25 +46,41 @@ export default {
 					foreground: 'hsl(var(--muted-foreground))'
 				},
 				accent: {
-					DEFAULT: '#FF8C00',  // bright orange
-					foreground: '#FFF8DC'
+					DEFAULT: '#f97316',  // Brand orange
+					foreground: '#ffffff'
 				},
 				popover: {
 					DEFAULT: 'hsl(var(--popover))',
 					foreground: 'hsl(var(--popover-foreground))'
 				},
 				card: {
-					DEFAULT: '#1E90FF',  // bright blue cards
-					foreground: '#FFF8DC'
+					DEFAULT: '#ffffff',
+					foreground: '#1e3a8a'
 				},
-				// Flyer-inspired colors
-				cream: '#FFF8DC',           // cream text
-				gold: '#FFD700',            // bright gold borders
-				skyBlue: '#87CEEB',         // sky blue background
-				brightBlue: '#1E90FF',      // bright blue
-				navyBlue: '#191970',        // dark navy
-				brightOrange: '#FF8C00',    // bright orange
-				steelBlue: '#4682B4',       // steel blue
+				// Brand colors
+				orange: {
+					500: '#f97316',
+					600: '#ea580c',
+					700: '#c2410c'
+				},
+				blue: {
+					600: '#1e3a8a',
+					700: '#1e40af',
+					800: '#1e3a8a',
+					900: '#1e293b'
+				},
+				gray: {
+					50: '#f9fafb',
+					100: '#f3f4f6',
+					200: '#e5e7eb',
+					300: '#d1d5db',
+					400: '#9ca3af',
+					500: '#6b7280',
+					600: '#4b5563',
+					700: '#374151',
+					800: '#1f2937',
+					900: '#111827'
+				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',

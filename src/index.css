@@ -3,47 +3,47 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Vibrant Flyer Design - Sky Blue Background with Bright Colors */
+/* MindFlow CRM Brand Design - Clean Professional Layout */
 @layer base {
   :root {
-    --background: 135 206 235;  /* sky blue like flyer */
-    --foreground: 255 248 220;   /* cream text */
+    --background: 255 255 255;      /* Pure white background */
+    --foreground: 30 58 138;        /* Brand dark blue text */
 
-    --card: 30 144 255;        /* bright blue cards */
-    --card-foreground: 255 248 220;
+    --card: 255 255 255;            /* White cards */
+    --card-foreground: 30 58 138;   /* Brand dark blue text */
 
-    --popover: 30 144 255;
-    --popover-foreground: 255 248 220;
+    --popover: 255 255 255;
+    --popover-foreground: 30 58 138;
 
-    --primary: 25 25 112;      /* dark navy blue */
-    --primary-foreground: 255 248 220;
+    --primary: 30 58 138;           /* Brand dark blue */
+    --primary-foreground: 255 255 255;
 
-    --secondary: 70 130 180;   /* steel blue */
-    --secondary-foreground: 255 248 220;
+    --secondary: 59 130 246;        /* Brand light blue */
+    --secondary-foreground: 255 255 255;
 
-    --muted: 100 149 237;
-    --muted-foreground: 255 248 220;
+    --muted: 243 244 246;           /* Light gray */
+    --muted-foreground: 107 114 128;
 
-    --accent: 255 140 0;       /* bright orange */
-    --accent-foreground: 255 248 220;
+    --accent: 249 115 22;           /* Brand orange */
+    --accent-foreground: 255 255 255;
 
-    --destructive: 220 20 60;   
-    --destructive-foreground: 255 248 220;
+    --destructive: 239 68 68;       /* Red for errors */
+    --destructive-foreground: 255 255 255;
 
-    --border: 255 215 0;       /* bright gold borders */
-    --input: 70 130 180;
-    --ring: 255 215 0;
+    --border: 229 231 235;          /* Light gray borders */
+    --input: 243 244 246;
+    --ring: 249 115 22;             /* Orange focus ring */
 
-    --radius: 16px;
+    --radius: 8px;
 
-    --sidebar-background: 25 25 112;      /* dark navy */
-    --sidebar-foreground: 255 248 220;
-    --sidebar-primary: 255 140 0;         /* orange accent */
-    --sidebar-primary-foreground: 255 248 220;
-    --sidebar-accent: 255 215 0;          /* gold accent */
-    --sidebar-accent-foreground: 25 25 112;
-    --sidebar-border: 255 215 0;
-    --sidebar-ring: 255 215 0;
+    --sidebar-background: 31 41 55;        /* Dark gray sidebar */
+    --sidebar-foreground: 255 255 255;
+    --sidebar-primary: 249 115 22;         /* Orange accent */
+    --sidebar-primary-foreground: 255 255 255;
+    --sidebar-accent: 59 130 246;          /* Blue accent */
+    --sidebar-accent-foreground: 255 255 255;
+    --sidebar-border: 75 85 99;
+    --sidebar-ring: 249 115 22;
   }
 }
 
@@ -57,229 +57,154 @@
   }
 
   body {
-    background: linear-gradient(135deg, #87CEEB 0%, #4682B4 50%, #1E90FF 100%);
-    @apply text-foreground font-assistant;
+    @apply bg-white text-foreground font-assistant;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     min-height: 100vh;
-    font-weight: 600;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+    font-weight: 400;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-weight: 800;
-    color: #FFF8DC;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
-    text-stroke: 1px #000;
-    -webkit-text-stroke: 1px rgba(0, 0, 0, 0.5);
+    font-weight: 700;
+    color: rgb(30 58 138);
   }
 
-  /* Custom scrollbar */
+  /* Custom scrollbar with brand colors */
   ::-webkit-scrollbar {
-    width: 12px;
-    height: 12px;
+    width: 8px;
+    height: 8px;
   }
 
   ::-webkit-scrollbar-track {
-    background: rgba(30, 144, 255, 0.3);
-    border-radius: 8px;
+    background: rgb(243 244 246);
+    border-radius: 4px;
   }
 
   ::-webkit-scrollbar-thumb {
-    background: linear-gradient(45deg, #FF8C00, #FFD700);
-    border-radius: 8px;
-    border: 2px solid rgba(25, 25, 112, 0.3);
+    background: rgb(249 115 22);
+    border-radius: 4px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(45deg, #FF6347, #FFA500);
+    background: rgb(234 88 12);
   }
 }
 
 @layer components {
-  .flyer-card {
-    background: linear-gradient(135deg, #1E90FF 0%, #4169E1 50%, #0000CD 100%);
-    border: 3px solid #FFD700;
-    border-radius: 20px;
-    box-shadow: 
-      0 8px 24px rgba(255, 140, 0, 0.4),
-      0 0 0 2px rgba(255, 215, 0, 0.6),
-      inset 0 2px 4px rgba(255, 255, 255, 0.2);
-    padding: 24px;
-    position: relative;
-    overflow: hidden;
+  /* Brand-consistent cards */
+  .brand-card {
+    @apply bg-white border border-gray-200 rounded-lg shadow-sm p-6;
   }
 
-  .flyer-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
-    pointer-events: none;
+  .brand-card-header {
+    @apply bg-gray-50 rounded-t-lg border-b border-gray-200 p-4;
   }
 
-  .orange-box {
-    background: linear-gradient(135deg, #FF8C00 0%, #FF6347 100%);
-    border: 2px solid #FFD700;
-    border-radius: 16px;
-    padding: 16px;
-    box-shadow: 
-      0 6px 20px rgba(255, 140, 0, 0.5),
-      inset 0 2px 4px rgba(255, 255, 255, 0.3);
-    color: #FFF8DC;
-    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
-    font-weight: 700;
+  /* Primary buttons - Brand orange */
+  .btn-primary {
+    @apply bg-orange-500 hover:bg-orange-600 text-white font-semibold px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2;
   }
 
-  .stats-icon {
-    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-    border: 3px solid #FF8C00;
-    border-radius: 50%;
-    width: 64px;
-    height: 64px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    box-shadow: 
-      0 4px 16px rgba(255, 215, 0, 0.6),
-      inset 0 2px 4px rgba(255, 255, 255, 0.4);
-    animation: pulse-glow 2s infinite;
+  /* Secondary buttons - Brand blue */
+  .btn-secondary {
+    @apply bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2;
   }
 
-  @keyframes pulse-glow {
-    0%, 100% { 
-      box-shadow: 
-        0 4px 16px rgba(255, 215, 0, 0.6),
-        inset 0 2px 4px rgba(255, 255, 255, 0.4);
-    }
-    50% { 
-      box-shadow: 
-        0 6px 24px rgba(255, 215, 0, 0.9),
-        inset 0 2px 4px rgba(255, 255, 255, 0.6);
-    }
+  /* Outline buttons */
+  .btn-outline {
+    @apply border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 font-semibold px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2;
   }
 
-  .btn-flyer {
-    background: linear-gradient(135deg, #FF8C00 0%, #FF4500 100%);
-    border: 2px solid #FFD700;
-    color: #FFF8DC;
-    font-weight: 800;
-    padding: 12px 24px;
-    border-radius: 16px;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
-    box-shadow: 
-      0 4px 12px rgba(255, 140, 0, 0.5),
-      inset 0 2px 4px rgba(255, 255, 255, 0.3);
-    transition: all 0.3s ease;
-    cursor: pointer;
+  /* Sidebar styling */
+  .sidebar-item {
+    @apply flex items-center gap-3 px-4 py-3 rounded-lg text-white hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500;
   }
 
-  .btn-flyer:hover {
-    transform: translateY(-2px) scale(1.05);
-    box-shadow: 
-      0 8px 20px rgba(255, 140, 0, 0.7),
-      inset 0 2px 4px rgba(255, 255, 255, 0.4);
+  .sidebar-item.active {
+    @apply bg-orange-500 hover:bg-orange-600;
   }
 
-  .page-header-flyer {
-    background: linear-gradient(135deg, #191970 0%, #000080 50%, #4169E1 100%);
-    border-bottom: 4px solid #FFD700;
-    box-shadow: 0 4px 16px rgba(255, 215, 0, 0.4);
+  /* Form inputs */
+  .form-input {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-right;
   }
 
-  .sidebar-flyer {
-    background: linear-gradient(180deg, #191970 0%, #000080 100%);
-    border-left: 3px solid #FFD700;
-    box-shadow: 4px 0 16px rgba(255, 215, 0, 0.3);
+  /* Table styling */
+  .table-header {
+    @apply bg-gray-50 text-gray-900 font-semibold;
   }
 
-  .trend-positive {
-    background: linear-gradient(135deg, #32CD32 0%, #228B22 100%);
-    color: #FFF8DC;
-    border: 2px solid #FFD700;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  .table-row {
+    @apply border-b border-gray-200 hover:bg-gray-50 transition-colors;
   }
 
-  .trend-negative {
-    background: linear-gradient(135deg, #DC143C 0%, #B22222 100%);
-    color: #FFF8DC;
-    border: 2px solid #FFD700;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  /* Status badges */
+  .status-badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
   }
 
-  .chart-container {
-    background: linear-gradient(135deg, #4169E1 0%, #1E90FF 100%);
-    border: 3px solid #FFD700;
-    border-radius: 20px;
-    padding: 20px;
-    box-shadow: 
-      0 8px 24px rgba(255, 215, 0, 0.4),
-      inset 0 2px 4px rgba(255, 255, 255, 0.2);
+  .status-paid {
+    @apply bg-green-100 text-green-800;
   }
 
-  .logo-container {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+  .status-pending {
+    @apply bg-orange-100 text-orange-800;
   }
 
-  .logo-brain {
-    width: 48px;
-    height: 48px;
-    background: linear-gradient(135deg, #87CEEB 0%, #1E90FF 100%);
-    border: 2px solid #FFD700;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.5);
+  .status-partial {
+    @apply bg-blue-100 text-blue-800;
   }
 
-  .empty-state-flyer {
-    @apply flyer-card text-center p-16 my-8;
-    background: linear-gradient(135deg, rgba(30, 144, 255, 0.8) 0%, rgba(65, 105, 225, 0.8) 100%);
+  /* Loading states */
+  .loading-overlay {
+    @apply absolute inset-0 bg-white/80 flex items-center justify-center z-10;
+  }
+
+  /* Empty states */
+  .empty-state {
+    @apply text-center py-12 px-4;
+  }
+
+  /* Focus indicators - Brand orange */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2;
+  }
+
+  /* Logo placeholder */
+  .logo-placeholder {
+    @apply w-32 h-32 bg-gradient-to-br from-orange-400 to-orange-600 rounded-lg flex items-center justify-center text-white font-black text-2xl shadow-lg;
   }
 }
 
 /* Animation utilities */
 @layer utilities {
   .hover-scale:hover {
-    transform: scale(1.05);
+    transform: scale(1.02);
   }
   
-  .focus-visible\:outline-gold:focus-visible {
-    outline: 3px solid #FFD700;
-    outline-offset: 2px;
+  .transition-smooth {
+    transition: all 0.2s ease-in-out;
   }
 
-  .shine-effect {
-    position: relative;
-    overflow: hidden;
-  }
-
-  .shine-effect::after {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(
-      45deg,
-      transparent,
-      rgba(255, 255, 255, 0.1),
-      transparent
-    );
-    transform: rotate(45deg);
-    animation: shine 3s infinite;
-  }
-
-  @keyframes shine {
-    0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-    100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+  /* Text shadows for better readability */
+  .text-shadow-sm {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   }
 }
+
+/* TESTING CHECKLIST:
+   [ ] All hover states use brand orange (#f97316)
+   [ ] No pink/purple colors remain  
+   [ ] Text readable on all backgrounds
+   [ ] Forms validate properly
+   [ ] Delete confirmation works
+   [ ] Notifications appear/dismiss
+   [ ] Loading states show correctly
+   [ ] Hebrew text properly aligned
+   [ ] Mobile responsive
+   [ ] Keyboard navigation works
+   [ ] Focus indicators visible (orange)
+   [ ] Logo placeholder ready
+   [ ] Error boundaries functional
+   [ ] Performance optimized
+   [ ] Accessibility compliant
+*/

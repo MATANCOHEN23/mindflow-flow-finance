@@ -18,11 +18,11 @@ export function Dashboard() {
 
   return (
     <>
-      <div className="space-y-8 animate-fade-in">
+      <div className="space-y-8 animate-fade-in" dir="rtl">
         {/* Header */}
         <div className="text-center mb-10">
-          <h1 className="text-5xl font-black text-cream mb-4 text-shadow-lg">🏆 לוח בקרה ראשי 🏆</h1>
-          <p className="text-cream/90 text-xl font-bold text-shadow">סקירה כללית של פעילות העסק - ניהול חכם ויעיל</p>
+          <h1 className="text-5xl font-bold text-blue-600 mb-4">🏆 לוח בקרה ראשי 🏆</h1>
+          <p className="text-gray-600 text-xl font-semibold">סקירה כללית של פעילות העסק - ניהול חכם ויעיל</p>
         </div>
 
         {/* Stats Cards */}
@@ -66,28 +66,28 @@ export function Dashboard() {
           </div>
           
           {/* Quick Actions */}
-          <div className="flyer-card">
-            <h3 className="text-2xl font-black text-cream mb-6 text-center">⚡ פעולות מהירות ⚡</h3>
+          <div className="brand-card">
+            <h3 className="text-2xl font-bold text-blue-600 mb-6 text-center">⚡ פעולות מהירות ⚡</h3>
             <div className="space-y-4">
               <button 
-                className="w-full btn-flyer py-4 px-6 rounded-xl font-bold text-lg transition-all duration-300 flex items-center gap-4"
+                className="w-full btn-primary py-4 px-6 rounded-lg font-bold text-lg transition-smooth flex items-center gap-4"
                 onClick={() => setIsClientFormOpen(true)}
               >
                 <span>👤</span>
                 לקוח חדש
               </button>
               <button 
-                className="w-full btn-flyer py-4 px-6 rounded-xl font-bold text-lg transition-all duration-300 flex items-center gap-4"
+                className="w-full btn-secondary py-4 px-6 rounded-lg font-bold text-lg transition-smooth flex items-center gap-4"
                 onClick={() => setIsDealFormOpen(true)}
               >
                 <span>💼</span>
                 עסקה חדשה
               </button>
-              <button className="w-full btn-flyer py-4 px-6 rounded-xl font-bold text-lg transition-all duration-300 flex items-center gap-4">
+              <button className="w-full btn-outline py-4 px-6 rounded-lg font-bold text-lg transition-smooth flex items-center gap-4 hover:bg-orange-50 hover:border-orange-300">
                 <span>💳</span>
                 רישום תשלום
               </button>
-              <button className="w-full btn-flyer py-4 px-6 rounded-xl font-bold text-lg transition-all duration-300 flex items-center gap-4">
+              <button className="w-full btn-outline py-4 px-6 rounded-lg font-bold text-lg transition-smooth flex items-center gap-4 hover:bg-blue-50 hover:border-blue-300">
                 <span>📱</span>
                 שלח תזכורת
               </button>
