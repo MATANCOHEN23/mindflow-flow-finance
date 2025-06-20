@@ -16,7 +16,12 @@ export const dealsApi = {
     
     return (data || []).map(deal => ({
       ...deal,
-      payment_status: (deal.payment_status as 'pending' | 'partial' | 'paid') || 'pending'
+      payment_status: (deal.payment_status as 'pending' | 'partial' | 'paid') || 'pending',
+      custom_fields: (deal.custom_fields as Record<string, any>) || {},
+      amount_total: deal.amount_total || 0,
+      amount_paid: deal.amount_paid || 0,
+      created_at: deal.created_at || new Date().toISOString(),
+      updated_at: deal.updated_at || new Date().toISOString()
     }));
   },
 
@@ -34,7 +39,12 @@ export const dealsApi = {
     
     return data ? {
       ...data,
-      payment_status: (data.payment_status as 'pending' | 'partial' | 'paid') || 'pending'
+      payment_status: (data.payment_status as 'pending' | 'partial' | 'paid') || 'pending',
+      custom_fields: (data.custom_fields as Record<string, any>) || {},
+      amount_total: data.amount_total || 0,
+      amount_paid: data.amount_paid || 0,
+      created_at: data.created_at || new Date().toISOString(),
+      updated_at: data.updated_at || new Date().toISOString()
     } : null;
   },
 
@@ -52,7 +62,12 @@ export const dealsApi = {
     
     return {
       ...data,
-      payment_status: (data.payment_status as 'pending' | 'partial' | 'paid') || 'pending'
+      payment_status: (data.payment_status as 'pending' | 'partial' | 'paid') || 'pending',
+      custom_fields: (data.custom_fields as Record<string, any>) || {},
+      amount_total: data.amount_total || 0,
+      amount_paid: data.amount_paid || 0,
+      created_at: data.created_at || new Date().toISOString(),
+      updated_at: data.updated_at || new Date().toISOString()
     };
   },
 
@@ -71,7 +86,12 @@ export const dealsApi = {
     
     return {
       ...data,
-      payment_status: (data.payment_status as 'pending' | 'partial' | 'paid') || 'pending'
+      payment_status: (data.payment_status as 'pending' | 'partial' | 'paid') || 'pending',
+      custom_fields: (data.custom_fields as Record<string, any>) || {},
+      amount_total: data.amount_total || 0,
+      amount_paid: data.amount_paid || 0,
+      created_at: data.created_at || new Date().toISOString(),
+      updated_at: data.updated_at || new Date().toISOString()
     };
   },
 
