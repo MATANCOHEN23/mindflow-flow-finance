@@ -15,11 +15,18 @@ export const dealsApi = {
     }
     
     return (data || []).map(deal => ({
-      ...deal,
-      payment_status: (deal.payment_status as 'pending' | 'partial' | 'paid') || 'pending',
-      custom_fields: (deal.custom_fields as Record<string, any>) || {},
+      id: deal.id,
+      contact_id: deal.contact_id || undefined,
+      title: deal.title,
+      category: deal.category || undefined,
+      package_type: deal.package_type || undefined,
       amount_total: deal.amount_total || 0,
       amount_paid: deal.amount_paid || 0,
+      payment_status: (deal.payment_status as 'pending' | 'partial' | 'paid') || 'pending',
+      workflow_stage: deal.workflow_stage || undefined,
+      next_action_date: deal.next_action_date || undefined,
+      notes: deal.notes || undefined,
+      custom_fields: (deal.custom_fields as Record<string, any>) || {},
       created_at: deal.created_at || new Date().toISOString(),
       updated_at: deal.updated_at || new Date().toISOString()
     }));
@@ -38,11 +45,18 @@ export const dealsApi = {
     }
     
     return data ? {
-      ...data,
-      payment_status: (data.payment_status as 'pending' | 'partial' | 'paid') || 'pending',
-      custom_fields: (data.custom_fields as Record<string, any>) || {},
+      id: data.id,
+      contact_id: data.contact_id || undefined,
+      title: data.title,
+      category: data.category || undefined,
+      package_type: data.package_type || undefined,
       amount_total: data.amount_total || 0,
       amount_paid: data.amount_paid || 0,
+      payment_status: (data.payment_status as 'pending' | 'partial' | 'paid') || 'pending',
+      workflow_stage: data.workflow_stage || undefined,
+      next_action_date: data.next_action_date || undefined,
+      notes: data.notes || undefined,
+      custom_fields: (data.custom_fields as Record<string, any>) || {},
       created_at: data.created_at || new Date().toISOString(),
       updated_at: data.updated_at || new Date().toISOString()
     } : null;
@@ -61,11 +75,18 @@ export const dealsApi = {
     }
     
     return {
-      ...data,
-      payment_status: (data.payment_status as 'pending' | 'partial' | 'paid') || 'pending',
-      custom_fields: (data.custom_fields as Record<string, any>) || {},
+      id: data.id,
+      contact_id: data.contact_id || undefined,
+      title: data.title,
+      category: data.category || undefined,
+      package_type: data.package_type || undefined,
       amount_total: data.amount_total || 0,
       amount_paid: data.amount_paid || 0,
+      payment_status: (data.payment_status as 'pending' | 'partial' | 'paid') || 'pending',
+      workflow_stage: data.workflow_stage || undefined,
+      next_action_date: data.next_action_date || undefined,
+      notes: data.notes || undefined,
+      custom_fields: (data.custom_fields as Record<string, any>) || {},
       created_at: data.created_at || new Date().toISOString(),
       updated_at: data.updated_at || new Date().toISOString()
     };
@@ -85,11 +106,18 @@ export const dealsApi = {
     }
     
     return {
-      ...data,
-      payment_status: (data.payment_status as 'pending' | 'partial' | 'paid') || 'pending',
-      custom_fields: (data.custom_fields as Record<string, any>) || {},
+      id: data.id,
+      contact_id: data.contact_id || undefined,
+      title: data.title,
+      category: data.category || undefined,
+      package_type: data.package_type || undefined,
       amount_total: data.amount_total || 0,
       amount_paid: data.amount_paid || 0,
+      payment_status: (data.payment_status as 'pending' | 'partial' | 'paid') || 'pending',
+      workflow_stage: data.workflow_stage || undefined,
+      next_action_date: data.next_action_date || undefined,
+      notes: data.notes || undefined,
+      custom_fields: (data.custom_fields as Record<string, any>) || {},
       created_at: data.created_at || new Date().toISOString(),
       updated_at: data.updated_at || new Date().toISOString()
     };
