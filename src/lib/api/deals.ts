@@ -14,7 +14,10 @@ export const dealsApi = {
       throw new Error(`שגיאה בטעינת העסקאות: ${error.message}`);
     }
     
-    return data || [];
+    return (data || []).map(deal => ({
+      ...deal,
+      payment_status: (deal.payment_status as 'pending' | 'partial' | 'paid') || 'pending'
+    }));
   },
 
   async getById(id: string): Promise<Deal | null> {
@@ -29,7 +32,10 @@ export const dealsApi = {
       throw new Error(`שגיאה בטעינת העסקה: ${error.message}`);
     }
     
-    return data;
+    return data ? {
+      ...data,
+      payment_status: (data.payment_status as 'pending' | 'partial' | 'paid') || 'pending'
+    } : null;
   },
 
   async create(dealData: Omit<Deal, 'id' | 'created_at' | 'updated_at'>): Promise<Deal> {
@@ -44,7 +50,10 @@ export const dealsApi = {
       throw new Error(`שגיאה ביצירת העסקה: ${error.message}`);
     }
     
-    return data;
+    return {
+      ...data,
+      payment_status: (data.payment_status as 'pending' | 'partial' | 'paid') || 'pending'
+    };
   },
 
   async update(id: string, dealData: Partial<Deal>): Promise<Deal> {
@@ -60,7 +69,10 @@ export const dealsApi = {
       throw new Error(`שגיאה בעדכון העסקה: ${error.message}`);
     }
     
-    return data;
+    return {
+      ...data,
+      payment_status: (data.payment_status as 'pending' | 'partial' | 'paid') || 'pending'
+    };
   },
 
   async delete(id: string): Promise<void> {
