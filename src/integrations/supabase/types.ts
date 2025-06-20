@@ -9,7 +9,228 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      contacts: {
+        Row: {
+          child_name: string | null
+          created_at: string | null
+          email: string | null
+          first_name: string
+          id: string
+          last_name: string | null
+          notes: string | null
+          phone: string | null
+          phone_parent: string | null
+          role_tags: string[] | null
+          updated_at: string | null
+        }
+        Insert: {
+          child_name?: string | null
+          created_at?: string | null
+          email?: string | null
+          first_name: string
+          id?: string
+          last_name?: string | null
+          notes?: string | null
+          phone?: string | null
+          phone_parent?: string | null
+          role_tags?: string[] | null
+          updated_at?: string | null
+        }
+        Update: {
+          child_name?: string | null
+          created_at?: string | null
+          email?: string | null
+          first_name?: string
+          id?: string
+          last_name?: string | null
+          notes?: string | null
+          phone?: string | null
+          phone_parent?: string | null
+          role_tags?: string[] | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      deals: {
+        Row: {
+          amount_paid: number | null
+          amount_total: number | null
+          category: string | null
+          contact_id: string | null
+          created_at: string | null
+          custom_fields: Json | null
+          id: string
+          next_action_date: string | null
+          notes: string | null
+          package_type: string | null
+          payment_status: string | null
+          title: string
+          updated_at: string | null
+          workflow_stage: string | null
+        }
+        Insert: {
+          amount_paid?: number | null
+          amount_total?: number | null
+          category?: string | null
+          contact_id?: string | null
+          created_at?: string | null
+          custom_fields?: Json | null
+          id?: string
+          next_action_date?: string | null
+          notes?: string | null
+          package_type?: string | null
+          payment_status?: string | null
+          title: string
+          updated_at?: string | null
+          workflow_stage?: string | null
+        }
+        Update: {
+          amount_paid?: number | null
+          amount_total?: number | null
+          category?: string | null
+          contact_id?: string | null
+          created_at?: string | null
+          custom_fields?: Json | null
+          id?: string
+          next_action_date?: string | null
+          notes?: string | null
+          package_type?: string | null
+          payment_status?: string | null
+          title?: string
+          updated_at?: string | null
+          workflow_stage?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deals_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events: {
+        Row: {
+          created_at: string | null
+          deal_id: string | null
+          event_date: string | null
+          extras: Json | null
+          id: string
+          location: string | null
+          participants_count: number | null
+          staff_assigned: string[] | null
+          status: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          deal_id?: string | null
+          event_date?: string | null
+          extras?: Json | null
+          id?: string
+          location?: string | null
+          participants_count?: number | null
+          staff_assigned?: string[] | null
+          status?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          deal_id?: string | null
+          event_date?: string | null
+          extras?: Json | null
+          id?: string
+          location?: string | null
+          participants_count?: number | null
+          staff_assigned?: string[] | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payments: {
+        Row: {
+          amount: number
+          created_at: string | null
+          deal_id: string | null
+          id: string
+          is_deposit: boolean | null
+          notes: string | null
+          payment_date: string | null
+          payment_method: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          deal_id?: string | null
+          id?: string
+          is_deposit?: boolean | null
+          notes?: string | null
+          payment_date?: string | null
+          payment_method?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          deal_id?: string | null
+          id?: string
+          is_deposit?: boolean | null
+          notes?: string | null
+          payment_date?: string | null
+          payment_method?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tasks: {
+        Row: {
+          assigned_to: string | null
+          auto_generated: boolean | null
+          created_at: string | null
+          due_date: string | null
+          id: string
+          related_id: string | null
+          related_type: string | null
+          status: string | null
+          task_type: string | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          auto_generated?: boolean | null
+          created_at?: string | null
+          due_date?: string | null
+          id?: string
+          related_id?: string | null
+          related_type?: string | null
+          status?: string | null
+          task_type?: string | null
+        }
+        Update: {
+          assigned_to?: string | null
+          auto_generated?: boolean | null
+          created_at?: string | null
+          due_date?: string | null
+          id?: string
+          related_id?: string | null
+          related_type?: string | null
+          status?: string | null
+          task_type?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
