@@ -17,7 +17,6 @@ import { useState } from "react";
 import { AddClientForm } from "@/components/Forms/AddClientForm";
 import { AddDealForm } from "@/components/Forms/AddDealForm";
 
-// TODO: Replace with actual logo image
 const logoUrl = "/placeholder-logo.png";
 
 const menuItems = [
@@ -75,16 +74,15 @@ export function AppSidebar() {
 
   return (
     <>
-      <Sidebar className="bg-gray-800 border-r border-gray-700">
+      <Sidebar className="border-r border-gray-700" style={{ background: 'var(--sidebar-bg)' }}>
         <SidebarHeader className="p-6 border-b border-gray-700">
           <div className="flex items-center gap-4">
-            {/* TODO: Replace with actual logo image */}
             <div className="logo-placeholder">
               <span className="text-2xl">🧠</span>
             </div>
             <div>
-              <h2 className="text-xl font-bold text-white">MindFlow</h2>
-              <p className="text-gray-300 text-sm font-medium">CRM System</p>
+              <h2 className="text-xl font-bold text-white glow-text">MindFlow</h2>
+              <p className="text-white/80 text-sm font-medium">CRM System</p>
             </div>
           </div>
         </SidebarHeader>
@@ -92,7 +90,7 @@ export function AppSidebar() {
         {/* Quick Action Buttons */}
         <div className="p-4 space-y-3 border-b border-gray-700">
           <button 
-            className="w-full btn-primary text-sm py-3 px-4 flex items-center gap-3 justify-center"
+            className="w-full sidebar-btn text-sm py-3 px-4 flex items-center gap-3 justify-center rounded-lg font-semibold"
             aria-label="הוסף לקוח חדש"
             tabIndex={0}
             onClick={() => setIsClientFormOpen(true)}
@@ -102,11 +100,24 @@ export function AppSidebar() {
             לקוח חדש
           </button>
           <button 
-            className="w-full btn-secondary text-sm py-3 px-4 flex items-center gap-3 justify-center"
+            className="w-full text-sm py-3 px-4 flex items-center gap-3 justify-center rounded-lg font-semibold transition-all duration-300"
+            style={{ 
+              background: 'var(--cta)',
+              color: 'white',
+              boxShadow: '0 0 6px rgba(255, 141, 58, 0.6)'
+            }}
             aria-label="הוסף עסקה חדשה"
             tabIndex={0}
             onClick={() => setIsDealFormOpen(true)}
             onKeyPress={(e) => e.key === 'Enter' && setIsDealFormOpen(true)}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.boxShadow = '0 0 12px rgba(255, 141, 58, 0.8)';
+              e.currentTarget.style.transform = 'translateY(-1px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = '0 0 6px rgba(255, 141, 58, 0.6)';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
           >
             <Briefcase size={18} />
             עסקה חדשה
@@ -115,7 +126,7 @@ export function AppSidebar() {
         
         <SidebarContent className="px-4">
           <SidebarGroup>
-            <SidebarGroupLabel className="text-lg font-bold text-gray-300 mb-4 text-center">
+            <SidebarGroupLabel className="text-lg font-bold text-white/90 mb-4 text-center glow-text">
               ניהול העסק
             </SidebarGroupLabel>
             <SidebarGroupContent>
@@ -125,15 +136,17 @@ export function AppSidebar() {
                     <SidebarMenuButton 
                       asChild 
                       isActive={location.pathname === item.url}
-                      className={`text-base py-3 px-4 rounded-lg font-medium transition-colors hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-orange-500 ${
-                        location.pathname === item.url 
-                          ? 'bg-orange-500 text-white hover:bg-orange-600' 
-                          : 'text-gray-300 hover:text-white'
-                      }`}
+                      className="p-0"
                     >
-                      <Link to={item.url} className="flex items-center gap-3" tabIndex={0}>
+                      <Link 
+                        to={item.url} 
+                        className={`sidebar-item ${
+                          location.pathname === item.url ? 'active' : ''
+                        }`}
+                        tabIndex={0}
+                      >
                         <span className="text-xl" aria-hidden="true">{item.icon}</span>
-                        <span>{item.title}</span>
+                        <span className="font-medium">{item.title}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -144,13 +157,20 @@ export function AppSidebar() {
         </SidebarContent>
         
         <SidebarFooter className="p-4 border-t border-gray-700">
-          <div className="flex items-center gap-3 p-3 bg-gray-700 rounded-lg">
-            <div className="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center text-white text-sm font-bold">
+          <div className="flex items-center gap-3 p-3 rounded-lg" style={{ 
+            background: 'rgba(255, 255, 255, 0.1)',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(212, 175, 55, 0.3)'
+          }}>
+            <div 
+              className="w-10 h-10 rounded-lg flex items-center justify-center text-white text-sm font-bold"
+              style={{ background: 'var(--cta)' }}
+            >
               A
             </div>
             <div>
               <p className="font-semibold text-white text-sm">מנהל המערכת</p>
-              <p className="text-gray-300 text-xs">admin@mindflow.co.il</p>
+              <p className="text-white/70 text-xs">admin@mindflow.co.il</p>
             </div>
           </div>
         </SidebarFooter>

@@ -65,16 +65,16 @@ const Contacts = () => {
   return (
     <MainLayout>
       <div className="space-y-6 animate-fade-in" dir="rtl">
-        <div className="brand-card">
-          <div className="flex justify-between items-center mb-6">
+        <div className="brand-card header-gradient text-white">
+          <div className="flex justify-between items-center mb-6 p-6">
             <div>
-              <h1 className="text-3xl font-bold text-blue-600 mb-2">👥 ניהול לקוחות</h1>
-              <p className="text-gray-600 text-lg">
+              <h1 className="text-3xl font-bold text-white mb-2 glow-text">👥 ניהול לקוחות</h1>
+              <p className="text-white/90 text-lg">
                 {contacts ? `${contacts.length} לקוחות במערכת` : 'טוען נתונים...'}
               </p>
             </div>
             <Button 
-              className="btn-primary text-base px-6 py-3" 
+              className="bg-white text-blue-600 hover:bg-gray-100 font-semibold px-6 py-3" 
               onClick={handleAddClient}
               disabled={isLoading}
             >
@@ -209,6 +209,15 @@ const Contacts = () => {
           itemName={deleteContact ? `${deleteContact.first_name} ${deleteContact.last_name || ''}`.trim() : ''}
           isLoading={deleteContactMutation.isPending}
         />
+
+        {/* Floating Action Button */}
+        <button
+          onClick={handleAddClient}
+          className="floating-add-btn"
+          aria-label="הוסף לקוח חדש"
+        >
+          ➕
+        </button>
       </div>
     </MainLayout>
   );

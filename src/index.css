@@ -3,7 +3,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* MindFlow CRM Brand Design - Clean Professional Layout */
+/* MindFlow CRM Brand Design - Glow UI with Blue Gradient + Gold Frame */
 @layer base {
   :root {
     --background: 255 255 255;      /* Pure white background */
@@ -36,11 +36,18 @@
 
     --radius: 8px;
 
-    --sidebar-background: 31 41 55;        /* Dark gray sidebar */
+    /* Glow UI Variables */
+    --sidebar-bg: #38AEEB;
+    --sidebar-hover: #1C6DD0;
+    --sidebar-text: #FFFFFF;
+    --gold-border: #D4AF37;
+    --cta: #FF8D3A;
+    
+    --sidebar-background: 31 41 55;
     --sidebar-foreground: 255 255 255;
-    --sidebar-primary: 249 115 22;         /* Orange accent */
+    --sidebar-primary: 249 115 22;
     --sidebar-primary-foreground: 255 255 255;
-    --sidebar-accent: 59 130 246;          /* Blue accent */
+    --sidebar-accent: 59 130 246;
     --sidebar-accent-foreground: 255 255 255;
     --sidebar-border: 75 85 99;
     --sidebar-ring: 249 115 22;
@@ -61,11 +68,13 @@
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     min-height: 100vh;
     font-weight: 400;
+    background: linear-gradient(135deg, rgba(28, 109, 208, 0.05) 0%, rgba(56, 174, 235, 0.05) 100%);
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-weight: 700;
     color: rgb(30 58 138);
+    text-shadow: 0 0 10px rgba(56, 174, 235, 0.3);
   }
 
   /* Custom scrollbar with brand colors */
@@ -80,83 +89,179 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: rgb(249 115 22);
+    background: var(--gold-border);
     border-radius: 4px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: rgb(234 88 12);
+    background: #B8941F;
   }
 }
 
 @layer components {
-  /* Brand-consistent cards */
-  .brand-card {
-    @apply bg-white border border-gray-200 rounded-lg shadow-sm p-6;
+  /* Glow UI Cards with Gold Border */
+  .card, .chart, .table, .brand-card {
+    border: 1px solid var(--gold-border);
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.6), 0 0 20px rgba(212, 175, 55, 0.2);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
   }
 
   .brand-card-header {
-    @apply bg-gray-50 rounded-t-lg border-b border-gray-200 p-4;
+    background: linear-gradient(90deg, rgba(28, 109, 208, 0.1) 0%, rgba(56, 174, 235, 0.1) 100%);
+    border-radius: 12px 12px 0 0;
+    border-bottom: 1px solid var(--gold-border);
+    padding: 1rem;
   }
 
-  /* Primary buttons - Brand orange */
-  .btn-primary {
-    @apply bg-orange-500 hover:bg-orange-600 text-white font-semibold px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2;
+  /* Header and Footer Gradients */
+  header, footer, .header-gradient {
+    background: linear-gradient(90deg, #1C6DD0 0%, #38AEEB 100%);
+    box-shadow: 0 4px 20px rgba(28, 109, 208, 0.3);
+  }
+
+  /* CTA Buttons with Glow */
+  .btn-primary, button.cta {
+    background: var(--cta);
+    box-shadow: 0 0 6px rgba(255, 141, 58, 0.6), 0 4px 15px rgba(255, 141, 58, 0.3);
+    color: white;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    border: none;
+  }
+
+  .btn-primary:hover, button.cta:hover {
+    box-shadow: 0 0 12px rgba(255, 141, 58, 0.8), 0 6px 20px rgba(255, 141, 58, 0.4);
+    transform: translateY(-2px);
   }
 
   /* Secondary buttons - Brand blue */
   .btn-secondary {
-    @apply bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2;
+    background: linear-gradient(135deg, #1C6DD0 0%, #38AEEB 100%);
+    color: white;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(28, 109, 208, 0.3);
   }
 
-  /* Outline buttons */
+  .btn-secondary:hover {
+    box-shadow: 0 6px 20px rgba(28, 109, 208, 0.4);
+    transform: translateY(-2px);
+  }
+
+  /* Outline buttons with glow border */
   .btn-outline {
-    @apply border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 font-semibold px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2;
+    border: 2px solid var(--gold-border);
+    background: rgba(255, 255, 255, 0.9);
+    color: rgb(30 58 138);
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
   }
 
-  /* Sidebar styling */
+  .btn-outline:hover {
+    background: rgba(212, 175, 55, 0.1);
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+    transform: translateY(-1px);
+  }
+
+  /* Sidebar styling with glow */
+  .sidebar-btn {
+    background: var(--sidebar-bg);
+    color: var(--sidebar-text);
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(56, 174, 235, 0.2);
+  }
+
+  .sidebar-btn:hover {
+    background: var(--sidebar-hover);
+    box-shadow: 0 4px 15px rgba(28, 109, 208, 0.3);
+    transform: translateY(-1px);
+  }
+
   .sidebar-item {
-    @apply flex items-center gap-3 px-4 py-3 rounded-lg text-white hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500;
+    @apply flex items-center gap-3 px-4 py-3 rounded-lg text-white transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-orange-500;
+    background: var(--sidebar-bg);
+    box-shadow: 0 2px 8px rgba(56, 174, 235, 0.2);
+    margin-bottom: 0.5rem;
+  }
+
+  .sidebar-item:hover {
+    background: var(--sidebar-hover);
+    box-shadow: 0 4px 12px rgba(28, 109, 208, 0.3);
+    transform: translateX(2px);
   }
 
   .sidebar-item.active {
-    @apply bg-orange-500 hover:bg-orange-600;
+    background: var(--cta);
+    box-shadow: 0 0 15px rgba(255, 141, 58, 0.5);
   }
 
-  /* Form inputs */
+  /* Form inputs with glow focus */
   .form-input {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-right;
+    @apply w-full px-3 py-2 rounded-lg text-right transition-all duration-300;
+    border: 2px solid rgba(212, 175, 55, 0.3);
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(5px);
   }
 
-  /* Table styling */
+  .form-input:focus {
+    outline: none;
+    border-color: var(--gold-border);
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+  }
+
+  /* Table styling with glow */
   .table-header {
-    @apply bg-gray-50 text-gray-900 font-semibold;
+    background: linear-gradient(90deg, rgba(28, 109, 208, 0.1) 0%, rgba(56, 174, 235, 0.1) 100%);
+    color: rgb(30 58 138);
+    font-weight: 700;
+    border-bottom: 2px solid var(--gold-border);
   }
 
   .table-row {
-    @apply border-b border-gray-200 hover:bg-gray-50 transition-colors;
+    @apply transition-all duration-300;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
   }
 
-  /* Status badges */
+  .table-row:hover {
+    background: rgba(56, 174, 235, 0.05);
+    box-shadow: 0 2px 8px rgba(56, 174, 235, 0.1);
+  }
+
+  /* Status badges with glow */
   .status-badge {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   }
 
   .status-paid {
     @apply bg-green-100 text-green-800;
+    box-shadow: 0 0 8px rgba(34, 197, 94, 0.3);
   }
 
   .status-pending {
     @apply bg-orange-100 text-orange-800;
+    box-shadow: 0 0 8px rgba(255, 141, 58, 0.3);
   }
 
   .status-partial {
     @apply bg-blue-100 text-blue-800;
+    box-shadow: 0 0 8px rgba(59, 130, 246, 0.3);
   }
 
-  /* Loading states */
+  /* Loading states with glow */
   .loading-overlay {
-    @apply absolute inset-0 bg-white/80 flex items-center justify-center z-10;
+    @apply absolute inset-0 flex items-center justify-center z-10;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(5px);
   }
 
   /* Empty states */
@@ -164,14 +269,49 @@
     @apply text-center py-12 px-4;
   }
 
-  /* Focus indicators - Brand orange */
+  /* Focus indicators - Gold glow */
   .focus-ring {
-    @apply focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2;
+    @apply focus:outline-none;
+    transition: all 0.3s ease;
   }
 
-  /* Logo placeholder */
+  .focus-ring:focus {
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.3), 0 0 15px rgba(212, 175, 55, 0.2);
+  }
+
+  /* Logo placeholder with gradient */
   .logo-placeholder {
-    @apply w-32 h-32 bg-gradient-to-br from-orange-400 to-orange-600 rounded-lg flex items-center justify-center text-white font-black text-2xl shadow-lg;
+    @apply w-32 h-32 rounded-lg flex items-center justify-center text-white font-black text-2xl;
+    background: linear-gradient(135deg, var(--cta) 0%, #E07B39 100%);
+    box-shadow: 0 8px 25px rgba(255, 141, 58, 0.4);
+  }
+
+  /* Drag and drop styles */
+  .drag-item {
+    @apply transition-all duration-300 cursor-grab;
+    transform: scale(1);
+  }
+
+  .drag-item:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  }
+
+  .drag-item.dragging {
+    transform: scale(1.05) rotate(5deg);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+  }
+
+  .drop-zone {
+    @apply transition-all duration-300;
+    border: 2px dashed transparent;
+  }
+
+  .drop-zone.drag-over {
+    border-color: var(--gold-border);
+    background: rgba(212, 175, 55, 0.1);
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
   }
 }
 
@@ -182,29 +322,75 @@
   }
   
   .transition-smooth {
-    transition: all 0.2s ease-in-out;
+    transition: all 0.3s ease-in-out;
   }
 
-  /* Text shadows for better readability */
-  .text-shadow-sm {
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  .glow-text {
+    text-shadow: 0 0 10px rgba(56, 174, 235, 0.5);
+  }
+
+  .glow-border {
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+  }
+
+  /* Gradient backgrounds */
+  .gradient-bg {
+    background: linear-gradient(135deg, rgba(28, 109, 208, 0.1) 0%, rgba(56, 174, 235, 0.1) 100%);
+  }
+
+  .gradient-text {
+    background: linear-gradient(135deg, #1C6DD0 0%, #38AEEB 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 }
 
-/* TESTING CHECKLIST:
-   [ ] All hover states use brand orange (#f97316)
-   [ ] No pink/purple colors remain  
-   [ ] Text readable on all backgrounds
-   [ ] Forms validate properly
-   [ ] Delete confirmation works
-   [ ] Notifications appear/dismiss
-   [ ] Loading states show correctly
-   [ ] Hebrew text properly aligned
-   [ ] Mobile responsive
-   [ ] Keyboard navigation works
-   [ ] Focus indicators visible (orange)
-   [ ] Logo placeholder ready
-   [ ] Error boundaries functional
-   [ ] Performance optimized
-   [ ] Accessibility compliant
-*/
+/* Floating Action Button */
+.floating-add-btn {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 1000;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--cta);
+  color: white;
+  border: none;
+  font-size: 1.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(255, 141, 58, 0.4);
+}
+
+.floating-add-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 25px rgba(255, 141, 58, 0.6);
+}
+
+/* Enhanced animations */
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 10px rgba(212, 175, 55, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(212, 175, 55, 0.6), 0 0 30px rgba(212, 175, 55, 0.4); }
+}
+
+.animate-glow {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+/* Responsive design for mobile */
+@media (max-width: 768px) {
+  .floating-add-btn {
+    bottom: 1rem;
+    right: 1rem;
+    width: 50px;
+    height: 50px;
+    font-size: 1.25rem;
+  }
+  
+  .card, .chart, .table, .brand-card {
+    margin: 0.5rem;
+  }
+}
