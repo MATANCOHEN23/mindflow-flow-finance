@@ -1,4 +1,3 @@
-
 import {
   Sidebar,
   SidebarContent,
@@ -184,7 +183,6 @@ export function AppSidebar() {
       <AddDealForm 
         isOpen={isDealFormOpen}
         onClose={() => setIsDealFormOpen(false)}
-        onSubmit={handleAddDeal}
       />
     </>
   );

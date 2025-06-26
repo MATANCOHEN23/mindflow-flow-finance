@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,7 +24,7 @@ export function AddDealForm({ isOpen, onClose, deal }: AddDealFormProps) {
     package_type: '',
     amount_total: '',
     amount_paid: '0',
-    payment_status: 'pending' as const,
+    payment_status: 'pending' as 'pending' | 'partial' | 'paid',
     workflow_stage: 'lead',
     next_action_date: '',
     notes: ''
