@@ -1,3 +1,4 @@
+
 import {
   Sidebar,
   SidebarContent,
@@ -12,7 +13,7 @@ import {
 } from "@/components/ui/sidebar";
 import { useLocation, Link } from "react-router-dom";
 import { UserPlus, Briefcase } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AddClientForm } from "@/components/Forms/AddClientForm";
 import { AddDealForm } from "@/components/Forms/AddDealForm";
 
@@ -66,10 +67,12 @@ export function AppSidebar() {
   const [isClientFormOpen, setIsClientFormOpen] = useState(false);
   const [isDealFormOpen, setIsDealFormOpen] = useState(false);
 
-  const handleAddDeal = (dealData: any) => {
-    console.log('Adding deal:', dealData);
-    // TODO: Here we'll integrate with Supabase to save the deal
-  };
+  // Listen for deal form open events from Dashboard
+  useEffect(() => {
+    const handleOpenDealForm = () => setIsDealFormOpen(true);
+    window.addEventListener('openDealForm', handleOpenDealForm);
+    return () => window.removeEventListener('openDealForm', handleOpenDealForm);
+  }, []);
 
   return (
     <>
@@ -89,7 +92,7 @@ export function AppSidebar() {
         {/* Quick Action Buttons */}
         <div className="p-4 space-y-3 border-b border-gray-700">
           <button 
-            className="w-full sidebar-btn text-sm py-3 px-4 flex items-center gap-3 justify-center rounded-lg font-semibold"
+            className="w-full sidebar-btn text-sm py-3 px-4 flex items-center gap-3 justify-center rounded-lg font-semibold hover:bg-orange-600"
             aria-label="הוסף לקוח חדש"
             tabIndex={0}
             onClick={() => setIsClientFormOpen(true)}
@@ -99,7 +102,7 @@ export function AppSidebar() {
             לקוח חדש
           </button>
           <button 
-            className="w-full text-sm py-3 px-4 flex items-center gap-3 justify-center rounded-lg font-semibold transition-all duration-300"
+            className="w-full text-sm py-3 px-4 flex items-center gap-3 justify-center rounded-lg font-semibold transition-all duration-300 hover:bg-orange-600"
             style={{ 
               background: 'var(--cta)',
               color: 'white',
