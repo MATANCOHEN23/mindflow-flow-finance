@@ -29,7 +29,7 @@ export const dealsApi = {
       custom_fields: (deal.custom_fields as Record<string, any>) || {},
       created_at: deal.created_at || new Date().toISOString(),
       updated_at: deal.updated_at || new Date().toISOString()
-    }));
+    } as Deal));
   },
 
   async getById(id: string): Promise<Deal | null> {
@@ -44,7 +44,7 @@ export const dealsApi = {
       throw new Error(`שגיאה בטעינת העסקה: ${error.message}`);
     }
     
-    return data ? {
+    return data ? ({
       id: data.id,
       contact_id: data.contact_id || undefined,
       title: data.title,
@@ -59,7 +59,7 @@ export const dealsApi = {
       custom_fields: (data.custom_fields as Record<string, any>) || {},
       created_at: data.created_at || new Date().toISOString(),
       updated_at: data.updated_at || new Date().toISOString()
-    } : null;
+    } as Deal) : null;
   },
 
   async create(dealData: Omit<Deal, 'id' | 'created_at' | 'updated_at'>): Promise<Deal> {
@@ -89,7 +89,7 @@ export const dealsApi = {
       custom_fields: (data.custom_fields as Record<string, any>) || {},
       created_at: data.created_at || new Date().toISOString(),
       updated_at: data.updated_at || new Date().toISOString()
-    };
+    } as Deal;
   },
 
   async update(id: string, dealData: Partial<Deal>): Promise<Deal> {
@@ -120,7 +120,7 @@ export const dealsApi = {
       custom_fields: (data.custom_fields as Record<string, any>) || {},
       created_at: data.created_at || new Date().toISOString(),
       updated_at: data.updated_at || new Date().toISOString()
-    };
+    } as Deal;
   },
 
   async delete(id: string): Promise<void> {
