@@ -3,6 +3,8 @@ import { StatsCard } from "@/components/Dashboard/StatsCard";
 import { PaymentStatusChart } from "@/components/Dashboard/PaymentStatusChart";
 import { RevenueChart } from "@/components/Dashboard/RevenueChart";
 import { OverduePayments } from "@/components/Dashboard/OverduePayments";
+import { AIInsights } from "@/components/Dashboard/AIInsights";
+import { WidgetGrid } from "@/components/Dashboard/WidgetGrid";
 import { useState, useEffect } from "react";
 import { AddClientForm } from "@/components/Forms/AddClientForm";
 import { getDashboardStats } from "@/lib/mock-data";
@@ -81,20 +83,12 @@ export function Dashboard() {
           />
         </div>
 
-        {/* Charts Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <RevenueChart />
-          <PaymentStatusChart />
-        </div>
-
-        {/* Bottom Section */}
+        {/* AI Insights Section */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
-            <OverduePayments />
+            <AIInsights />
           </div>
-          
-          {/* Quick Actions */}
-          <div className="premium-card">
+          <div className="premium-card p-6">
             <h3 className="text-2xl font-bold text-blue-600 mb-6 text-center glow-text">⚡ פעולות מהירות ⚡</h3>
             <div className="space-y-4">
               <button 
@@ -123,6 +117,23 @@ export function Dashboard() {
               </button>
             </div>
           </div>
+        </div>
+
+        {/* Draggable Widgets */}
+        <div className="mb-8">
+          <h2 className="text-3xl font-bold text-blue-600 mb-6 glow-text">📊 ווידג׳טים מותאמים אישית</h2>
+          <WidgetGrid />
+        </div>
+
+        {/* Charts Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <RevenueChart />
+          <PaymentStatusChart />
+        </div>
+
+        {/* Bottom Section */}
+        <div className="grid grid-cols-1 gap-8">
+          <OverduePayments />
         </div>
       </div>
 

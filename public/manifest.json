@@ -1,0 +1,19 @@
+
+{
+  "name": "MindFlow CRM",
+  "short_name": "MindFlow",
+  "description": "מערכת ניהול לקוחות מתקדמת לביצועים נפשיים וספורט",
+  "theme_color": "#f97316",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ]
+}
