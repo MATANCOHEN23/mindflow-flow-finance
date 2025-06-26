@@ -1,29 +1,34 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { Deal } from "@/types/database";
+import { useCreateDeal, useUpdateDeal } from "@/hooks/useDeals";
 
 interface AddDealFormProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (dealData: any) => void;
+  deal?: Deal | null;
 }
 
-export function AddDealForm({ isOpen, onClose, onSubmit }: AddDealFormProps) {
+export function AddDealForm({ isOpen, onClose, deal }: AddDealFormProps) {
+  const createDealMutation = useCreateDeal();
+  const updateDealMutation = useUpdateDeal();
+  
   const [formData, setFormData] = useState({
     title: '',
-    client: '',
     category: '',
-    packageType: '',
-    totalAmount: '',
-    amountPaid: '0',
-    paymentStatus: '❌',
-    processStage: 'בתהליך',
-    nextAction: ''
+    package_type: '',
+    amount_total: '',
+    amount_paid: '0',
+    payment_status: 'pending' as const,
+    workflow_stage: 'lead',
+    next_action_date: '',
+    notes: ''
   });
 
   const categories = [
@@ -40,38 +45,77 @@ export function AddDealForm({ isOpen, onClose, onSubmit }: AddDealFormProps) {
     'מותאם אישית'
   ];
 
+  // Load deal data when editing
+  useEffect(() => {
+    if (deal) {
+      setFormData({
+        title: deal.title || '',
+        category: deal.category || '',
+        package_type: deal.package_type || '',
+        amount_total: deal.amount_total?.toString() || '',
+        amount_paid: deal.amount_paid?.toString() || '0',
+        payment_status: deal.payment_status || 'pending',
+        workflow_stage: deal.workflow_stage || 'lead',
+        next_action_date: deal.next_action_date || '',
+        notes: deal.notes || ''
+      });
+    } else {
+      // Reset form for new deal
+      setFormData({
+        title: '',
+        category: '',
+        package_type: '',
+        amount_total: '',
+        amount_paid: '0',
+        payment_status: 'pending',
+        workflow_stage: 'lead',
+        next_action_date: '',
+        notes: ''
+      });
+    }
+  }, [deal]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.title || !formData.client || !formData.totalAmount) {
-      toast.error("כותרת, לקוח וסכום כולל הם שדות חובה");
+    if (!formData.title || !formData.amount_total) {
+      toast.error("כותרת וסכום כולל הם שדות חובה");
       return;
     }
 
     const dealData = {
-      ...formData,
-      totalAmount: parseFloat(formData.totalAmount),
-      amountPaid: parseFloat(formData.amountPaid),
-      createdAt: new Date().toISOString()
+      title: formData.title,
+      category: formData.category || null,
+      package_type: formData.package_type || null,
+      amount_total: parseFloat(formData.amount_total),
+      amount_paid: parseFloat(formData.amount_paid),
+      payment_status: formData.payment_status,
+      workflow_stage: formData.workflow_stage,
+      next_action_date: formData.next_action_date || null,
+      notes: formData.notes || null,
+      custom_fields: {}
     };
 
-    onSubmit(dealData);
-    
-    // Reset form
-    setFormData({
-      title: '',
-      client: '',
-      category: '',
-      packageType: '',
-      totalAmount: '',
-      amountPaid: '0',
-      paymentStatus: '❌',
-      processStage: 'בתהליך',
-      nextAction: ''
-    });
-    
-    onClose();
-    toast.success("העסקה נוספה בהצלחה!");
+    if (deal) {
+      // Update existing deal
+      updateDealMutation.mutate({
+        id: deal.id,
+        data: dealData
+      }, {
+        onSuccess: () => {
+          onClose();
+          toast.success("העסקה עודכנה בהצלחה!");
+        }
+      });
+    } else {
+      // Create new deal
+      createDealMutation.mutate(dealData, {
+        onSuccess: () => {
+          onClose();
+          toast.success("העסקה נוספה בהצלחה!");
+        }
+      });
+    }
   };
 
   const handleChange = (field: string, value: string) => {
@@ -83,7 +127,7 @@ export function AddDealForm({ isOpen, onClose, onSubmit }: AddDealFormProps) {
       <DialogContent className="premium-card max-w-lg">
         <DialogHeader>
           <DialogTitle className="text-2xl font-black gradient-text text-center">
-            💼 הוסף עסקה חדשה
+            {deal ? '✏️ עריכת עסקה' : '💼 הוסף עסקה חדשה'}
           </DialogTitle>
         </DialogHeader>
         
@@ -98,20 +142,6 @@ export function AddDealForm({ isOpen, onClose, onSubmit }: AddDealFormProps) {
               onChange={(e) => handleChange('title', e.target.value)}
               className="text-right"
               placeholder="למשל: יום הולדת של דני"
-              required
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="client" className="text-right font-bold text-primary">
-              לקוח *
-            </Label>
-            <Input
-              id="client"
-              value={formData.client}
-              onChange={(e) => handleChange('client', e.target.value)}
-              className="text-right"
-              placeholder="שם הלקוח"
               required
             />
           </div>
@@ -139,7 +169,7 @@ export function AddDealForm({ isOpen, onClose, onSubmit }: AddDealFormProps) {
               <Label className="text-right font-bold text-primary">
                 סוג חבילה
               </Label>
-              <Select value={formData.packageType} onValueChange={(value) => handleChange('packageType', value)}>
+              <Select value={formData.package_type} onValueChange={(value) => handleChange('package_type', value)}>
                 <SelectTrigger className="text-right">
                   <SelectValue placeholder="בחר חבילה" />
                 </SelectTrigger>
@@ -156,14 +186,14 @@ export function AddDealForm({ isOpen, onClose, onSubmit }: AddDealFormProps) {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="totalAmount" className="text-right font-bold text-primary">
+              <Label htmlFor="amount_total" className="text-right font-bold text-primary">
                 סכום כולל *
               </Label>
               <Input
-                id="totalAmount"
+                id="amount_total"
                 type="number"
-                value={formData.totalAmount}
-                onChange={(e) => handleChange('totalAmount', e.target.value)}
+                value={formData.amount_total}
+                onChange={(e) => handleChange('amount_total', e.target.value)}
                 className="text-right"
                 placeholder="1500"
                 required
@@ -171,14 +201,14 @@ export function AddDealForm({ isOpen, onClose, onSubmit }: AddDealFormProps) {
             </div>
 
             <div>
-              <Label htmlFor="amountPaid" className="text-right font-bold text-primary">
+              <Label htmlFor="amount_paid" className="text-right font-bold text-primary">
                 סכום ששולם
               </Label>
               <Input
-                id="amountPaid"
+                id="amount_paid"
                 type="number"
-                value={formData.amountPaid}
-                onChange={(e) => handleChange('amountPaid', e.target.value)}
+                value={formData.amount_paid}
+                onChange={(e) => handleChange('amount_paid', e.target.value)}
                 className="text-right"
                 placeholder="0"
               />
@@ -186,21 +216,38 @@ export function AddDealForm({ isOpen, onClose, onSubmit }: AddDealFormProps) {
           </div>
 
           <div>
-            <Label htmlFor="nextAction" className="text-right font-bold text-primary">
-              פעולה הבאה
+            <Label htmlFor="next_action_date" className="text-right font-bold text-primary">
+              תאריך פעולה הבאה
             </Label>
             <Input
-              id="nextAction"
-              value={formData.nextAction}
-              onChange={(e) => handleChange('nextAction', e.target.value)}
+              id="next_action_date"
+              type="date"
+              value={formData.next_action_date}
+              onChange={(e) => handleChange('next_action_date', e.target.value)}
               className="text-right"
-              placeholder="למשל: חתימה על חוזה"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="notes" className="text-right font-bold text-primary">
+              הערות
+            </Label>
+            <Input
+              id="notes"
+              value={formData.notes}
+              onChange={(e) => handleChange('notes', e.target.value)}
+              className="text-right"
+              placeholder="הערות נוספות..."
             />
           </div>
 
           <div className="flex gap-3 pt-4">
-            <Button type="submit" className="btn-accent flex-1">
-              ✅ הוסף עסקה
+            <Button 
+              type="submit" 
+              className="btn-accent flex-1"
+              disabled={createDealMutation.isPending || updateDealMutation.isPending}
+            >
+              {deal ? '✅ עדכן עסקה' : '✅ הוסף עסקה'}
             </Button>
             <Button type="button" onClick={onClose} variant="outline" className="flex-1">
               ❌ ביטול
