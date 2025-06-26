@@ -5,9 +5,23 @@ import { RevenueChart } from "@/components/Dashboard/RevenueChart";
 import { OverduePayments } from "@/components/Dashboard/OverduePayments";
 import { useState, useEffect } from "react";
 import { AddClientForm } from "@/components/Forms/AddClientForm";
+import { getDashboardStats } from "@/lib/mock-data";
+import { PremiumLoader } from "@/components/PremiumLoader";
 
 export function Dashboard() {
   const [isClientFormOpen, setIsClientFormOpen] = useState(false);
+  const [stats, setStats] = useState(getDashboardStats());
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate loading for better UX
+    const timer = setTimeout(() => {
+      setStats(getDashboardStats());
+      setLoading(false);
+    }, 800);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   // Event listener for opening deal form from sidebar
   useEffect(() => {
@@ -17,6 +31,18 @@ export function Dashboard() {
     window.addEventListener('openDealForm', handleOpenDealForm);
     return () => window.removeEventListener('openDealForm', handleOpenDealForm);
   }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-orange-50">
+        <div className="text-center">
+          <PremiumLoader size="lg" className="mx-auto mb-6" />
+          <h2 className="text-2xl font-bold text-gray-700 mb-2">טוען את לוח הבקרה...</h2>
+          <p className="text-gray-500">מכין עבורך את הנתונים העדכניים</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -31,27 +57,27 @@ export function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <StatsCard
             title="💰 סה״כ הכנסות החודש"
-            value="₪45,200"
+            value={`₪${stats.monthlyRevenue.toLocaleString('he-IL')}`}
             icon="💎"
-            trend={{ value: 12, isPositive: true }}
+            trend={stats.trends.revenue}
           />
           <StatsCard
             title="👥 לקוחות פעילים"
-            value="127"
+            value={stats.activeClients}
             icon="⭐"
-            trend={{ value: 8, isPositive: true }}
+            trend={stats.trends.clients}
           />
           <StatsCard
             title="💼 עסקאות פתוחות"
-            value="23"
+            value={stats.openDeals}
             icon="🚀"
-            trend={{ value: 3, isPositive: false }}
+            trend={stats.trends.deals}
           />
           <StatsCard
             title="⏳ תשלומים ממתינים"
-            value="₪8,900"
+            value={`₪${stats.pendingPayments.toLocaleString('he-IL')}`}
             icon="⚡"
-            trend={{ value: 15, isPositive: false }}
+            trend={stats.trends.payments}
           />
         </div>
 
@@ -72,14 +98,14 @@ export function Dashboard() {
             <h3 className="text-2xl font-bold text-blue-600 mb-6 text-center glow-text">⚡ פעולות מהירות ⚡</h3>
             <div className="space-y-4">
               <button 
-                className="w-full btn-primary py-4 px-6 rounded-lg font-bold text-lg transition-smooth flex items-center gap-4"
+                className="w-full btn-premium py-4 px-6 rounded-lg font-bold text-lg transition-smooth flex items-center gap-4 justify-center"
                 onClick={() => setIsClientFormOpen(true)}
               >
                 <span>👤</span>
                 לקוח חדש
               </button>
               <button 
-                className="w-full btn-secondary py-4 px-6 rounded-lg font-bold text-lg transition-smooth flex items-center gap-4"
+                className="w-full btn-golden py-4 px-6 rounded-lg font-bold text-lg transition-smooth flex items-center gap-4 justify-center"
                 onClick={() => {
                   window.dispatchEvent(new CustomEvent('openDealForm'));
                 }}
@@ -87,11 +113,11 @@ export function Dashboard() {
                 <span>💼</span>
                 עסקה חדשה
               </button>
-              <button className="w-full btn-outline py-4 px-6 rounded-lg font-bold text-lg transition-smooth flex items-center gap-4 hover:bg-orange-50 hover:border-orange-300">
+              <button className="w-full btn-outline py-4 px-6 rounded-lg font-bold text-lg transition-smooth flex items-center gap-4 hover:bg-orange-50 hover:border-orange-300 justify-center">
                 <span>💳</span>
                 רישום תשלום
               </button>
-              <button className="w-full btn-outline py-4 px-6 rounded-lg font-bold text-lg transition-smooth flex items-center gap-4 hover:bg-orange-50 hover:border-orange-300">
+              <button className="w-full btn-outline py-4 px-6 rounded-lg font-bold text-lg transition-smooth flex items-center gap-4 hover:bg-orange-50 hover:border-orange-300 justify-center">
                 <span>📱</span>
                 שלח תזכורת
               </button>

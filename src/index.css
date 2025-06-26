@@ -1,472 +1,379 @@
 
+@import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;700;900&family=Assistant:wght@400;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* MindFlow CRM Brand Design - Glow UI with Blue Gradient + Gold Frame */
-@layer base {
-  :root {
-    --background: 255 255 255;      /* Pure white background */
-    --foreground: 30 58 138;        /* Brand dark blue text */
-
-    --card: 255 255 255;            /* White cards */
-    --card-foreground: 30 58 138;   /* Brand dark blue text */
-
-    --popover: 255 255 255;
-    --popover-foreground: 30 58 138;
-
-    --primary: 30 58 138;           /* Brand dark blue */
-    --primary-foreground: 255 255 255;
-
-    --secondary: 59 130 246;        /* Brand light blue */
-    --secondary-foreground: 255 255 255;
-
-    --muted: 243 244 246;           /* Light gray */
-    --muted-foreground: 107 114 128;
-
-    --accent: 249 115 22;           /* Brand orange */
-    --accent-foreground: 255 255 255;
-
-    --destructive: 239 68 68;       /* Red for errors */
-    --destructive-foreground: 255 255 255;
-
-    --border: 229 231 235;          /* Light gray borders */
-    --input: 243 244 246;
-    --ring: 249 115 22;             /* Orange focus ring */
-
-    --radius: 8px;
-
-    /* Glow UI Variables */
-    --sidebar-bg: #38AEEB;
-    --sidebar-hover: #1C6DD0;
-    --sidebar-text: #FFFFFF;
-    --gold-border: #D4AF37;
-    --cta: #FF8D3A;
-    
-    --sidebar-background: 31 41 55;
-    --sidebar-foreground: 255 255 255;
-    --sidebar-primary: 249 115 22;
-    --sidebar-primary-foreground: 255 255 255;
-    --sidebar-accent: 59 130 246;
-    --sidebar-accent-foreground: 255 255 255;
-    --sidebar-border: 75 85 99;
-    --sidebar-ring: 249 115 22;
-  }
-}
-
-@layer base {
-  * {
-    @apply border-border;
-  }
-
-  html {
-    direction: rtl;
-  }
-
-  body {
-    @apply bg-white text-foreground font-assistant;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
-    min-height: 100vh;
-    font-weight: 400;
-    background: linear-gradient(135deg, rgba(28, 109, 208, 0.05) 0%, rgba(56, 174, 235, 0.05) 100%);
-  }
-
-  h1, h2, h3, h4, h5, h6 {
-    font-weight: 700;
-    color: rgb(30 58 138);
-    text-shadow: 0 0 10px rgba(56, 174, 235, 0.3);
-  }
-
-  /* Custom scrollbar with brand colors */
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-
-  ::-webkit-scrollbar-track {
-    background: rgb(243 244 246);
-    border-radius: 4px;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: var(--gold-border);
-    border-radius: 4px;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: #B8941F;
-  }
-}
-
-@layer components {
-  /* Premium Golden Glow Cards */
-  .premium-card {
-    background: linear-gradient(145deg, #ffffff 0%, #fef3c7 100%);
-    border: 2px solid;
-    border-image: linear-gradient(145deg, #f59e0b, #fbbf24, #f59e0b) 1;
-    box-shadow: 
-      0 0 20px rgba(251, 191, 36, 0.3),
-      0 0 40px rgba(245, 158, 11, 0.1),
-      inset 0 0 20px rgba(251, 191, 36, 0.05);
-    position: relative;
-    overflow: hidden;
-    border-radius: 12px;
-  }
-
-  .premium-card::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(
-      45deg,
-      transparent 30%,
-      rgba(251, 191, 36, 0.1) 50%,
-      transparent 70%
-    );
-    animation: shimmer 3s infinite;
-    pointer-events: none;
-  }
-
-  @keyframes shimmer {
-    0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-    100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
-  }
-
-  /* Glow UI Cards with Gold Border */
-  .card, .chart, .table, .brand-card {
-    @apply premium-card;
-  }
-
-  .brand-card-header {
-    background: linear-gradient(90deg, rgba(28, 109, 208, 0.1) 0%, rgba(56, 174, 235, 0.1) 100%);
-    border-radius: 12px 12px 0 0;
-    border-bottom: 1px solid var(--gold-border);
-    padding: 1rem;
-  }
-
-  /* Header and Footer Gradients */
-  header, footer, .header-gradient {
-    background: linear-gradient(90deg, #1C6DD0 0%, #38AEEB 100%);
-    box-shadow: 0 4px 20px rgba(28, 109, 208, 0.3);
-  }
-
-  /* Golden Button */
-  .btn-golden {
-    background: linear-gradient(145deg, #f59e0b, #fbbf24);
-    color: white;
-    font-weight: bold;
-    box-shadow: 
-      0 4px 15px rgba(245, 158, 11, 0.4),
-      inset 0 1px 0 rgba(255, 255, 255, 0.3);
-    transition: all 0.3s ease;
-  }
-
-  .btn-golden:hover {
-    transform: translateY(-2px);
-    box-shadow: 
-      0 6px 20px rgba(245, 158, 11, 0.6),
-      inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  }
-
-  /* CTA Buttons with Glow */
-  .btn-primary, button.cta {
-    background: var(--cta);
-    box-shadow: 0 0 6px rgba(255, 141, 58, 0.6), 0 4px 15px rgba(255, 141, 58, 0.3);
-    color: white;
-    font-weight: 600;
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-    border: none;
-  }
-
-  .btn-primary:hover, button.cta:hover {
-    background: rgb(249 115 22); /* orange-500 */
-    box-shadow: 0 0 12px rgba(255, 141, 58, 0.8), 0 6px 20px rgba(255, 141, 58, 0.4);
-    transform: translateY(-2px);
-  }
-
-  /* Secondary buttons - Brand blue */
-  .btn-secondary {
-    background: linear-gradient(135deg, #1C6DD0 0%, #38AEEB 100%);
-    color: white;
-    font-weight: 600;
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(28, 109, 208, 0.3);
-  }
-
-  .btn-secondary:hover {
-    background: linear-gradient(135deg, #1e40af 0%, #1C6DD0 100%);
-    box-shadow: 0 6px 20px rgba(28, 109, 208, 0.4);
-    transform: translateY(-2px);
-  }
-
-  /* Outline buttons with glow border */
-  .btn-outline {
-    border: 2px solid var(--gold-border);
-    background: rgba(255, 255, 255, 0.9);
-    color: rgb(30 58 138);
-    font-weight: 600;
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-    box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
-  }
-
-  .btn-outline:hover {
-    background: rgba(249, 115, 22, 0.1); /* orange-500 with transparency */
-    border-color: rgb(249 115 22); /* orange-500 */
-    box-shadow: 0 0 15px rgba(249, 115, 22, 0.4);
-    transform: translateY(-1px);
-  }
-
-  /* Sidebar styling with glow */
-  .sidebar-btn {
-    background: var(--sidebar-bg);
-    color: var(--sidebar-text);
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 10px rgba(56, 174, 235, 0.2);
-  }
-
-  .sidebar-btn:hover {
-    background: rgb(249 115 22); /* orange-500 */
-    box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3);
-    transform: translateY(-1px);
-  }
-
-  .sidebar-item {
-    @apply flex items-center gap-3 px-4 py-3 rounded-lg text-white transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-orange-500;
-    background: var(--sidebar-bg);
-    box-shadow: 0 2px 8px rgba(56, 174, 235, 0.2);
-    margin-bottom: 0.5rem;
-  }
-
-  .sidebar-item:hover {
-    background: rgba(249, 115, 22, 0.9); /* orange-500 with transparency */
-    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
-    transform: translateX(2px);
-  }
-
-  .sidebar-item.active {
-    background: var(--cta);
-    box-shadow: 0 0 15px rgba(255, 141, 58, 0.5);
-  }
-
-  /* Form inputs with glow focus */
-  .form-input {
-    @apply w-full px-3 py-2 rounded-lg text-right transition-all duration-300;
-    border: 2px solid rgba(212, 175, 55, 0.3);
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(5px);
-  }
-
-  .form-input:focus {
-    outline: none;
-    border-color: rgb(249 115 22); /* orange-500 */
-    box-shadow: 0 0 10px rgba(249, 115, 22, 0.4);
-  }
-
-  /* Table styling with glow */
-  .table-header {
-    background: linear-gradient(90deg, rgba(28, 109, 208, 0.1) 0%, rgba(56, 174, 235, 0.1) 100%);
-    color: rgb(30 58 138);
-    font-weight: 700;
-    border-bottom: 2px solid var(--gold-border);
-  }
-
-  .table-row {
-    @apply transition-all duration-300;
-    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-  }
-
-  .table-row:hover {
-    background: rgba(249, 115, 22, 0.05); /* orange-500 with low transparency */
-    box-shadow: 0 2px 8px rgba(249, 115, 22, 0.1);
-  }
-
-  /* Status badges with glow */
-  .status-badge {
-    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  }
-
-  .status-paid {
-    @apply bg-green-100 text-green-800;
-    box-shadow: 0 0 8px rgba(34, 197, 94, 0.3);
-  }
-
-  .status-pending {
-    @apply bg-orange-100 text-orange-800;
-    box-shadow: 0 0 8px rgba(255, 141, 58, 0.3);
-  }
-
-  .status-partial {
-    @apply bg-blue-100 text-blue-800;
-    box-shadow: 0 0 8px rgba(59, 130, 246, 0.3);
-  }
-
-  /* Loading states with glow */
-  .loading-overlay {
-    @apply absolute inset-0 flex items-center justify-center z-10;
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(5px);
-  }
-
-  /* Empty states */
-  .empty-state {
-    @apply text-center py-12 px-4;
-  }
-
-  /* Focus indicators - Orange glow */
-  .focus-ring {
-    @apply focus:outline-none;
-    transition: all 0.3s ease;
-  }
-
-  .focus-ring:focus {
-    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.3), 0 0 15px rgba(249, 115, 22, 0.2);
-  }
-
-  /* Logo placeholder with gradient */
-  .logo-placeholder {
-    @apply w-32 h-32 rounded-lg flex items-center justify-center text-white font-black text-2xl;
-    background: linear-gradient(135deg, var(--cta) 0%, #E07B39 100%);
-    box-shadow: 0 8px 25px rgba(255, 141, 58, 0.4);
-  }
-
-  /* Drag and drop styles */
-  .drag-item {
-    @apply transition-all duration-300 cursor-grab;
-    transform: scale(1);
-  }
-
-  .drag-item:hover {
-    transform: scale(1.02);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-  }
-
-  .drag-item.dragging {
-    transform: scale(1.05) rotate(5deg);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-    z-index: 1000;
-  }
-
-  .drop-zone {
-    @apply transition-all duration-300;
-    border: 2px dashed transparent;
-  }
-
-  .drop-zone.drag-over {
-    border-color: rgb(249 115 22); /* orange-500 */
-    background: rgba(249, 115, 22, 0.1);
-    box-shadow: 0 0 20px rgba(249, 115, 22, 0.3);
-  }
-}
-
-/* Animation utilities */
-@layer utilities {
-  .hover-scale:hover {
-    transform: scale(1.02);
-  }
+:root {
+  /* Premium Color Palette */
+  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --gold-gradient: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+  --orange-gradient: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  --premium-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  --glass-bg: rgba(255, 255, 255, 0.95);
+  --premium-border: 1px solid rgba(255, 255, 255, 0.18);
   
-  .transition-smooth {
-    transition: all 0.3s ease-in-out;
-  }
-
-  .glow-text {
-    text-shadow: 
-      0 0 10px rgba(249, 115, 22, 0.5),
-      0 0 20px rgba(249, 115, 22, 0.3),
-      0 0 30px rgba(249, 115, 22, 0.1);
-  }
-
-  .glow-border {
-    box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
-  }
-
-  /* Gradient backgrounds */
-  .gradient-bg {
-    background: linear-gradient(135deg, rgba(28, 109, 208, 0.1) 0%, rgba(56, 174, 235, 0.1) 100%);
-  }
-
-  .gradient-text {
-    background: linear-gradient(135deg, #1C6DD0 0%, #38AEEB 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  /* Override any pink/purple hovers with orange */
-  .hover\:bg-pink-100:hover { background-color: rgb(254 215 170) !important; } /* orange-100 */
-  .hover\:bg-pink-500:hover { background-color: rgb(249 115 22) !important; } /* orange-500 */
-  .hover\:bg-purple-100:hover { background-color: rgb(254 215 170) !important; } /* orange-100 */
-  .hover\:bg-purple-500:hover { background-color: rgb(249 115 22) !important; } /* orange-500 */
-  .hover\:bg-fuchsia-100:hover { background-color: rgb(254 215 170) !important; } /* orange-100 */
-  .hover\:bg-rose-100:hover { background-color: rgb(254 215 170) !important; } /* orange-100 */
+  /* Typography */
+  --font-display: 'Heebo', sans-serif;
+  --font-body: 'Assistant', sans-serif;
   
-  .hover\:text-pink-500:hover { color: rgb(249 115 22) !important; } /* orange-500 */
-  .hover\:text-purple-500:hover { color: rgb(249 115 22) !important; } /* orange-500 */
-  
-  .hover\:border-pink-500:hover { border-color: rgb(249 115 22) !important; } /* orange-500 */
-  .hover\:border-purple-500:hover { border-color: rgb(249 115 22) !important; } /* orange-500 */
+  /* Brand Colors */
+  --sidebar-bg: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+  --cta: #f97316;
 }
 
-/* Floating Action Button */
+body {
+  font-family: var(--font-body);
+  direction: rtl;
+}
+
+/* Premium Glass Effect */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: var(--premium-border);
+  border-radius: 20px;
+  box-shadow: var(--premium-shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--gold-gradient);
+  opacity: 0.03;
+  pointer-events: none;
+}
+
+/* Premium Cards */
+.premium-card {
+  background: linear-gradient(145deg, #ffffff 0%, #fef3c7 100%);
+  border: 2px solid;
+  border-image: linear-gradient(145deg, #f59e0b, #fbbf24, #f59e0b) 1;
+  box-shadow: 
+    0 0 20px rgba(251, 191, 36, 0.3),
+    0 0 40px rgba(245, 158, 11, 0.1),
+    inset 0 0 20px rgba(251, 191, 36, 0.05);
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+.premium-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent 30%,
+    rgba(251, 191, 36, 0.1) 50%,
+    transparent 70%
+  );
+  animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+  100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+}
+
+/* Glowing text effect */
+.glow-text {
+  text-shadow: 
+    0 0 10px rgba(249, 115, 22, 0.5),
+    0 0 20px rgba(249, 115, 22, 0.3),
+    0 0 30px rgba(249, 115, 22, 0.1);
+}
+
+/* Neon Glow Effect */
+.neon-glow {
+  position: relative;
+  color: #fff;
+  text-shadow: 
+    0 0 10px currentColor,
+    0 0 20px currentColor,
+    0 0 40px currentColor;
+}
+
+/* Premium Button Styles */
+.btn-premium {
+  background: var(--primary-gradient);
+  color: white;
+  font-weight: 700;
+  padding: 12px 32px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  font-family: var(--font-display);
+}
+
+.btn-premium::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.btn-premium:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.btn-premium:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+}
+
+/* Golden button */
+.btn-golden {
+  background: linear-gradient(145deg, #f59e0b, #fbbf24);
+  color: white;
+  font-weight: bold;
+  box-shadow: 
+    0 4px 15px rgba(245, 158, 11, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+.btn-golden:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 6px 20px rgba(245, 158, 11, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* Floating Animation */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+.floating {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Premium Loading Animation */
+.premium-loader {
+  width: 100px;
+  height: 100px;
+  position: relative;
+}
+
+.premium-loader::before,
+.premium-loader::after {
+  content: '';
+  position: absolute;
+  border: 3px solid transparent;
+  border-top-color: #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.premium-loader::before {
+  width: 100%;
+  height: 100%;
+}
+
+.premium-loader::after {
+  width: 70%;
+  height: 70%;
+  top: 15%;
+  left: 15%;
+  animation-direction: reverse;
+  border-top-color: #764ba2;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Fix all hover states to use orange */
+.btn-primary {
+  @apply bg-blue-600 hover:bg-orange-600;
+}
+
+.btn-secondary {
+  @apply bg-gray-600 hover:bg-blue-700;
+}
+
+.btn-outline {
+  @apply border-gray-300 hover:bg-orange-50 hover:border-orange-500;
+}
+
+/* Brand-specific styles */
+.brand-card {
+  @apply premium-card;
+}
+
+.brand-card-header {
+  background: var(--orange-gradient);
+  color: white;
+  margin: -1.5rem -1.5rem 1.5rem -1.5rem;
+  padding: 1.5rem;
+  border-radius: 14px 14px 0 0;
+}
+
+/* Sidebar styles */
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  margin: 4px 8px;
+  border-radius: 12px;
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 500;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.sidebar-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: var(--orange-gradient);
+  transition: left 0.3s ease;
+}
+
+.sidebar-item:hover::before,
+.sidebar-item.active::before {
+  left: 0;
+}
+
+.sidebar-item:hover,
+.sidebar-item.active {
+  color: white;
+  transform: translateX(5px);
+}
+
+.sidebar-item span {
+  position: relative;
+  z-index: 1;
+}
+
+.sidebar-btn {
+  background: var(--orange-gradient);
+  color: white;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.sidebar-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(249, 115, 22, 0.3);
+}
+
+/* Table styles */
+.table-header {
+  background: var(--orange-gradient);
+}
+
+.table-header th {
+  color: white;
+  font-weight: 700;
+  text-align: right;
+}
+
+.table-row:hover {
+  background: rgba(249, 115, 22, 0.05);
+  transition: background 0.3s ease;
+}
+
+/* Status badges */
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Empty states */
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+/* Floating action button */
 .floating-add-btn {
   position: fixed;
   bottom: 2rem;
-  right: 2rem;
-  z-index: 1000;
+  left: 2rem;
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: var(--cta);
+  background: var(--orange-gradient);
   color: white;
   border: none;
-  font-size: 1.5rem;
-  font-weight: bold;
+  font-size: 24px;
+  box-shadow: 0 8px 25px rgba(249, 115, 22, 0.3);
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 20px rgba(255, 141, 58, 0.4);
+  z-index: 1000;
 }
 
 .floating-add-btn:hover {
   transform: scale(1.1);
-  background: rgb(249 115 22); /* orange-500 */
-  box-shadow: 0 6px 25px rgba(249, 115, 22, 0.6);
+  box-shadow: 0 12px 35px rgba(249, 115, 22, 0.4);
 }
 
-/* Enhanced animations */
-@keyframes glow-pulse {
-  0%, 100% { box-shadow: 0 0 10px rgba(212, 175, 55, 0.3); }
-  50% { box-shadow: 0 0 20px rgba(212, 175, 55, 0.6), 0 0 30px rgba(212, 175, 55, 0.4); }
+/* Animation classes */
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out;
 }
 
-.animate-glow {
-  animation: glow-pulse 2s ease-in-out infinite;
-}
-
-/* Global hover state override to ensure orange focus ring */
-*:hover {
-  --tw-ring-color: rgb(249 115 22 / 0.5) !important;
-}
-
-/* Responsive design for mobile */
-@media (max-width: 768px) {
-  .floating-add-btn {
-    bottom: 1rem;
-    right: 1rem;
-    width: 50px;
-    height: 50px;
-    font-size: 1.25rem;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
-  
-  .card, .chart, .table, .brand-card {
-    margin: 0.5rem;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
+}
+
+.hover-scale {
+  transition: transform 0.3s ease;
+}
+
+.hover-scale:hover {
+  transform: scale(1.02);
+}
+
+.transition-smooth {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Header gradient */
+.header-gradient {
+  background: var(--orange-gradient);
+}
+
+/* Ensure ring colors use orange */
+*:focus {
+  --tw-ring-color: rgb(249 115 22 / 0.5);
 }
