@@ -1,0 +1,18 @@
+
+/* Glowing text effect */
+.glow-text {
+  text-shadow: 
+    0 0 10px rgba(249, 115, 22, 0.5),
+    0 0 20px rgba(249, 115, 22, 0.3),
+    0 0 30px rgba(249, 115, 22, 0.1);
+}
+
+/* Neon Glow Effect */
+.neon-glow {
+  position: relative;
+  color: #fff;
+  text-shadow: 
+    0 0 10px currentColor,
+    0 0 20px currentColor,
+    0 0 40px currentColor;
+}

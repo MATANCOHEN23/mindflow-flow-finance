@@ -1,0 +1,18 @@
+
+:root {
+  /* Premium Color Palette */
+  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --gold-gradient: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+  --orange-gradient: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  --premium-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  --glass-bg: rgba(255, 255, 255, 0.95);
+  --premium-border: 1px solid rgba(255, 255, 255, 0.18);
+  
+  /* Typography */
+  --font-display: 'Heebo', sans-serif;
+  --font-body: 'Assistant', sans-serif;
+  
+  /* Brand Colors */
+  --sidebar-bg: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+  --cta: #f97316;
+}

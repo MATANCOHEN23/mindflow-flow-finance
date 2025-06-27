@@ -1,0 +1,16 @@
+
+/* Table styles */
+.table-header {
+  background: var(--orange-gradient);
+}
+
+.table-header th {
+  color: white;
+  font-weight: 700;
+  text-align: right;
+}
+
+.table-row:hover {
+  background: rgba(249, 115, 22, 0.05);
+  transition: background 0.3s ease;
+}
