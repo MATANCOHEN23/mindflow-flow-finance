@@ -7,6 +7,9 @@ import {
   DragOverlay,
   DragStartEvent,
   closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
 } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useState } from 'react';
@@ -15,6 +18,7 @@ import { useDeals, useUpdateDeal } from '@/hooks/useDeals';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { DealColumn } from './DealColumn';
 import { DealCard } from './DealCard';
+import { toast } from 'sonner';
 
 type DealStatus = 'lead' | 'booked' | 'done';
 
@@ -29,6 +33,14 @@ export const DealBoard: React.FC = () => {
   const updateDealMutation = useUpdateDeal();
   const [activeId, setActiveId] = useState<string | null>(null);
   const [draggedDeal, setDraggedDeal] = useState<Deal | null>(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    })
+  );
 
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
@@ -56,6 +68,14 @@ export const DealBoard: React.FC = () => {
         id: dealId,
         data: { workflow_stage: newStatus }
       });
+      
+      // Show success message
+      const statusNames = {
+        lead: 'לידים',
+        booked: 'מוזמנים',
+        done: 'הושלמו'
+      };
+      toast.success(`העסקה הועברה ל${statusNames[newStatus]} ✅`);
     }
 
     setActiveId(null);
@@ -83,7 +103,7 @@ export const DealBoard: React.FC = () => {
       </h2>
       
       <DndContext
-        sensors={[]}
+        sensors={sensors}
         collisionDetection={closestCenter}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}

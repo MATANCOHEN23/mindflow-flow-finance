@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { MainLayout } from "@/components/Layout/MainLayout";
 import { useState } from "react";
-import { AddClientForm } from "@/components/Forms/AddClientForm";
+import { NewContactForm } from "@/components/Forms/NewContactForm";
 import { DeleteConfirmModal } from "@/components/DeleteConfirmModal";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { useContacts, useDeleteContact } from "@/hooks/useContacts";
@@ -12,21 +12,14 @@ import { Edit, Trash2, Phone, Mail } from "lucide-react";
 import { Contact } from "@/types/database";
 
 const Contacts = () => {
-  const [isClientFormOpen, setIsClientFormOpen] = useState(false);
-  const [editingContact, setEditingContact] = useState<Contact | null>(null);
+  const [isContactFormOpen, setIsContactFormOpen] = useState(false);
   const [deleteContact, setDeleteContact] = useState<Contact | null>(null);
   
   const { data: contacts, isLoading, error } = useContacts();
   const deleteContactMutation = useDeleteContact();
 
   const handleAddClient = () => {
-    setEditingContact(null);
-    setIsClientFormOpen(true);
-  };
-
-  const handleEditClient = (contact: Contact) => {
-    setEditingContact(contact);
-    setIsClientFormOpen(true);
+    setIsContactFormOpen(true);
   };
 
   const handleDeleteClick = (contact: Contact) => {
@@ -41,15 +34,14 @@ const Contacts = () => {
   };
 
   const handleFormClose = () => {
-    setIsClientFormOpen(false);
-    setEditingContact(null);
+    setIsContactFormOpen(false);
   };
 
   if (error) {
     return (
       <MainLayout>
         <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-center brand-card max-w-md">
+          <div className="text-center card max-w-md">
             <div className="text-6xl mb-4">⚠️</div>
             <h3 className="text-lg font-semibold text-red-600 mb-2">שגיאה בטעינת הנתונים</h3>
             <p className="text-gray-600 mb-4">{error.message}</p>
@@ -65,7 +57,7 @@ const Contacts = () => {
   return (
     <MainLayout>
       <div className="space-y-6 animate-fade-in" dir="rtl">
-        <div className="brand-card header-gradient text-white">
+        <div className="card header-gradient text-white">
           <div className="flex justify-between items-center mb-6 p-6">
             <div>
               <h1 className="text-3xl font-bold text-white mb-2 glow-text">👥 ניהול לקוחות</h1>
@@ -74,7 +66,7 @@ const Contacts = () => {
               </p>
             </div>
             <Button 
-              className="bg-white text-blue-600 hover:bg-gray-100 font-semibold px-6 py-3" 
+              className="cta font-semibold px-6 py-3" 
               onClick={handleAddClient}
               disabled={isLoading}
             >
@@ -83,7 +75,7 @@ const Contacts = () => {
           </div>
         </div>
 
-        <Card className="brand-card p-0">
+        <Card className="card p-0">
           <CardHeader className="brand-card-header">
             <CardTitle className="text-xl font-bold text-blue-600 text-center">
               רשימת לקוחות
@@ -122,7 +114,7 @@ const Contacts = () => {
                             לחץ על "הוסף לקוח חדש" כדי להתחיל
                           </p>
                           <Button 
-                            className="btn-primary text-lg px-8 py-3" 
+                            className="cta text-lg px-8 py-3" 
                             onClick={handleAddClient}
                           >
                             ➕ הוסף לקוח ראשון
@@ -171,16 +163,8 @@ const Contacts = () => {
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => handleEditClient(contact)}
-                              className="h-8 w-8 p-0 hover:bg-blue-50 hover:border-blue-300"
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleDeleteClick(contact)}
                               className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 hover:border-red-300"
+                              onClick={() => handleDeleteClick(contact)}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
@@ -195,10 +179,9 @@ const Contacts = () => {
           </CardContent>
         </Card>
 
-        <AddClientForm 
-          isOpen={isClientFormOpen}
+        <NewContactForm 
+          isOpen={isContactFormOpen}
           onClose={handleFormClose}
-          contact={editingContact}
         />
 
         <DeleteConfirmModal
@@ -213,7 +196,7 @@ const Contacts = () => {
         {/* Floating Action Button */}
         <button
           onClick={handleAddClient}
-          className="floating-add-btn"
+          className="floating-add-btn cta"
           aria-label="הוסף לקוח חדש"
         >
           ➕

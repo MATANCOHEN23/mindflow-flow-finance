@@ -9,6 +9,7 @@
 @import './styles/tables.css';
 @import './styles/effects.css';
 @import './styles/components.css';
+@import './styles/vibrant-theme.css';
 
 @tailwind base;
 @tailwind components;

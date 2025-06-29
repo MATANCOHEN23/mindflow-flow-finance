@@ -14,15 +14,20 @@ import {
 import { useLocation, Link } from "react-router-dom";
 import { UserPlus, Briefcase } from "lucide-react";
 import { useState, useEffect } from "react";
-import { AddClientForm } from "@/components/Forms/AddClientForm";
-import { AddDealForm } from "@/components/Forms/AddDealForm";
+import { NewContactForm } from "@/components/Forms/NewContactForm";
+import { NewDealForm } from "@/components/Forms/NewDealForm";
 
 const logoUrl = "/placeholder-logo.png";
 
 const menuItems = [
   {
-    title: "לוח בקרה",
+    title: "דף הבית",
     url: "/",
+    icon: "🏠",
+  },
+  {
+    title: "לוח בקרה",
+    url: "/dashboard",
     icon: "📊",
   },
   {
@@ -64,7 +69,7 @@ const menuItems = [
 
 export function AppSidebar() {
   const location = useLocation();
-  const [isClientFormOpen, setIsClientFormOpen] = useState(false);
+  const [isContactFormOpen, setIsContactFormOpen] = useState(false);
   const [isDealFormOpen, setIsDealFormOpen] = useState(false);
 
   // Listen for deal form open events from Dashboard
@@ -95,8 +100,8 @@ export function AppSidebar() {
             className="w-full sidebar-btn text-sm py-3 px-4 flex items-center gap-3 justify-center rounded-lg font-semibold hover:bg-orange-600"
             aria-label="הוסף לקוח חדש"
             tabIndex={0}
-            onClick={() => setIsClientFormOpen(true)}
-            onKeyPress={(e) => e.key === 'Enter' && setIsClientFormOpen(true)}
+            onClick={() => setIsContactFormOpen(true)}
+            onKeyPress={(e) => e.key === 'Enter' && setIsContactFormOpen(true)}
           >
             <UserPlus size={18} />
             לקוח חדש
@@ -178,12 +183,12 @@ export function AppSidebar() {
         </SidebarFooter>
       </Sidebar>
 
-      <AddClientForm 
-        isOpen={isClientFormOpen}
-        onClose={() => setIsClientFormOpen(false)}
+      <NewContactForm 
+        isOpen={isContactFormOpen}
+        onClose={() => setIsContactFormOpen(false)}
       />
 
-      <AddDealForm 
+      <NewDealForm 
         isOpen={isDealFormOpen}
         onClose={() => setIsDealFormOpen(false)}
       />
