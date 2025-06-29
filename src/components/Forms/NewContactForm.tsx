@@ -27,7 +27,10 @@ export const NewContactForm: React.FC<NewContactFormProps> = ({ isOpen, onClose 
 
   const onSubmit = async (data: ContactFormData) => {
     try {
-      await createContactMutation.mutateAsync(data);
+      await createContactMutation.mutateAsync({
+        ...data,
+        role_tags: []
+      });
       toast.success('לקוח חדש נוסף בהצלחה! 🎉');
       reset();
       onClose();

@@ -50,7 +50,9 @@ export const NewDealForm: React.FC<NewDealFormProps> = ({ isOpen, onClose }) => 
       await createDealMutation.mutateAsync({
         ...data,
         workflow_stage: 'lead',
-        payment_status: 'pending'
+        payment_status: 'pending' as const,
+        amount_paid: 0,
+        custom_fields: {}
       });
       toast.success('עסקה חדשה נוספה בהצלחה! 💼');
       reset();
