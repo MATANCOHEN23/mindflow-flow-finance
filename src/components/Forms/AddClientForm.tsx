@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { useCreateContact, useUpdateContact } from "@/hooks/useContacts";
 import { Contact } from "@/types/database";
 import { Loader2 } from "lucide-react";
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface AddClientFormProps {
   isOpen: boolean;
@@ -21,7 +22,9 @@ const roleOptions = [
   'בן משפחה',
   'מטפל',
   'מאמן',
-  'מורה'
+  'מורה',
+  'מטופל',
+  'שחקן כדורסל'
 ];
 
 export const AddClientForm = ({ isOpen, onClose, contact }: AddClientFormProps) => {
@@ -36,11 +39,8 @@ export const AddClientForm = ({ isOpen, onClose, contact }: AddClientFormProps) 
     notes: ''
   });
 
-  const createContactMutation = useCreateContact();
-  const updateContactMutation = useUpdateContact();
-  
+  const [isLoading, setIsLoading] = useState(false);
   const isEditing = !!contact;
-  const isLoading = createContactMutation.isPending || updateContactMutation.isPending;
 
   useEffect(() => {
     if (contact) {
@@ -85,22 +85,43 @@ export const AddClientForm = ({ isOpen, onClose, contact }: AddClientFormProps) 
     e.preventDefault();
     
     if (!formData.first_name.trim()) {
-      alert('שם פרטי הוא שדה חובה');
+      toast.error('שם פרטי הוא שדה חובה');
       return;
     }
 
+    setIsLoading(true);
+    
     try {
       if (isEditing && contact) {
-        await updateContactMutation.mutateAsync({
-          id: contact.id,
-          data: formData
-        });
+        const { data, error } = await supabase
+          .from('contacts')
+          .update(formData)
+          .eq('id', contact.id)
+          .select()
+          .single();
+
+        if (error) throw error;
+        toast.success('✅ הלקוח עודכן בהצלחה!');
       } else {
-        await createContactMutation.mutateAsync(formData);
+        const { data, error } = await supabase
+          .from('contacts')
+          .insert([formData])
+          .select()
+          .single();
+
+        if (error) throw error;
+        toast.success('✅ הלקוח נוסף בהצלחה!');
       }
+      
       onClose();
-    } catch (error) {
+      
+      // Refresh the contacts list
+      window.location.reload();
+    } catch (error: any) {
       console.error('Error saving contact:', error);
+      toast.error('❌ שגיאה בשמירת הלקוח: ' + (error.message || 'שגיאה לא ידועה'));
+    } finally {
+      setIsLoading(false);
     }
   };
 

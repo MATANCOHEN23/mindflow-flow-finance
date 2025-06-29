@@ -1,0 +1,53 @@
+
+/* Remove any full-screen gold lines or overlays */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  pointer-events: auto !important; /* Ensure clicks work */
+}
+
+.modal-content {
+  position: relative;
+  z-index: 51;
+  pointer-events: auto !important;
+}
+
+/* Remove any ::before or ::after that create full-screen overlays */
+.premium-card::before,
+.glass-card::before,
+.card::before {
+  pointer-events: none !important; /* Ensure decorative elements don't block clicks */
+}
+
+/* Fix button click areas */
+button {
+  position: relative;
+  z-index: 10;
+  cursor: pointer;
+  pointer-events: auto !important;
+}
+
+/* Remove any outline that spans the screen */
+*:focus {
+  outline: none !important;
+}
+
+/* Ensure dialogs work properly */
+[data-radix-dialog-content] {
+  pointer-events: auto !important;
+  z-index: 100;
+}
+
+[data-radix-dialog-overlay] {
+  pointer-events: auto !important;
+}
+
+/* Fix form elements */
+input, textarea, select, button {
+  pointer-events: auto !important;
+}

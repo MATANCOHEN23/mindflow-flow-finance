@@ -1,12 +1,14 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { toast } from "sonner";
 import { Deal } from "@/types/database";
-import { useCreateDeal, useUpdateDeal } from "@/hooks/useDeals";
+import { Loader2 } from "lucide-react";
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface AddDealFormProps {
   isOpen: boolean;
@@ -15,8 +17,7 @@ interface AddDealFormProps {
 }
 
 export function AddDealForm({ isOpen, onClose, deal }: AddDealFormProps) {
-  const createDealMutation = useCreateDeal();
-  const updateDealMutation = useUpdateDeal();
+  const [isLoading, setIsLoading] = useState(false);
   
   const [formData, setFormData] = useState({
     title: '',
@@ -74,13 +75,15 @@ export function AddDealForm({ isOpen, onClose, deal }: AddDealFormProps) {
     }
   }, [deal]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.title || !formData.amount_total) {
       toast.error("כותרת וסכום כולל הם שדות חובה");
       return;
     }
+
+    setIsLoading(true);
 
     const dealData = {
       title: formData.title,
@@ -95,25 +98,39 @@ export function AddDealForm({ isOpen, onClose, deal }: AddDealFormProps) {
       custom_fields: {}
     };
 
-    if (deal) {
-      // Update existing deal
-      updateDealMutation.mutate({
-        id: deal.id,
-        data: dealData
-      }, {
-        onSuccess: () => {
-          onClose();
-          toast.success("העסקה עודכנה בהצלחה!");
-        }
-      });
-    } else {
-      // Create new deal
-      createDealMutation.mutate(dealData, {
-        onSuccess: () => {
-          onClose();
-          toast.success("העסקה נוספה בהצלחה!");
-        }
-      });
+    try {
+      if (deal) {
+        // Update existing deal
+        const { data, error } = await supabase
+          .from('deals')
+          .update(dealData)
+          .eq('id', deal.id)
+          .select()
+          .single();
+
+        if (error) throw error;
+        toast.success("✅ העסקה עודכנה בהצלחה!");
+      } else {
+        // Create new deal
+        const { data, error } = await supabase
+          .from('deals')
+          .insert([dealData])
+          .select()
+          .single();
+
+        if (error) throw error;
+        toast.success("✅ העסקה נוספה בהצלחה!");
+      }
+      
+      onClose();
+      
+      // Refresh the deals list
+      window.location.reload();
+    } catch (error: any) {
+      console.error('Error saving deal:', error);
+      toast.error('❌ שגיאה בשמירת העסקה: ' + (error.message || 'שגיאה לא ידועה'));
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -244,9 +261,16 @@ export function AddDealForm({ isOpen, onClose, deal }: AddDealFormProps) {
             <Button 
               type="submit" 
               className="btn-accent flex-1"
-              disabled={createDealMutation.isPending || updateDealMutation.isPending}
+              disabled={isLoading}
             >
-              {deal ? '✅ עדכן עסקה' : '✅ הוסף עסקה'}
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {deal ? 'מעדכן...' : 'שומר...'}
+                </>
+              ) : (
+                deal ? '✅ עדכן עסקה' : '✅ הוסף עסקה'
+              )}
             </Button>
             <Button type="button" onClick={onClose} variant="outline" className="flex-1">
               ❌ ביטול

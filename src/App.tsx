@@ -10,6 +10,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { ConnectionStatus } from "@/components/ConnectionStatus";
 import Index from "./pages/Index";
 import Home from "./pages/Home";
 import Contacts from "./pages/Contacts";
@@ -28,6 +29,7 @@ const App = () => (
     <TooltipProvider>
       <ErrorBoundary>
         <Toaster />
+        <ConnectionStatus />
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Home />} />
