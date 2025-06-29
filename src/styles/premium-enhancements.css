@@ -1,0 +1,102 @@
+
+/* Fix modal overlay blocking */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 40;
+  pointer-events: auto;
+}
+
+.modal-content {
+  position: relative;
+  z-index: 50;
+  pointer-events: auto;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* Premium card styling with gold accents */
+.premium-card {
+  background: linear-gradient(to bottom, #ffffff, #fafafa);
+  border: 1px solid #d4af37;
+  border-radius: 12px;
+  box-shadow: 
+    0 4px 20px rgba(212, 175, 55, 0.1),
+    0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.premium-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #d4af37, #f6e05e, #d4af37);
+  opacity: 0.8;
+}
+
+.premium-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 30px rgba(212, 175, 55, 0.15),
+    0 2px 6px rgba(0, 0, 0, 0.08);
+  border-color: #f6e05e;
+}
+
+/* Sidebar button styling */
+.sidebar-button {
+  padding: 12px 20px;
+  margin: 8px;
+  border-radius: 10px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid transparent;
+}
+
+.sidebar-button:hover {
+  background: rgba(249, 115, 22, 0.1);
+  border-color: #d4af37;
+  transform: translateX(4px);
+}
+
+.sidebar-button.active {
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(212, 175, 55, 0.1));
+  border-color: #d4af37;
+  box-shadow: 0 0 0 1px #d4af37 inset;
+}
+
+/* Fix click-through issues */
+button, a, input, select, textarea {
+  position: relative;
+  z-index: 1;
+}
+
+/* Ensure no elements block interactions */
+*::before, *::after {
+  pointer-events: none;
+}
+
+/* Premium animations */
+@keyframes goldShimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.gold-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(212, 175, 55, 0.3) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: goldShimmer 3s ease-in-out infinite;
+}

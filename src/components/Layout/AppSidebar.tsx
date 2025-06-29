@@ -1,4 +1,3 @@
-
 import {
   Sidebar,
   SidebarContent,
@@ -17,6 +16,7 @@ import { useState, useEffect } from "react";
 import { NewContactForm } from "@/components/Forms/NewContactForm";
 import { NewDealForm } from "@/components/Forms/NewDealForm";
 import { BulkImportModal } from "@/components/BulkImport/BulkImportModal";
+import { SmartClientWizard } from "@/components/Forms/SmartClientWizard";
 
 const logoUrl = "/placeholder-logo.png";
 
@@ -73,6 +73,7 @@ export function AppSidebar() {
   const [isContactFormOpen, setIsContactFormOpen] = useState(false);
   const [isDealFormOpen, setIsDealFormOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [isSmartWizardOpen, setIsSmartWizardOpen] = useState(false);
 
   // Listen for deal form open events from Dashboard
   useEffect(() => {
@@ -99,17 +100,17 @@ export function AppSidebar() {
         {/* Quick Action Buttons */}
         <div className="p-4 space-y-3 border-b border-gray-700">
           <button 
-            className="w-full sidebar-btn text-sm py-3 px-4 flex items-center gap-3 justify-center rounded-lg font-semibold hover:bg-orange-600"
-            aria-label="הוסף לקוח חדש"
+            className="w-full sidebar-btn text-sm py-3 px-4 flex items-center gap-3 justify-center rounded-lg font-semibold hover:bg-orange-600 transition-all duration-300 sidebar-button"
+            aria-label="אשף לקוח חכם"
             tabIndex={0}
-            onClick={() => setIsContactFormOpen(true)}
-            onKeyPress={(e) => e.key === 'Enter' && setIsContactFormOpen(true)}
+            onClick={() => setIsSmartWizardOpen(true)}
+            onKeyPress={(e) => e.key === 'Enter' && setIsSmartWizardOpen(true)}
           >
             <UserPlus size={18} />
-            לקוח חדש
+            🎯 אשף לקוח חכם
           </button>
           <button 
-            className="w-full text-sm py-3 px-4 flex items-center gap-3 justify-center rounded-lg font-semibold transition-all duration-300 hover:bg-orange-600"
+            className="w-full text-sm py-3 px-4 flex items-center gap-3 justify-center rounded-lg font-semibold transition-all duration-300 hover:bg-orange-600 sidebar-button"
             style={{ 
               background: 'var(--cta)',
               color: 'white',
@@ -132,7 +133,7 @@ export function AppSidebar() {
             עסקה חדשה
           </button>
           <button 
-            className="w-full sidebar-btn text-sm py-3 px-4 flex items-center gap-3 justify-center rounded-lg font-semibold hover:bg-orange-600"
+            className="w-full sidebar-btn text-sm py-3 px-4 flex items-center gap-3 justify-center rounded-lg font-semibold hover:bg-orange-600 sidebar-button"
             aria-label="ייבוא קובץ"
             tabIndex={0}
             onClick={() => setIsImportModalOpen(true)}
@@ -142,6 +143,8 @@ export function AppSidebar() {
             ייבוא קובץ
           </button>
         </div>
+        
+        
         
         <SidebarContent className="px-4">
           <SidebarGroup>
@@ -208,6 +211,11 @@ export function AppSidebar() {
       <BulkImportModal 
         isOpen={isImportModalOpen}
         onClose={() => setIsImportModalOpen(false)}
+      />
+
+      <SmartClientWizard 
+        isOpen={isSmartWizardOpen}
+        onClose={() => setIsSmartWizardOpen(false)}
       />
     </>
   );
