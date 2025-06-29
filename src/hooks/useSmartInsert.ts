@@ -12,11 +12,36 @@ export interface SmartInsertOptions {
 export const useSmartInsert = () => {
   const smartInsert = async ({ table, values, onSuccess }: SmartInsertOptions) => {
     try {
-      const { data, error } = await supabase
-        .from(table)
-        .insert(values)
-        .select()
-        .single();
+      let data, error;
+      
+      // Use proper table names that match Supabase schema
+      if (table === 'contacts') {
+        const result = await supabase
+          .from('contacts')
+          .insert(values)
+          .select()
+          .single();
+        data = result.data;
+        error = result.error;
+      } else if (table === 'deals') {
+        const result = await supabase
+          .from('deals')
+          .insert(values)
+          .select()
+          .single();
+        data = result.data;
+        error = result.error;
+      } else if (table === 'payments') {
+        const result = await supabase
+          .from('payments')
+          .insert(values)
+          .select()
+          .single();
+        data = result.data;
+        error = result.error;
+      } else {
+        throw new Error(`Unsupported table: ${table}`);
+      }
       
       if (error) throw error;
 

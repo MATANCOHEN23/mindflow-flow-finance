@@ -10,6 +10,13 @@ import { Upload, FileText, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useSmartInsert } from "@/hooks/useSmartInsert";
 
+// Type declaration for SheetJS
+declare global {
+  interface Window {
+    XLSX: any;
+  }
+}
+
 interface BulkImportModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -40,7 +47,7 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({ isOpen, onClos
     setIsProcessing(true);
     
     try {
-      const XLSX = await loadSheetJS();
+      const XLSX = await loadSheetJS() as any;
       const data = await file.arrayBuffer();
       
       let parsedRows = [];
