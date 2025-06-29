@@ -4,8 +4,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useForm } from "react-hook-form";
-import { useCreateContact } from "@/hooks/useContacts";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useForm, Controller } from "react-hook-form";
+import { useSmartInsert } from "@/hooks/useSmartInsert";
 import { X } from "lucide-react";
 import { toast } from "sonner";
 
@@ -19,23 +20,41 @@ interface ContactFormData {
   last_name: string;
   phone_parent: string;
   email: string;
+  role_tags: string[];
 }
 
 export const NewContactForm: React.FC<NewContactFormProps> = ({ isOpen, onClose }) => {
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<ContactFormData>();
-  const createContactMutation = useCreateContact();
+  const { register, handleSubmit, reset, control, formState: { errors } } = useForm<ContactFormData>();
+  const { smartInsert } = useSmartInsert();
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  const roleOptions = [
+    { value: 'לקוח', label: '👤 לקוח' },
+    { value: 'הורה', label: '👨‍👩‍👧‍👦 הורה' },
+    { value: 'מטופל', label: '🏥 מטופל' },
+    { value: 'שחקן כדורסל', label: '🏀 שחקן כדורסל' },
+    { value: 'תלמיד', label: '🎓 תלמיד' }
+  ];
 
   const onSubmit = async (data: ContactFormData) => {
+    setIsLoading(true);
     try {
-      await createContactMutation.mutateAsync({
-        ...data,
-        role_tags: []
+      await smartInsert({
+        table: 'contacts',
+        values: {
+          ...data,
+          role_tags: data.role_tags || []
+        },
+        onSuccess: () => {
+          toast.success('לקוח חדש נוסף בהצלחה! 🎉');
+          reset();
+          onClose();
+        }
       });
-      toast.success('לקוח חדש נוסף בהצלחה! 🎉');
-      reset();
-      onClose();
     } catch (error) {
       toast.error('שגיאה בהוספת הלקוח');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -77,6 +96,28 @@ export const NewContactForm: React.FC<NewContactFormProps> = ({ isOpen, onClose 
           </div>
 
           <div>
+            <Label htmlFor="role_tags">תפקיד</Label>
+            <Controller
+              name="role_tags"
+              control={control}
+              render={({ field }) => (
+                <Select onValueChange={(value) => field.onChange([value])} value={field.value?.[0]}>
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="בחר תפקיד" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {roleOptions.map((role) => (
+                      <SelectItem key={role.value} value={role.value}>
+                        {role.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+          </div>
+
+          <div>
             <Label htmlFor="phone_parent">טלפון הורה</Label>
             <Input
               id="phone_parent"
@@ -102,9 +143,9 @@ export const NewContactForm: React.FC<NewContactFormProps> = ({ isOpen, onClose 
             <Button
               type="submit"
               className="cta flex-1"
-              disabled={createContactMutation.isPending}
+              disabled={isLoading}
             >
-              {createContactMutation.isPending ? 'שומר...' : '💾 שמור לקוח'}
+              {isLoading ? 'שומר...' : '💾 שמור לקוח'}
             </Button>
             <Button
               type="button"

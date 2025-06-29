@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useForm, Controller } from "react-hook-form";
-import { useCreateDeal } from "@/hooks/useDeals";
+import { useSmartInsert } from "@/hooks/useSmartInsert";
 import { useContacts } from "@/hooks/useContacts";
 import { X } from "lucide-react";
 import { toast } from "sonner";
@@ -29,8 +29,9 @@ interface DealFormData {
 
 export const NewDealForm: React.FC<NewDealFormProps> = ({ isOpen, onClose }) => {
   const { register, handleSubmit, reset, control, formState: { errors } } = useForm<DealFormData>();
-  const createDealMutation = useCreateDeal();
+  const { smartInsert } = useSmartInsert();
   const { data: contacts } = useContacts();
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const categories = [
     { value: 'birthday', label: '🎂 יום הולדת' },
@@ -46,19 +47,27 @@ export const NewDealForm: React.FC<NewDealFormProps> = ({ isOpen, onClose }) => 
   ];
 
   const onSubmit = async (data: DealFormData) => {
+    setIsLoading(true);
     try {
-      await createDealMutation.mutateAsync({
-        ...data,
-        workflow_stage: 'lead',
-        payment_status: 'pending' as const,
-        amount_paid: 0,
-        custom_fields: {}
+      await smartInsert({
+        table: 'deals',
+        values: {
+          ...data,
+          workflow_stage: 'lead',
+          payment_status: 'pending' as const,
+          amount_paid: 0,
+          custom_fields: {}
+        },
+        onSuccess: () => {
+          toast.success('עסקה חדשה נוספה בהצלחה! 💼');
+          reset();
+          onClose();
+        }
       });
-      toast.success('עסקה חדשה נוספה בהצלחה! 💼');
-      reset();
-      onClose();
     } catch (error) {
       toast.error('שגיאה בהוספת העסקה');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -196,9 +205,9 @@ export const NewDealForm: React.FC<NewDealFormProps> = ({ isOpen, onClose }) => 
             <Button
               type="submit"
               className="cta flex-1"
-              disabled={createDealMutation.isPending}
+              disabled={isLoading}
             >
-              {createDealMutation.isPending ? 'שומר...' : '💾 שמור עסקה'}
+              {isLoading ? 'שומר...' : '💾 שמור עסקה'}
             </Button>
             <Button
               type="button"

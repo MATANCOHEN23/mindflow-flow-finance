@@ -12,10 +12,11 @@ import {
   SidebarFooter,
 } from "@/components/ui/sidebar";
 import { useLocation, Link } from "react-router-dom";
-import { UserPlus, Briefcase } from "lucide-react";
+import { UserPlus, Briefcase, Upload } from "lucide-react";
 import { useState, useEffect } from "react";
 import { NewContactForm } from "@/components/Forms/NewContactForm";
 import { NewDealForm } from "@/components/Forms/NewDealForm";
+import { BulkImportModal } from "@/components/BulkImport/BulkImportModal";
 
 const logoUrl = "/placeholder-logo.png";
 
@@ -71,6 +72,7 @@ export function AppSidebar() {
   const location = useLocation();
   const [isContactFormOpen, setIsContactFormOpen] = useState(false);
   const [isDealFormOpen, setIsDealFormOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   // Listen for deal form open events from Dashboard
   useEffect(() => {
@@ -128,6 +130,16 @@ export function AppSidebar() {
           >
             <Briefcase size={18} />
             עסקה חדשה
+          </button>
+          <button 
+            className="w-full sidebar-btn text-sm py-3 px-4 flex items-center gap-3 justify-center rounded-lg font-semibold hover:bg-orange-600"
+            aria-label="ייבוא קובץ"
+            tabIndex={0}
+            onClick={() => setIsImportModalOpen(true)}
+            onKeyPress={(e) => e.key === 'Enter' && setIsImportModalOpen(true)}
+          >
+            <Upload size={18} />
+            ייבוא קובץ
           </button>
         </div>
         
@@ -191,6 +203,11 @@ export function AppSidebar() {
       <NewDealForm 
         isOpen={isDealFormOpen}
         onClose={() => setIsDealFormOpen(false)}
+      />
+
+      <BulkImportModal 
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
       />
     </>
   );
