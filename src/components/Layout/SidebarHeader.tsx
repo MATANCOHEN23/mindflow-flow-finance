@@ -1,6 +1,8 @@
 
 import { useEffect, useState } from "react";
-import { UserPlus, Briefcase, Upload } from "lucide-react";
+import { UserPlus, Briefcase, Upload, TestTube, Navigation } from "lucide-react";
+import { SystemTester } from "@/tests/SystemTester";
+import { NavigationTester } from "@/components/NavigationTester";
 
 interface SidebarHeaderProps {
   onOpenSmartWizard: () => void;
@@ -9,6 +11,9 @@ interface SidebarHeaderProps {
 }
 
 export function SidebarHeader({ onOpenSmartWizard, onOpenDealForm, onOpenImport }: SidebarHeaderProps) {
+  const [isSystemTesterOpen, setIsSystemTesterOpen] = useState(false);
+  const [isNavigationTesterOpen, setIsNavigationTesterOpen] = useState(false);
+  
   useEffect(() => {
     const handleOpenDealForm = () => onOpenDealForm();
     window.addEventListener('openDealForm', handleOpenDealForm);
@@ -74,7 +79,48 @@ export function SidebarHeader({ onOpenSmartWizard, onOpenDealForm, onOpenImport 
           <Upload size={18} />
           ייבוא קובץ
         </button>
+        
+        <button 
+          className="w-full sidebar-btn text-sm py-3 px-4 flex items-center gap-3 justify-center rounded-lg font-semibold hover:bg-orange-600 sidebar-button"
+          aria-label="בדיקות מערכת"
+          tabIndex={0}
+          onClick={() => setIsSystemTesterOpen(true)}
+          onKeyPress={(e) => e.key === 'Enter' && setIsSystemTesterOpen(true)}
+        >
+          <TestTube size={18} />
+          🧪 בדיקות מערכת
+        </button>
+        
+        <button 
+          className="w-full sidebar-btn text-sm py-3 px-4 flex items-center gap-3 justify-center rounded-lg font-semibold hover:bg-orange-600 sidebar-button"
+          aria-label="בדיקת ניווט"
+          tabIndex={0}
+          onClick={() => setIsNavigationTesterOpen(true)}
+          onKeyPress={(e) => e.key === 'Enter' && setIsNavigationTesterOpen(true)}
+        >
+          <Navigation size={18} />
+          🧭 בדיקת ניווט
+        </button>
       </div>
+
+      <SystemTester 
+        isOpen={isSystemTesterOpen} 
+        onClose={() => setIsSystemTesterOpen(false)} 
+      />
+      
+      {isNavigationTesterOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="relative">
+            <button 
+              onClick={() => setIsNavigationTesterOpen(false)}
+              className="absolute -top-4 -right-4 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center z-10"
+            >
+              ✕
+            </button>
+            <NavigationTester />
+          </div>
+        </div>
+      )}
     </>
   );
 }

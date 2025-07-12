@@ -37,7 +37,7 @@ export const NewDealForm: React.FC<NewDealFormProps> = ({ isOpen, onClose }) => 
     { value: 'birthday', label: '🎂 יום הולדת' },
     { value: 'therapy', label: '🧠 טיפול' },
     { value: 'basketball', label: '🏀 אימון כדורסל' },
-    { value: 'workshop', label: '🎓 סדנה' }
+    { value: 'workshop', label: '🎓 סדנה בית ספר' }
   ];
 
   const packageTypes = [

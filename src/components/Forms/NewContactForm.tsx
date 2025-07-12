@@ -29,11 +29,12 @@ export const NewContactForm: React.FC<NewContactFormProps> = ({ isOpen, onClose 
   const [isLoading, setIsLoading] = React.useState(false);
 
   const roleOptions = [
-    { value: 'לקוח', label: '👤 לקוח' },
-    { value: 'הורה', label: '👨‍👩‍👧‍👦 הורה' },
-    { value: 'מטופל', label: '🏥 מטופל' },
-    { value: 'שחקן כדורסל', label: '🏀 שחקן כדורסל' },
-    { value: 'תלמיד', label: '🎓 תלמיד' }
+    { value: 'client', label: '👤 לקוח' },
+    { value: 'parent', label: '👨‍👩‍👧‍👦 הורה' },
+    { value: 'patient', label: '🏥 מטופל' },
+    { value: 'trainee', label: '🏀 שחקן כדורסל' },
+    { value: 'student', label: '🎓 תלמיד' },
+    { value: 'birthday-child', label: '🎂 ילד יום הולדת' }
   ];
 
   const onSubmit = async (data: ContactFormData) => {

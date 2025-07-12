@@ -32,17 +32,17 @@ export function AddDealForm({ isOpen, onClose, deal }: AddDealFormProps) {
   });
 
   const categories = [
-    '🎂 יום הולדת',
-    '🧠 טיפול',
-    '🏀 אימון כדורסל',
-    '🎓 סדנה בית ספר'
+    { value: 'birthday', label: '🎂 יום הולדת' },
+    { value: 'therapy', label: '🧠 טיפול' },
+    { value: 'basketball', label: '🏀 אימון כדורסל' },
+    { value: 'workshop', label: '🎓 סדנה בית ספר' }
   ];
 
   const packageTypes = [
-    'חבילה בסיסית',
-    'חבילה מורחבת',
-    'חבילה פרימיום',
-    'מותאם אישית'
+    { value: 'basic', label: 'חבילה בסיסית' },
+    { value: 'extended', label: 'חבילה מורחבת' },
+    { value: 'premium', label: 'חבילה פרימיום' },
+    { value: 'custom', label: 'מותאם אישית' }
   ];
 
   // Load deal data when editing
@@ -173,8 +173,8 @@ export function AddDealForm({ isOpen, onClose, deal }: AddDealFormProps) {
                 </SelectTrigger>
                 <SelectContent>
                   {categories.map((category) => (
-                    <SelectItem key={category} value={category}>
-                      {category}
+                    <SelectItem key={category.value} value={category.value}>
+                      {category.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -191,8 +191,8 @@ export function AddDealForm({ isOpen, onClose, deal }: AddDealFormProps) {
                 </SelectTrigger>
                 <SelectContent>
                   {packageTypes.map((packageType) => (
-                    <SelectItem key={packageType} value={packageType}>
-                      {packageType}
+                    <SelectItem key={packageType.value} value={packageType.value}>
+                      {packageType.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
