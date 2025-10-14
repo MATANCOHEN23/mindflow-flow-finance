@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { MainLayout } from "@/components/Layout/MainLayout";
 import { CoachModal } from "@/components/Home/CoachModal";
 import { toast } from "sonner";
