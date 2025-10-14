@@ -21,6 +21,8 @@ import Therapy from "./pages/Therapy";
 import Basketball from "./pages/Basketball";
 import SchoolWorkshops from "./pages/SchoolWorkshops";
 import CustomerProfile from "./pages/CustomerProfile";
+import Domains from "./pages/Domains";
+import DomainProfile from "./pages/DomainProfile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -39,6 +41,8 @@ const App = () => (
             <Route path="/customer/:id" element={<CustomerProfile />} />
             <Route path="/deals" element={<Deals />} />
             <Route path="/payments" element={<Payments />} />
+            <Route path="/domains" element={<Domains />} />
+            <Route path="/domain/:id" element={<DomainProfile />} />
             <Route path="/birthday-events" element={<BirthdayEvents />} />
             <Route path="/therapy" element={<Therapy />} />
             <Route path="/basketball" element={<Basketball />} />

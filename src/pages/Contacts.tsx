@@ -12,6 +12,7 @@ import { useContacts, useDeleteContact } from "@/hooks/useContacts";
 import { useContactDomains } from "@/hooks/useDomains";
 import { Edit, Trash2, Phone, Mail } from "lucide-react";
 import { Contact } from "@/types/database";
+import { Link } from "react-router-dom";
 
 const Contacts = () => {
   const [isContactFormOpen, setIsContactFormOpen] = useState(false);
@@ -177,9 +178,11 @@ const ContactRow = ({ contact, onDeleteClick }: { contact: Contact; onDeleteClic
             contactDomains.slice(0, 3).map((cd) => {
               const domain = (cd as any).domain;
               return (
-                <Badge key={cd.id} variant="secondary" className="text-xs">
-                  {domain?.icon} {domain?.name || 'תחום'}
-                </Badge>
+                <Link key={cd.id} to={`/domain/${domain?.id}`}>
+                  <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-primary/20 transition-colors">
+                    {domain?.icon} {domain?.name || 'תחום'}
+                  </Badge>
+                </Link>
               );
             })
           ) : (

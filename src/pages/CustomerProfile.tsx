@@ -1,8 +1,9 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useContact } from '@/hooks/useContacts';
-import { useContactDomains } from '@/hooks/useDomains';
+import { useContactDomains, useUnassignContactFromDomain, useUpdateContactDomainStatus } from '@/hooks/useDomains';
 import { useDeals } from '@/hooks/useDeals';
 import { MainLayout } from '@/components/Layout/MainLayout';
+import { toast } from 'sonner';
 import { PremiumLoader } from '@/components/PremiumLoader';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -107,12 +108,21 @@ export default function CustomerProfile() {
                 contactDomains.map(cd => {
                   const domain = (cd as any).domain;
                   return (
-                    <Badge key={cd.id} variant="secondary" className="gap-1">
-                      {cd.status === 'active' && '✅'}
-                      {cd.status === 'paused' && '⏸️'}
-                      {cd.status === 'completed' && '✔️'}
-                      {domain?.icon} {domain?.name || 'תחום לא ידוע'}
-                    </Badge>
+                    <Link
+                      key={cd.id}
+                      to={`/domain/${domain?.id}`}
+                      className="inline-block"
+                    >
+                      <Badge 
+                        variant="secondary" 
+                        className="gap-1 cursor-pointer hover:bg-primary/20 transition-colors"
+                      >
+                        {cd.status === 'active' && '✅'}
+                        {cd.status === 'paused' && '⏸️'}
+                        {cd.status === 'completed' && '✔️'}
+                        {domain?.icon} {domain?.name || 'תחום לא ידוע'}
+                      </Badge>
+                    </Link>
                   );
                 })
               ) : (

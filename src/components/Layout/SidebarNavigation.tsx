@@ -37,6 +37,11 @@ const menuItems = [
     icon: "💳",
   },
   {
+    title: "ניהול תחומים",
+    url: "/domains",
+    icon: "⚙️",
+  },
+  {
     title: "אירועי יום הולדת",
     url: "/birthday-events",
     icon: "🎂",

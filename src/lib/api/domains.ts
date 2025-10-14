@@ -47,6 +47,21 @@ export const domainsApi = {
     return rootDomains;
   },
 
+  async getById(id: string): Promise<Domain> {
+    const { data, error } = await supabase
+      .from('domains' as any)
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      console.error('Error fetching domain by ID:', error);
+      throw new Error(`שגיאה בטעינת תחום: ${error.message}`);
+    }
+
+    return data as unknown as Domain;
+  },
+
   async getByLevel(level: number): Promise<Domain[]> {
     const { data, error } = await supabase
       .from('domains' as any)
