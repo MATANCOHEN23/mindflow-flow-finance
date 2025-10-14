@@ -206,10 +206,11 @@ export default function CustomerProfile() {
         {/* Tabs */}
         <Card className="p-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} dir="rtl">
-            <TabsList className="grid w-full grid-cols-4 mb-6">
+            <TabsList className="grid w-full grid-cols-5 mb-6">
               <TabsTrigger value="deals">עסקאות</TabsTrigger>
               <TabsTrigger value="payments">תשלומים</TabsTrigger>
               <TabsTrigger value="events">אירועים</TabsTrigger>
+              <TabsTrigger value="tasks">משימות</TabsTrigger>
               <TabsTrigger value="notes">הערות</TabsTrigger>
             </TabsList>
 
@@ -265,6 +266,13 @@ export default function CustomerProfile() {
               <div className="text-center py-12 text-muted-foreground">
                 <CalendarDays className="w-16 h-16 mx-auto mb-4 opacity-50" />
                 <p>אין אירועים ללקוח זה</p>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="tasks" className="space-y-4">
+              <div className="text-center py-12 text-muted-foreground">
+                <Briefcase className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                <p>אין משימות ללקוח זה</p>
               </div>
             </TabsContent>
 

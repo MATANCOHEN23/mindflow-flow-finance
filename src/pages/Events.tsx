@@ -6,6 +6,7 @@ import { Calendar, MapPin, Users, Clock } from 'lucide-react';
 import { PremiumLoader } from '@/components/PremiumLoader';
 import { EmptyState } from '@/components/EmptyState';
 import { EventForm } from '@/components/Forms/EventForm';
+import { MainLayout } from '@/components/Layout/MainLayout';
 import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
 
@@ -16,9 +17,11 @@ export default function Events() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <PremiumLoader size="lg" />
-      </div>
+      <MainLayout>
+        <div className="flex items-center justify-center min-h-screen">
+          <PremiumLoader size="lg" />
+        </div>
+      </MainLayout>
     );
   }
 
@@ -35,7 +38,8 @@ export default function Events() {
   };
 
   return (
-    <div className="space-y-8 animate-fade-in" dir="rtl">
+    <MainLayout>
+      <div className="space-y-8 animate-fade-in" dir="rtl">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-4xl font-black gradient-text mb-2">📅 אירועים</h1>
@@ -112,6 +116,7 @@ export default function Events() {
         }}
         event={selectedEvent}
       />
-    </div>
+      </div>
+    </MainLayout>
   );
 }

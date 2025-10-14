@@ -4,6 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { RevenueByDomainChart } from '@/components/Reports/RevenueByDomainChart';
 import { ClientGrowthChart } from '@/components/Reports/ClientGrowthChart';
+import { MainLayout } from '@/components/Layout/MainLayout';
 import { Download } from 'lucide-react';
 
 export default function Reports() {
@@ -16,7 +17,8 @@ export default function Reports() {
   };
 
   return (
-    <div className="space-y-8 animate-fade-in" dir="rtl">
+    <MainLayout>
+      <div className="space-y-8 animate-fade-in" dir="rtl">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-4xl font-black gradient-text mb-2">📊 דוחות ותובנות</h1>
@@ -88,6 +90,7 @@ export default function Reports() {
           </CardContent>
         </Card>
       )}
-    </div>
+      </div>
+    </MainLayout>
   );
 }

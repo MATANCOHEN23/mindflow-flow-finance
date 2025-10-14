@@ -5,6 +5,7 @@ import { useTasks } from '@/hooks/useTasks';
 import { PremiumLoader } from '@/components/PremiumLoader';
 import { EmptyState } from '@/components/EmptyState';
 import { TaskForm } from '@/components/Forms/TaskForm';
+import { MainLayout } from '@/components/Layout/MainLayout';
 import { Card, CardContent } from "@/components/ui/card";
 import { Calendar, AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
@@ -16,9 +17,11 @@ export default function Tasks() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <PremiumLoader size="lg" />
-      </div>
+      <MainLayout>
+        <div className="flex items-center justify-center min-h-screen">
+          <PremiumLoader size="lg" />
+        </div>
+      </MainLayout>
     );
   }
 
@@ -69,7 +72,8 @@ export default function Tasks() {
   );
 
   return (
-    <div className="space-y-8 animate-fade-in" dir="rtl">
+    <MainLayout>
+      <div className="space-y-8 animate-fade-in" dir="rtl">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-4xl font-black gradient-text mb-2">✅ משימות</h1>
@@ -136,6 +140,7 @@ export default function Tasks() {
         isOpen={isTaskFormOpen}
         onClose={() => setIsTaskFormOpen(false)}
       />
-    </div>
+      </div>
+    </MainLayout>
   );
 }
