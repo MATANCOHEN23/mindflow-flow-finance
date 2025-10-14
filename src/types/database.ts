@@ -65,3 +65,35 @@ export interface Task {
   auto_generated: boolean;
   created_at: string;
 }
+
+export interface Domain {
+  id: string;
+  parent_id?: string;
+  name: string;
+  icon?: string;
+  level: number;
+  pricing_type?: 'percentage' | 'fixed' | 'full';
+  pricing_value?: number;
+  pricing_notes?: string;
+  order_index: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ContactDomain {
+  id: string;
+  contact_id: string;
+  domain_id: string;
+  status: 'active' | 'paused' | 'completed';
+  joined_date: string;
+  notes?: string;
+  custom_pricing?: Record<string, any>;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DomainWithChildren extends Domain {
+  children?: DomainWithChildren[];
+  full_path?: string;
+}

@@ -1,20 +1,19 @@
-
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, ChevronLeft, Check } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Check, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-
-type ClientCategory = 'birthday' | 'workshop' | 'trainee' | 'patient';
+import { DomainSelector } from './DomainSelector';
+import { useCreateContact } from '@/hooks/useContacts';
+import { useAssignContactToDomain } from '@/hooks/useDomains';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
 
 interface WizardData {
-  category: ClientCategory | '';
-  subCategory: {
-    location?: string;
-    class?: string;
-    age?: number;
-    workshopType?: string;
-  };
+  selectedDomains: string[];
   contactInfo: {
     firstName: string;
     lastName: string;
@@ -26,7 +25,7 @@ interface WizardData {
   notes: string;
 }
 
-const STEPS = ['בחר קטגוריה', 'פרטים נוספים', 'פרטי קשר', 'סיכום'];
+const STEPS = ['בחר תחומים', 'פרטי קשר', 'סיכום'];
 
 interface SmartClientWizardProps {
   isOpen: boolean;
@@ -36,8 +35,7 @@ interface SmartClientWizardProps {
 export function SmartClientWizard({ isOpen, onClose }: SmartClientWizardProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [wizardData, setWizardData] = useState<WizardData>({
-    category: '',
-    subCategory: {},
+    selectedDomains: [],
     contactInfo: {
       firstName: '',
       lastName: '',
@@ -47,41 +45,24 @@ export function SmartClientWizard({ isOpen, onClose }: SmartClientWizardProps) {
     notes: ''
   });
 
-  const categoryConfig = {
-    birthday: {
-      icon: '🎂',
-      title: 'יום הולדת',
-      color: 'bg-pink-100 text-pink-700',
-      fields: []
-    },
-    workshop: {
-      icon: '🏫',
-      title: 'סדנה',
-      color: 'bg-blue-100 text-blue-700',
-      fields: [
-        { name: 'workshopType', label: 'סוג סדנה', type: 'select', options: ['מנטלית', 'ספורט', 'משולבת'] }
-      ]
-    },
-    trainee: {
-      icon: '🏀',
-      title: 'מתאמן',
-      color: 'bg-green-100 text-green-700',
-      fields: [
-        { name: 'location', label: 'מיקום', type: 'select', options: ['נווה עוז', 'אמיר'] },
-        { name: 'class', label: 'קבוצה', type: 'select', options: ['גני ילדים', 'א-ב', 'ג-ד', 'ה-ו', 'פעם בשבוע'] }
-      ]
-    },
-    patient: {
-      icon: '🧠',
-      title: 'מטופל',
-      color: 'bg-purple-100 text-purple-700',
-      fields: [
-        { name: 'age', label: 'גיל', type: 'number' }
-      ]
-    }
-  };
+  const createContact = useCreateContact();
+  const assignDomain = useAssignContactToDomain();
 
   const handleNext = () => {
+    if (currentStep === 0 && wizardData.selectedDomains.length === 0) {
+      toast.error('יש לבחור לפחות תחום אחד');
+      return;
+    }
+    if (currentStep === 1) {
+      if (!wizardData.contactInfo.firstName) {
+        toast.error('יש למלא שם פרטי');
+        return;
+      }
+      if (!wizardData.contactInfo.phone) {
+        toast.error('יש למלא מספר טלפון');
+        return;
+      }
+    }
     if (currentStep < STEPS.length - 1) {
       setCurrentStep(currentStep + 1);
     }
@@ -95,7 +76,8 @@ export function SmartClientWizard({ isOpen, onClose }: SmartClientWizardProps) {
 
   const handleSubmit = async () => {
     try {
-      const { error } = await supabase
+      // יצירת הלקוח
+      const { data: newContact, error: contactError } = await supabase
         .from('contacts')
         .insert([{
           first_name: wizardData.contactInfo.firstName,
@@ -104,351 +86,313 @@ export function SmartClientWizard({ isOpen, onClose }: SmartClientWizardProps) {
           phone_parent: wizardData.contactInfo.parentPhone,
           email: wizardData.contactInfo.email,
           child_name: wizardData.contactInfo.childName,
-          role_tags: [categoryConfig[wizardData.category as ClientCategory].title],
+          role_tags: [],
           notes: wizardData.notes
-        }]);
+        }])
+        .select()
+        .single();
 
-      if (error) throw error;
-      
-      toast.success('✅ הלקוח נוסף בהצלחה!');
-      
-      // Navigate to appropriate view based on category
-      switch(wizardData.category) {
-        case 'birthday':
-          window.location.href = '/birthday-events';
-          break;
-        case 'trainee':
-          window.location.href = '/basketball';
-          break;
-        case 'patient':
-          window.location.href = '/therapy';
-          break;
-        case 'workshop':
-          window.location.href = '/school-workshops';
-          break;
+      if (contactError) throw contactError;
+
+      // שיוך התחומים
+      for (const domainId of wizardData.selectedDomains) {
+        await supabase
+          .from('contact_domains' as any)
+          .insert([{
+            contact_id: newContact.id,
+            domain_id: domainId,
+            status: 'active'
+          }]);
       }
       
+      toast.success('✅ הלקוח נוסף בהצלחה!');
       onClose();
+      
+      // רענן את הדף
+      window.location.reload();
     } catch (error: any) {
+      console.error('Error creating contact:', error);
       toast.error('❌ שגיאה: ' + error.message);
     }
   };
 
+  const handleClose = () => {
+    setCurrentStep(0);
+    setWizardData({
+      selectedDomains: [],
+      contactInfo: {
+        firstName: '',
+        lastName: '',
+        phone: '',
+        email: ''
+      },
+      notes: ''
+    });
+    onClose();
+  };
+
   const renderStepContent = () => {
     switch(currentStep) {
-      case 0: // Category Selection
-        return (
-          <div className="grid grid-cols-2 gap-4">
-            {Object.entries(categoryConfig).map(([key, config]) => (
-              <motion.button
-                key={key}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => {
-                  setWizardData({ ...wizardData, category: key as ClientCategory });
-                  handleNext();
-                }}
-                className={`p-6 rounded-xl border-2 transition-all ${
-                  wizardData.category === key 
-                    ? 'border-orange-500 shadow-lg' 
-                    : 'border-gray-200 hover:border-orange-300'
-                }`}
-              >
-                <div className="text-4xl mb-2">{config.icon}</div>
-                <div className="font-bold">{config.title}</div>
-              </motion.button>
-            ))}
-          </div>
-        );
-        
-      case 1: // Sub-category fields
-        const category = categoryConfig[wizardData.category as ClientCategory];
-        if (!category || !category.fields.length) {
-          setTimeout(handleNext, 0); // Skip if no fields
-          return null;
-        }
-        
+      case 0: // Domain Selection
         return (
           <div className="space-y-4">
-            {category.fields.map((field: any) => (
-              <div key={field.name}>
-                <label className="block mb-2 font-bold">{field.label}</label>
-                {field.type === 'select' ? (
-                  <select
-                    className="w-full p-3 border rounded-lg"
-                    value={wizardData.subCategory[field.name as keyof typeof wizardData.subCategory] || ''}
-                    onChange={(e) => setWizardData({
-                      ...wizardData,
-                      subCategory: { ...wizardData.subCategory, [field.name]: e.target.value }
-                    })}
-                  >
-                    <option value="">בחר...</option>
-                    {field.options?.map((opt: string) => (
-                      <option key={opt} value={opt}>{opt}</option>
-                    ))}
-                  </select>
-                ) : (
-                  <input
-                    type={field.type}
-                    className="w-full p-3 border rounded-lg"
-                    value={wizardData.subCategory[field.name as keyof typeof wizardData.subCategory] || ''}
-                    onChange={(e) => setWizardData({
-                      ...wizardData,
-                      subCategory: { ...wizardData.subCategory, [field.name]: field.type === 'number' ? parseInt(e.target.value) : e.target.value }
-                    })}
-                  />
-                )}
-              </div>
-            ))}
+            <DomainSelector 
+              selectedDomains={wizardData.selectedDomains}
+              onChange={(domains) => setWizardData({ ...wizardData, selectedDomains: domains })}
+            />
           </div>
         );
-        
-      case 2: // Contact Info
+
+      case 1: // Contact Info
         return (
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block mb-2 font-bold">שם פרטי *</label>
-                <input
-                  type="text"
-                  className="w-full p-3 border rounded-lg"
+                <Label htmlFor="firstName">שם פרטי *</Label>
+                <Input
+                  id="firstName"
                   value={wizardData.contactInfo.firstName}
                   onChange={(e) => setWizardData({
                     ...wizardData,
                     contactInfo: { ...wizardData.contactInfo, firstName: e.target.value }
                   })}
+                  placeholder="שם פרטי"
                   required
                 />
               </div>
               <div>
-                <label className="block mb-2 font-bold">שם משפחה</label>
-                <input
-                  type="text"
-                  className="w-full p-3 border rounded-lg"
+                <Label htmlFor="lastName">שם משפחה</Label>
+                <Input
+                  id="lastName"
                   value={wizardData.contactInfo.lastName}
                   onChange={(e) => setWizardData({
                     ...wizardData,
                     contactInfo: { ...wizardData.contactInfo, lastName: e.target.value }
                   })}
+                  placeholder="שם משפחה"
                 />
               </div>
             </div>
-            
-            {(wizardData.category === 'trainee' || wizardData.category === 'birthday') && (
-              <>
-                <div>
-                  <label className="block mb-2 font-bold">שם הילד/ה</label>
-                  <input
-                    type="text"
-                    className="w-full p-3 border rounded-lg"
-                    value={wizardData.contactInfo.childName}
-                    onChange={(e) => setWizardData({
-                      ...wizardData,
-                      contactInfo: { ...wizardData.contactInfo, childName: e.target.value }
-                    })}
-                  />
-                </div>
-                <div>
-                  <label className="block mb-2 font-bold">טלפון הורה</label>
-                  <input
-                    type="tel"
-                    className="w-full p-3 border rounded-lg"
-                    value={wizardData.contactInfo.parentPhone}
-                    onChange={(e) => setWizardData({
-                      ...wizardData,
-                      contactInfo: { ...wizardData.contactInfo, parentPhone: e.target.value }
-                    })}
-                  />
-                </div>
-              </>
-            )}
-            
-            <div>
-              <label className="block mb-2 font-bold">טלפון</label>
-              <input
-                type="tel"
-                className="w-full p-3 border rounded-lg"
-                value={wizardData.contactInfo.phone}
-                onChange={(e) => setWizardData({
-                  ...wizardData,
-                  contactInfo: { ...wizardData.contactInfo, phone: e.target.value }
-                })}
-              />
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="phone">טלפון *</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  value={wizardData.contactInfo.phone}
+                  onChange={(e) => setWizardData({
+                    ...wizardData,
+                    contactInfo: { ...wizardData.contactInfo, phone: e.target.value }
+                  })}
+                  placeholder="050-1234567"
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="parentPhone">טלפון הורה</Label>
+                <Input
+                  id="parentPhone"
+                  type="tel"
+                  value={wizardData.contactInfo.parentPhone || ''}
+                  onChange={(e) => setWizardData({
+                    ...wizardData,
+                    contactInfo: { ...wizardData.contactInfo, parentPhone: e.target.value }
+                  })}
+                  placeholder="050-1234567"
+                />
+              </div>
             </div>
-            
+
             <div>
-              <label className="block mb-2 font-bold">אימייל</label>
-              <input
+              <Label htmlFor="email">אימייל</Label>
+              <Input
+                id="email"
                 type="email"
-                className="w-full p-3 border rounded-lg"
                 value={wizardData.contactInfo.email}
                 onChange={(e) => setWizardData({
                   ...wizardData,
                   contactInfo: { ...wizardData.contactInfo, email: e.target.value }
                 })}
+                placeholder="example@email.com"
               />
             </div>
-            
+
             <div>
-              <label className="block mb-2 font-bold">הערות</label>
-              <textarea
-                className="w-full p-3 border rounded-lg"
-                rows={3}
+              <Label htmlFor="childName">שם הילד/ה (אם רלוונטי)</Label>
+              <Input
+                id="childName"
+                value={wizardData.contactInfo.childName || ''}
+                onChange={(e) => setWizardData({
+                  ...wizardData,
+                  contactInfo: { ...wizardData.contactInfo, childName: e.target.value }
+                })}
+                placeholder="שם הילד/ה"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="notes">הערות</Label>
+              <Textarea
+                id="notes"
                 value={wizardData.notes}
                 onChange={(e) => setWizardData({ ...wizardData, notes: e.target.value })}
+                placeholder="הערות נוספות..."
+                rows={3}
               />
             </div>
           </div>
         );
-        
-      case 3: // Summary
-        const selectedCategory = categoryConfig[wizardData.category as ClientCategory];
+
+      case 2: // Summary
         return (
-          <div className="space-y-4">
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="font-bold mb-3">סיכום הפרטים:</h3>
+          <div className="space-y-6">
+            <div className="bg-accent/30 rounded-lg p-4">
+              <h3 className="text-lg font-semibold mb-3">סיכום הפרטים</h3>
               
               <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">קטגוריה:</span>
-                  <span className="font-medium">
-                    {selectedCategory.icon} {selectedCategory.title}
-                  </span>
+                <div>
+                  <span className="font-semibold">שם:</span> {wizardData.contactInfo.firstName} {wizardData.contactInfo.lastName}
                 </div>
-                
-                {Object.entries(wizardData.subCategory).map(([key, value]) => (
-                  <div key={key} className="flex justify-between">
-                    <span className="text-gray-600">{key}:</span>
-                    <span className="font-medium">{value}</span>
-                  </div>
-                ))}
-                
-                <div className="flex justify-between">
-                  <span className="text-gray-600">שם:</span>
-                  <span className="font-medium">
-                    {wizardData.contactInfo.firstName} {wizardData.contactInfo.lastName}
-                  </span>
+                <div>
+                  <span className="font-semibold">טלפון:</span> {wizardData.contactInfo.phone}
                 </div>
-                
-                {wizardData.contactInfo.childName && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">שם הילד/ה:</span>
-                    <span className="font-medium">{wizardData.contactInfo.childName}</span>
+                {wizardData.contactInfo.email && (
+                  <div>
+                    <span className="font-semibold">אימייל:</span> {wizardData.contactInfo.email}
                   </div>
                 )}
-                
-                <div className="flex justify-between">
-                  <span className="text-gray-600">טלפון:</span>
-                  <span className="font-medium">{wizardData.contactInfo.phone}</span>
+                {wizardData.contactInfo.parentPhone && (
+                  <div>
+                    <span className="font-semibold">טלפון הורה:</span> {wizardData.contactInfo.parentPhone}
+                  </div>
+                )}
+                {wizardData.contactInfo.childName && (
+                  <div>
+                    <span className="font-semibold">שם ילד/ה:</span> {wizardData.contactInfo.childName}
+                  </div>
+                )}
+                <div>
+                  <span className="font-semibold">מספר תחומים:</span> {wizardData.selectedDomains.length}
                 </div>
-                
                 {wizardData.notes && (
-                  <div className="mt-3 pt-3 border-t">
-                    <span className="text-gray-600">הערות:</span>
-                    <p className="mt-1">{wizardData.notes}</p>
+                  <div>
+                    <span className="font-semibold">הערות:</span> {wizardData.notes}
                   </div>
                 )}
               </div>
             </div>
-            
-            <div className="bg-green-50 p-4 rounded-lg text-center">
-              <Check className="w-12 h-12 text-green-600 mx-auto mb-2" />
-              <p className="text-green-700">מוכן לשמירה!</p>
+
+            <div className="bg-blue-50 dark:bg-blue-950/30 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+              <p className="text-sm text-blue-900 dark:text-blue-100">
+                ✅ הלקוח ישויך אוטומטית לכל התחומים שבחרת
+              </p>
             </div>
           </div>
         );
+
+      default:
+        return null;
     }
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="bg-white rounded-xl shadow-2xl max-w-2xl w-full mx-4 overflow-hidden"
-      >
-        {/* Header */}
-        <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-6">
-          <h2 className="text-2xl font-bold mb-2">🎯 אשף הוספת לקוח חכם</h2>
-          
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto" dir="rtl">
+        <div className="space-y-6">
+          {/* Header */}
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold gradient-text">הוסף לקוח חדש</h2>
+            <button
+              onClick={handleClose}
+              className="p-2 hover:bg-accent rounded-full transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
           {/* Progress Steps */}
-          <div className="flex items-center justify-between mt-4">
+          <div className="flex justify-between items-center mb-6">
             {STEPS.map((step, index) => (
-              <div key={index} className="flex items-center">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold
-                  ${index <= currentStep ? 'bg-white text-orange-600' : 'bg-orange-400 text-white'}`}>
-                  {index < currentStep ? <Check size={16} /> : index + 1}
+              <div key={index} className="flex items-center flex-1">
+                <div className="flex flex-col items-center gap-2 flex-1">
+                  <div
+                    className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+                      index <= currentStep
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted text-muted-foreground'
+                    }`}
+                  >
+                    {index < currentStep ? (
+                      <Check className="w-5 h-5" />
+                    ) : (
+                      <span>{index + 1}</span>
+                    )}
+                  </div>
+                  <span className="text-xs text-center">{step}</span>
                 </div>
-                <span className="ml-2 text-sm">{step}</span>
                 {index < STEPS.length - 1 && (
-                  <div className={`w-full h-1 mx-2 ${
-                    index < currentStep ? 'bg-white' : 'bg-orange-400'
-                  }`} />
+                  <div
+                    className={`h-1 flex-1 mx-2 rounded transition-all ${
+                      index < currentStep ? 'bg-primary' : 'bg-muted'
+                    }`}
+                  />
                 )}
               </div>
             ))}
           </div>
-        </div>
-        
-        {/* Content */}
-        <div className="p-6 min-h-[400px]">
+
+          {/* Content */}
           <AnimatePresence mode="wait">
             <motion.div
               key={currentStep}
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.2 }}
+              className="min-h-[300px]"
             >
               {renderStepContent()}
             </motion.div>
           </AnimatePresence>
-        </div>
-        
-        {/* Footer */}
-        <div className="bg-gray-50 px-6 py-4 flex justify-between items-center">
-          <button
-            onClick={onClose}
-            className="text-gray-600 hover:text-gray-800"
-          >
-            ביטול
-          </button>
-          
-          <div className="flex gap-3">
-            {currentStep > 0 && (
-              <button
-                onClick={handleBack}
-                className="px-4 py-2 border rounded-lg hover:bg-gray-100 flex items-center gap-2"
-              >
-                <ChevronRight size={16} />
-                חזור
-              </button>
-            )}
-            
+
+          {/* Navigation */}
+          <div className="flex justify-between gap-3 pt-4 border-t">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleBack}
+              disabled={currentStep === 0}
+              className="gap-2"
+            >
+              <ChevronRight className="w-4 h-4" />
+              הקודם
+            </Button>
+
             {currentStep < STEPS.length - 1 ? (
-              <button
+              <Button
+                type="button"
                 onClick={handleNext}
-                disabled={currentStep === 0 && !wizardData.category}
-                className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 
-                         disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="btn-premium gap-2"
               >
-                המשך
-                <ChevronLeft size={16} />
-              </button>
+                הבא
+                <ChevronLeft className="w-4 h-4" />
+              </Button>
             ) : (
-              <button
+              <Button
+                type="button"
                 onClick={handleSubmit}
-                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 
-                         flex items-center gap-2"
+                className="btn-premium gap-2"
               >
-                <Check size={16} />
+                <Check className="w-4 h-4" />
                 שמור לקוח
-              </button>
+              </Button>
             )}
           </div>
         </div>
-      </motion.div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

@@ -20,6 +20,7 @@ import BirthdayEvents from "./pages/BirthdayEvents";
 import Therapy from "./pages/Therapy";
 import Basketball from "./pages/Basketball";
 import SchoolWorkshops from "./pages/SchoolWorkshops";
+import CustomerProfile from "./pages/CustomerProfile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ const App = () => (
             <Route path="/" element={<Home />} />
             <Route path="/dashboard" element={<Index />} />
             <Route path="/contacts" element={<Contacts />} />
+            <Route path="/customer/:id" element={<CustomerProfile />} />
             <Route path="/deals" element={<Deals />} />
             <Route path="/payments" element={<Payments />} />
             <Route path="/birthday-events" element={<BirthdayEvents />} />
