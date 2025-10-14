@@ -23,6 +23,9 @@ import SchoolWorkshops from "./pages/SchoolWorkshops";
 import CustomerProfile from "./pages/CustomerProfile";
 import Domains from "./pages/Domains";
 import DomainProfile from "./pages/DomainProfile";
+import Events from "./pages/Events";
+import Tasks from "./pages/Tasks";
+import Reports from "./pages/Reports";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -43,6 +46,9 @@ const App = () => (
             <Route path="/payments" element={<Payments />} />
             <Route path="/domains" element={<Domains />} />
             <Route path="/domain/:id" element={<DomainProfile />} />
+            <Route path="/events" element={<Events />} />
+            <Route path="/tasks" element={<Tasks />} />
+            <Route path="/reports" element={<Reports />} />
             <Route path="/birthday-events" element={<BirthdayEvents />} />
             <Route path="/therapy" element={<Therapy />} />
             <Route path="/basketball" element={<Basketball />} />

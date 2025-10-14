@@ -26,6 +26,9 @@ export function AddDealForm({ isOpen, onClose, deal }: AddDealFormProps) {
   const { data: domains } = useDomains();
   
   const [formData, setFormData] = useState({
+    base_price: '',
+    commission_rate: '',
+    calculated_total: 0,
     contact_id: '',
     domain_id: '',
     title: '',
@@ -38,6 +41,18 @@ export function AddDealForm({ isOpen, onClose, deal }: AddDealFormProps) {
     next_action_date: '',
     notes: ''
   });
+
+  // מחשבון מחירים אוטומטי
+  useEffect(() => {
+    if (formData.base_price && formData.commission_rate) {
+      const base = parseFloat(formData.base_price);
+      const rate = parseFloat(formData.commission_rate);
+      if (!isNaN(base) && !isNaN(rate)) {
+        const calculated = base * (rate / 100);
+        setFormData(prev => ({ ...prev, calculated_total: calculated }));
+      }
+    }
+  }, [formData.base_price, formData.commission_rate]);
 
   const categories = [
     { value: 'birthday', label: '🎂 יום הולדת' },
@@ -57,6 +72,9 @@ export function AddDealForm({ isOpen, onClose, deal }: AddDealFormProps) {
   useEffect(() => {
     if (deal) {
       setFormData({
+        base_price: '',
+        commission_rate: '',
+        calculated_total: 0,
         contact_id: deal.contact_id || '',
         domain_id: (deal as any).domain_id || '',
         title: deal.title || '',
@@ -70,8 +88,10 @@ export function AddDealForm({ isOpen, onClose, deal }: AddDealFormProps) {
         notes: deal.notes || ''
       });
     } else {
-      // Reset form for new deal
       setFormData({
+        base_price: '',
+        commission_rate: '',
+        calculated_total: 0,
         contact_id: '',
         domain_id: '',
         title: '',
@@ -250,6 +270,46 @@ export function AddDealForm({ isOpen, onClose, deal }: AddDealFormProps) {
                 </SelectContent>
               </Select>
             </div>
+          </div>
+
+          {/* מחשבון עמלה */}
+          <div className="border-2 border-primary/20 rounded-lg p-4 bg-blue-50">
+            <h4 className="font-bold mb-3">💰 מחשבון עמלה</h4>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>מחיר בסיס (₪)</Label>
+                <Input 
+                  type="number" 
+                  value={formData.base_price}
+                  onChange={(e) => setFormData({...formData, base_price: e.target.value})}
+                  placeholder="10000"
+                />
+              </div>
+              <div>
+                <Label>אחוז עמלה (%)</Label>
+                <Input 
+                  type="number" 
+                  value={formData.commission_rate}
+                  onChange={(e) => setFormData({...formData, commission_rate: e.target.value})}
+                  placeholder="30"
+                />
+              </div>
+            </div>
+            {formData.calculated_total > 0 && (
+              <div className="mt-4 p-3 bg-green-100 rounded-lg text-center">
+                <p className="text-sm text-gray-600">סכום מחושב:</p>
+                <p className="text-2xl font-black text-green-700">₪{formData.calculated_total.toLocaleString()}</p>
+                <Button 
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleChange('amount_total', formData.calculated_total.toString())}
+                  className="mt-2"
+                >
+                  ↓ העבר לסכום כולל
+                </Button>
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">

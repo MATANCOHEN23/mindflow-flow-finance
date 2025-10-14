@@ -42,6 +42,21 @@ const menuItems = [
     icon: "⚙️",
   },
   {
+    title: "אירועים",
+    url: "/events",
+    icon: "📅",
+  },
+  {
+    title: "משימות",
+    url: "/tasks",
+    icon: "✅",
+  },
+  {
+    title: "דוחות",
+    url: "/reports",
+    icon: "📊",
+  },
+  {
     title: "אירועי יום הולדת",
     url: "/birthday-events",
     icon: "🎂",
