@@ -2,7 +2,13 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useContact } from '@/hooks/useContacts';
 import { useContactDomains, useUnassignContactFromDomain, useUpdateContactDomainStatus } from '@/hooks/useDomains';
 import { useDeals } from '@/hooks/useDeals';
+import { usePaymentsByContact } from '@/hooks/usePayments';
+import { useEventsByContact } from '@/hooks/useEvents';
+import { useTasksByContact } from '@/hooks/useTasks';
 import { MainLayout } from '@/components/Layout/MainLayout';
+import { PaymentForm } from '@/components/Forms/PaymentForm';
+import { EventForm } from '@/components/Forms/EventForm';
+import { TaskForm } from '@/components/Forms/TaskForm';
 import { toast } from 'sonner';
 import { PremiumLoader } from '@/components/PremiumLoader';
 import { Badge } from '@/components/ui/badge';
@@ -19,7 +25,9 @@ import {
   Briefcase,
   CalendarDays,
   Edit,
-  Trash2
+  Trash2,
+  Plus,
+  MapPin
 } from 'lucide-react';
 import { useState } from 'react';
 import { format } from 'date-fns';
@@ -31,8 +39,17 @@ export default function CustomerProfile() {
   const { data: contact, isLoading: contactLoading } = useContact(id!);
   const { data: contactDomains, isLoading: domainsLoading } = useContactDomains(id!);
   const { data: deals } = useDeals();
+  const { data: contactPayments } = usePaymentsByContact(id!);
+  const { data: contactEvents } = useEventsByContact(id!);
+  const { data: contactTasks } = useTasksByContact(id!);
 
   const [activeTab, setActiveTab] = useState('deals');
+  const [isPaymentFormOpen, setPaymentFormOpen] = useState(false);
+  const [isEventFormOpen, setEventFormOpen] = useState(false);
+  const [isTaskFormOpen, setTaskFormOpen] = useState(false);
+  const [selectedPayment, setSelectedPayment] = useState<any>(null);
+  const [selectedEvent, setSelectedEvent] = useState<any>(null);
+  const [selectedTask, setSelectedTask] = useState<any>(null);
 
   if (contactLoading || domainsLoading) {
     return (
@@ -253,27 +270,154 @@ export default function CustomerProfile() {
             </TabsContent>
 
             <TabsContent value="payments" className="space-y-4">
-              <div className="text-center py-12 text-muted-foreground">
-                <DollarSign className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                <p>אין תשלומים ללקוח זה</p>
-                <Button className="mt-4 btn-premium">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold">תשלומים</h3>
+                <Button onClick={() => { setSelectedPayment(null); setPaymentFormOpen(true); }} size="sm">
+                  <Plus className="w-4 h-4 ml-2" />
                   הוסף תשלום
                 </Button>
               </div>
+              {contactPayments && contactPayments.length > 0 ? (
+                <div className="space-y-3">
+                  {contactPayments.map((payment: any) => (
+                    <Card key={payment.id} className="p-4 hover:shadow-md transition-shadow">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="font-semibold text-lg">₪{payment.amount}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {payment.payment_date && format(new Date(payment.payment_date), 'dd/MM/yyyy', { locale: he })}
+                          </p>
+                          {payment.payment_method && (
+                            <p className="text-xs text-muted-foreground">אמצעי תשלום: {payment.payment_method}</p>
+                          )}
+                          {payment.notes && <p className="text-sm mt-2">{payment.notes}</p>}
+                        </div>
+                        <Badge variant={payment.is_deposit ? 'secondary' : 'default'}>
+                          {payment.is_deposit ? 'מקדמה' : 'תשלום מלא'}
+                        </Badge>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12 text-muted-foreground">
+                  <DollarSign className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                  <p>אין תשלומים ללקוח זה</p>
+                </div>
+              )}
             </TabsContent>
 
             <TabsContent value="events" className="space-y-4">
-              <div className="text-center py-12 text-muted-foreground">
-                <CalendarDays className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                <p>אין אירועים ללקוח זה</p>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold">אירועים</h3>
+                <Button onClick={() => { setSelectedEvent(null); setEventFormOpen(true); }} size="sm">
+                  <Plus className="w-4 h-4 ml-2" />
+                  הוסף אירוע
+                </Button>
               </div>
+              {contactEvents && contactEvents.length > 0 ? (
+                <div className="space-y-3">
+                  {contactEvents.map((event: any) => (
+                    <Card key={event.id} className="p-4 hover:shadow-md transition-shadow">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <p className="font-semibold text-lg">{event.title}</p>
+                          <div className="flex gap-4 mt-2 text-sm text-muted-foreground">
+                            {event.event_date && (
+                              <span className="flex items-center gap-1">
+                                <Calendar className="w-4 h-4" />
+                                {format(new Date(event.event_date), 'dd/MM/yyyy', { locale: he })}
+                              </span>
+                            )}
+                            {event.event_time && (
+                              <span className="flex items-center gap-1">
+                                <Clock className="w-4 h-4" />
+                                {event.event_time}
+                              </span>
+                            )}
+                            {event.location && (
+                              <span className="flex items-center gap-1">
+                                <MapPin className="w-4 h-4" />
+                                {event.location}
+                              </span>
+                            )}
+                          </div>
+                          {event.notes && <p className="text-sm mt-2">{event.notes}</p>}
+                        </div>
+                        <Badge variant={event.status === 'completed' ? 'default' : 'secondary'}>
+                          {event.status === 'scheduled' ? 'מתוכנן' : 
+                           event.status === 'completed' ? 'הושלם' : 
+                           event.status === 'cancelled' ? 'בוטל' : event.status}
+                        </Badge>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12 text-muted-foreground">
+                  <CalendarDays className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                  <p>אין אירועים ללקוח זה</p>
+                </div>
+              )}
             </TabsContent>
 
             <TabsContent value="tasks" className="space-y-4">
-              <div className="text-center py-12 text-muted-foreground">
-                <Briefcase className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                <p>אין משימות ללקוח זה</p>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold">משימות</h3>
+                <Button onClick={() => { setSelectedTask(null); setTaskFormOpen(true); }} size="sm">
+                  <Plus className="w-4 h-4 ml-2" />
+                  הוסף משימה
+                </Button>
               </div>
+              {contactTasks && contactTasks.length > 0 ? (
+                <div className="space-y-3">
+                  {contactTasks.map((task: any) => (
+                    <Card key={task.id} className="p-4 hover:shadow-md transition-shadow">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <p className="font-semibold text-lg">{task.title}</p>
+                          {task.description && (
+                            <p className="text-sm text-muted-foreground mt-1">{task.description}</p>
+                          )}
+                          <div className="flex gap-3 mt-2 text-sm">
+                            {task.due_date && (
+                              <span className="text-muted-foreground">
+                                📅 {format(new Date(task.due_date), 'dd/MM/yyyy', { locale: he })}
+                              </span>
+                            )}
+                            {task.assigned_to && (
+                              <span className="text-muted-foreground">👤 {task.assigned_to}</span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Badge 
+                            variant={
+                              task.priority === 'high' ? 'destructive' : 
+                              task.priority === 'medium' ? 'default' : 
+                              'secondary'
+                            }
+                          >
+                            {task.priority === 'high' ? '🔴 דחוף' : 
+                             task.priority === 'medium' ? '🟡 בינוני' : 
+                             '🟢 נמוך'}
+                          </Badge>
+                          <Badge variant={task.status === 'completed' ? 'default' : 'outline'}>
+                            {task.status === 'pending' ? 'ממתין' :
+                             task.status === 'in_progress' ? 'בתהליך' :
+                             task.status === 'completed' ? 'הושלם' : task.status}
+                          </Badge>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12 text-muted-foreground">
+                  <Briefcase className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                  <p>אין משימות ללקוח זה</p>
+                </div>
+              )}
             </TabsContent>
 
             <TabsContent value="notes" className="space-y-4">
@@ -289,6 +433,33 @@ export default function CustomerProfile() {
             </TabsContent>
           </Tabs>
         </Card>
+
+        {/* Forms */}
+        <PaymentForm
+          isOpen={isPaymentFormOpen}
+          onClose={() => {
+            setPaymentFormOpen(false);
+            setSelectedPayment(null);
+          }}
+          payment={selectedPayment}
+        />
+        
+        <EventForm
+          isOpen={isEventFormOpen}
+          onClose={() => {
+            setEventFormOpen(false);
+            setSelectedEvent(null);
+          }}
+          event={selectedEvent}
+        />
+        
+        <TaskForm
+          isOpen={isTaskFormOpen}
+          onClose={() => {
+            setTaskFormOpen(false);
+            setSelectedTask(null);
+          }}
+        />
       </div>
     </MainLayout>
   );

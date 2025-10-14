@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { paymentsApi, PaymentWithDetails } from "@/lib/api/payments";
 import { Payment } from "@/types/database";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 export const usePayments = () => {
   return useQuery({
@@ -15,6 +16,23 @@ export const usePayment = (id: string) => {
     queryKey: ['payment', id],
     queryFn: () => paymentsApi.getById(id),
     enabled: !!id,
+  });
+};
+
+export const usePaymentsByContact = (contactId: string) => {
+  return useQuery({
+    queryKey: ['payments', 'contact', contactId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('payments')
+        .select('*')
+        .eq('contact_id', contactId)
+        .order('payment_date', { ascending: false });
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!contactId,
   });
 };
 

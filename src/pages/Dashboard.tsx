@@ -5,6 +5,8 @@ import { AIInsights } from "@/components/Dashboard/AIInsights";
 import { WidgetGrid } from "@/components/Dashboard/WidgetGrid";
 import { RealTimeRevenueChart } from "@/components/Dashboard/RealTimeRevenueChart";
 import { DealsByStageChart } from "@/components/Dashboard/DealsByStageChart";
+import { TodayEventsWidget } from "@/components/Dashboard/TodayEventsWidget";
+import { TodayTasksWidget } from "@/components/Dashboard/TodayTasksWidget";
 import { useState, useEffect } from "react";
 import { AddClientForm } from "@/components/Forms/AddClientForm";
 import { PremiumLoader } from "@/components/PremiumLoader";
@@ -154,6 +156,12 @@ export function Dashboard() {
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-blue-600 mb-6 glow-text">📊 ווידג׳טים מותאמים אישית</h2>
           <WidgetGrid />
+        </div>
+
+        {/* Today's Events and Tasks */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          <TodayEventsWidget />
+          <TodayTasksWidget />
         </div>
 
         {/* Charts Row */}
