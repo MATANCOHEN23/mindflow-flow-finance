@@ -2,15 +2,18 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 import { MainLayout } from "@/components/Layout/MainLayout";
 import { useState } from "react";
 import { AddDealForm } from "@/components/Forms/AddDealForm";
 import { DeleteConfirmModal } from "@/components/DeleteConfirmModal";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { useDeals, useDeleteDeal } from "@/hooks/useDeals";
-import { Edit, Trash2, Calendar, DollarSign } from "lucide-react";
+import { Edit, Trash2, Calendar, DollarSign, User } from "lucide-react";
 import { Deal } from "@/types/database";
 import { DealBoard } from "@/components/DealBoard/DealBoard";
+import { useContacts } from "@/hooks/useContacts";
+import { useDomains } from "@/hooks/useDomains";
 
 const Deals = () => {
   const [isDealFormOpen, setIsDealFormOpen] = useState(false);
@@ -19,7 +22,20 @@ const Deals = () => {
   const [viewMode, setViewMode] = useState<'board' | 'table'>('board');
   
   const { data: deals, isLoading, error } = useDeals();
+  const { data: contacts } = useContacts();
+  const { data: domains } = useDomains();
   const deleteDealMutation = useDeleteDeal();
+  
+  const getContactName = (contactId?: string) => {
+    if (!contactId || !contacts) return null;
+    const contact = contacts.find(c => c.id === contactId);
+    return contact ? `${contact.first_name} ${contact.last_name || ''}`.trim() : null;
+  };
+  
+  const getDomain = (domainId?: string) => {
+    if (!domainId || !domains) return null;
+    return domains.find(d => d.id === domainId);
+  };
 
   const handleAddDeal = () => {
     setEditingDeal(null);
@@ -144,27 +160,26 @@ const Deals = () => {
                   <TableHeader>
                     <TableRow className="table-header">
                       <TableHead className="text-right font-bold text-base">כותרת</TableHead>
+                      <TableHead className="text-right font-bold text-base">לקוח</TableHead>
+                      <TableHead className="text-right font-bold text-base">תחום</TableHead>
                       <TableHead className="text-right font-bold text-base">קטגוריה</TableHead>
-                      <TableHead className="text-right font-bold text-base">סוג חבילה</TableHead>
                       <TableHead className="text-right font-bold text-base">סכום כולל</TableHead>
                       <TableHead className="text-right font-bold text-base">סכום ששולם</TableHead>
-                      <TableHead className="text-right font-bold text-base">סטטוס תשלום</TableHead>
-                      <TableHead className="text-right font-bold text-base">שלב בתהליך</TableHead>
-                      <TableHead className="text-right font-bold text-base">פעולה הבאה</TableHead>
+                      <TableHead className="text-right font-bold text-base">סטטוס</TableHead>
                       <TableHead className="text-right font-bold text-base">פעולות</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {isLoading ? (
                       <TableRow>
-                        <TableCell colSpan={9} className="py-16">
+                        <TableCell colSpan={8} className="py-16">
                           <LoadingSpinner size="lg" className="justify-center" />
                           <p className="text-center mt-4 text-lg">טוען נתונים...</p>
                         </TableCell>
                       </TableRow>
                     ) : !deals || deals.length === 0 ? (
                       <TableRow className="table-row">
-                        <TableCell colSpan={9} className="py-16">
+                        <TableCell colSpan={8} className="py-16">
                           <div className="empty-state">
                             <div className="text-6xl mb-4">💼</div>
                             <h3 className="text-2xl font-bold text-blue-600 mb-3">אין עסקאות במערכת</h3>
@@ -181,62 +196,76 @@ const Deals = () => {
                         </TableCell>
                       </TableRow>
                     ) : (
-                      deals.map((deal) => (
-                        <TableRow key={deal.id} className="table-row">
-                          <TableCell className="font-semibold">{deal.title}</TableCell>
-                          <TableCell>{deal.category || '-'}</TableCell>
-                          <TableCell>{deal.package_type || '-'}</TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <DollarSign className="h-4 w-4 text-gray-500" />
-                              <span>{formatAmount(deal.amount_total)}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <DollarSign className="h-4 w-4 text-gray-500" />
-                              <span>{formatAmount(deal.amount_paid)}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <span className={`status-badge ${
-                              deal.payment_status === 'paid' ? 'status-paid' :
-                              deal.payment_status === 'partial' ? 'status-partial' : 'status-pending'
-                            }`}>
-                              {getPaymentStatusText(deal.payment_status)}
-                            </span>
-                          </TableCell>
-                          <TableCell>{deal.workflow_stage || '-'}</TableCell>
-                          <TableCell>
-                            {deal.next_action_date && (
+                      deals.map((deal) => {
+                        const contactName = getContactName(deal.contact_id);
+                        const domain = getDomain((deal as any).domain_id);
+                        
+                        return (
+                          <TableRow key={deal.id} className="table-row">
+                            <TableCell className="font-semibold">{deal.title}</TableCell>
+                            <TableCell>
+                              {contactName ? (
+                                <div className="flex items-center gap-2">
+                                  <User className="h-4 w-4 text-muted-foreground" />
+                                  <span>{contactName}</span>
+                                </div>
+                              ) : (
+                                <span className="text-muted-foreground">-</span>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              {domain ? (
+                                <Badge variant="secondary" className="gap-1">
+                                  {domain.icon} {domain.name}
+                                </Badge>
+                              ) : (
+                                <span className="text-muted-foreground">-</span>
+                              )}
+                            </TableCell>
+                            <TableCell>{deal.category || '-'}</TableCell>
+                            <TableCell>
                               <div className="flex items-center gap-2">
-                                <Calendar className="h-4 w-4 text-gray-500" />
-                                <span>{new Date(deal.next_action_date).toLocaleDateString('he-IL')}</span>
+                                <DollarSign className="h-4 w-4 text-gray-500" />
+                                <span className="font-semibold">{formatAmount(deal.amount_total)}</span>
                               </div>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex gap-2">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleEditDeal(deal)}
-                                className="h-8 w-8 p-0 hover:bg-blue-50 hover:border-blue-300"
-                              >
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleDeleteClick(deal)}
-                                className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 hover:border-red-300"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                <DollarSign className="h-4 w-4 text-gray-500" />
+                                <span>{formatAmount(deal.amount_paid)}</span>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <span className={`status-badge ${
+                                deal.payment_status === 'paid' ? 'status-paid' :
+                                deal.payment_status === 'partial' ? 'status-partial' : 'status-pending'
+                              }`}>
+                                {getPaymentStatusText(deal.payment_status)}
+                              </span>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex gap-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleEditDeal(deal)}
+                                  className="h-8 w-8 p-0 hover:bg-blue-50 hover:border-blue-300"
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleDeleteClick(deal)}
+                                  className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 hover:border-red-300"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })
                     )}
                   </TableBody>
                 </Table>

@@ -16,6 +16,7 @@ export interface Contact {
 export interface Deal {
   id: string;
   contact_id?: string;
+  domain_id?: string;
   title: string;
   category?: string;
   package_type?: string;

@@ -10,6 +10,8 @@ import { Loader2 } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
+import { useContacts } from '@/hooks/useContacts';
+import { useDomains } from '@/hooks/useDomains';
 
 interface AddDealFormProps {
   isOpen: boolean;
@@ -20,8 +22,12 @@ interface AddDealFormProps {
 export function AddDealForm({ isOpen, onClose, deal }: AddDealFormProps) {
   const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
+  const { data: contacts } = useContacts();
+  const { data: domains } = useDomains();
   
   const [formData, setFormData] = useState({
+    contact_id: '',
+    domain_id: '',
     title: '',
     category: '',
     package_type: '',
@@ -51,6 +57,8 @@ export function AddDealForm({ isOpen, onClose, deal }: AddDealFormProps) {
   useEffect(() => {
     if (deal) {
       setFormData({
+        contact_id: deal.contact_id || '',
+        domain_id: (deal as any).domain_id || '',
         title: deal.title || '',
         category: deal.category || '',
         package_type: deal.package_type || '',
@@ -64,6 +72,8 @@ export function AddDealForm({ isOpen, onClose, deal }: AddDealFormProps) {
     } else {
       // Reset form for new deal
       setFormData({
+        contact_id: '',
+        domain_id: '',
         title: '',
         category: '',
         package_type: '',
@@ -88,6 +98,8 @@ export function AddDealForm({ isOpen, onClose, deal }: AddDealFormProps) {
     setIsLoading(true);
 
     const dealData = {
+      contact_id: formData.contact_id || null,
+      domain_id: formData.domain_id || null,
       title: formData.title,
       category: formData.category || null,
       package_type: formData.package_type || null,
@@ -150,6 +162,44 @@ export function AddDealForm({ isOpen, onClose, deal }: AddDealFormProps) {
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label className="text-right font-bold text-primary">
+                לקוח
+              </Label>
+              <Select value={formData.contact_id} onValueChange={(value) => handleChange('contact_id', value)}>
+                <SelectTrigger className="text-right">
+                  <SelectValue placeholder="בחר לקוח" />
+                </SelectTrigger>
+                <SelectContent>
+                  {contacts?.map((contact) => (
+                    <SelectItem key={contact.id} value={contact.id}>
+                      {contact.first_name} {contact.last_name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label className="text-right font-bold text-primary">
+                תחום
+              </Label>
+              <Select value={formData.domain_id} onValueChange={(value) => handleChange('domain_id', value)}>
+                <SelectTrigger className="text-right">
+                  <SelectValue placeholder="בחר תחום" />
+                </SelectTrigger>
+                <SelectContent>
+                  {domains?.map((domain) => (
+                    <SelectItem key={domain.id} value={domain.id}>
+                      {domain.icon} {domain.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
           <div>
             <Label htmlFor="title" className="text-right font-bold text-primary">
               כותרת העסקה *
