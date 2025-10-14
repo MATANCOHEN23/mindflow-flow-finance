@@ -1,20 +1,78 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Payment } from "@/types/database";
 
+export interface PaymentWithDetails extends Payment {
+  contact_name?: string;
+  deal_title?: string;
+}
+
 export const paymentsApi = {
-  async getAll(): Promise<Payment[]> {
+  async getAll(): Promise<PaymentWithDetails[]> {
     const { data, error } = await supabase
       .from('payments')
-      .select('*')
+      .select(`
+        *,
+        deals:deal_id (
+          title,
+          contacts:contact_id (
+            first_name,
+            last_name
+          )
+        )
+      `)
       .order('payment_date', { ascending: false });
-    
+
     if (error) {
       console.error('Error fetching payments:', error);
       throw new Error(`שגיאה בטעינת התשלומים: ${error.message}`);
     }
-    
-    return data || [];
+
+    // Map the data to include contact name and deal title
+    return (data || []).map(payment => {
+      const deal = payment.deals as any;
+      const contact = deal?.contacts as any;
+      
+      return {
+        ...payment,
+        deal_title: deal?.title || 'ללא עסקה',
+        contact_name: contact 
+          ? `${contact.first_name} ${contact.last_name || ''}`.trim()
+          : 'ללא לקוח'
+      };
+    });
+  },
+
+  async getById(id: string): Promise<PaymentWithDetails | null> {
+    const { data, error } = await supabase
+      .from('payments')
+      .select(`
+        *,
+        deals:deal_id (
+          title,
+          contacts:contact_id (
+            first_name,
+            last_name
+          )
+        )
+      `)
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      console.error('Error fetching payment:', error);
+      throw new Error(`שגיאה בטעינת התשלום: ${error.message}`);
+    }
+
+    const deal = data.deals as any;
+    const contact = deal?.contacts as any;
+
+    return {
+      ...data,
+      deal_title: deal?.title || 'ללא עסקה',
+      contact_name: contact 
+        ? `${contact.first_name} ${contact.last_name || ''}`.trim()
+        : 'ללא לקוח'
+    };
   },
 
   async getByDealId(dealId: string): Promise<Payment[]> {
