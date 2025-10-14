@@ -7,15 +7,74 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "12.2.3 (519615d)"
+    PostgrestVersion: "13.0.5"
   }
   public: {
     Tables: {
+      contact_domains: {
+        Row: {
+          contact_id: string | null
+          created_at: string | null
+          custom_pricing: Json | null
+          domain_id: string | null
+          id: string
+          joined_date: string | null
+          notes: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          contact_id?: string | null
+          created_at?: string | null
+          custom_pricing?: Json | null
+          domain_id?: string | null
+          id?: string
+          joined_date?: string | null
+          notes?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          contact_id?: string | null
+          created_at?: string | null
+          custom_pricing?: Json | null
+          domain_id?: string | null
+          id?: string
+          joined_date?: string | null
+          notes?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_domains_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contact_domains_domain_id_fkey"
+            columns: ["domain_id"]
+            isOneToOne: false
+            referencedRelation: "domains"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contact_domains_domain_id_fkey"
+            columns: ["domain_id"]
+            isOneToOne: false
+            referencedRelation: "revenue_by_domain"
+            referencedColumns: ["domain_id"]
+          },
+        ]
+      }
       contacts: {
         Row: {
+          category: string | null
           child_name: string | null
           created_at: string | null
           email: string | null
@@ -26,9 +85,11 @@ export type Database = {
           phone: string | null
           phone_parent: string | null
           role_tags: string[] | null
+          sub_category: Json | null
           updated_at: string | null
         }
         Insert: {
+          category?: string | null
           child_name?: string | null
           created_at?: string | null
           email?: string | null
@@ -39,9 +100,11 @@ export type Database = {
           phone?: string | null
           phone_parent?: string | null
           role_tags?: string[] | null
+          sub_category?: Json | null
           updated_at?: string | null
         }
         Update: {
+          category?: string | null
           child_name?: string | null
           created_at?: string | null
           email?: string | null
@@ -52,6 +115,7 @@ export type Database = {
           phone?: string | null
           phone_parent?: string | null
           role_tags?: string[] | null
+          sub_category?: Json | null
           updated_at?: string | null
         }
         Relationships: []
@@ -64,6 +128,7 @@ export type Database = {
           contact_id: string | null
           created_at: string | null
           custom_fields: Json | null
+          domain_id: string | null
           id: string
           next_action_date: string | null
           notes: string | null
@@ -80,6 +145,7 @@ export type Database = {
           contact_id?: string | null
           created_at?: string | null
           custom_fields?: Json | null
+          domain_id?: string | null
           id?: string
           next_action_date?: string | null
           notes?: string | null
@@ -96,6 +162,7 @@ export type Database = {
           contact_id?: string | null
           created_at?: string | null
           custom_fields?: Json | null
+          domain_id?: string | null
           id?: string
           next_action_date?: string | null
           notes?: string | null
@@ -113,43 +180,139 @@ export type Database = {
             referencedRelation: "contacts"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "deals_domain_id_fkey"
+            columns: ["domain_id"]
+            isOneToOne: false
+            referencedRelation: "domains"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deals_domain_id_fkey"
+            columns: ["domain_id"]
+            isOneToOne: false
+            referencedRelation: "revenue_by_domain"
+            referencedColumns: ["domain_id"]
+          },
+        ]
+      }
+      domains: {
+        Row: {
+          created_at: string | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          level: number
+          name: string
+          order_index: number | null
+          parent_id: string | null
+          pricing_notes: string | null
+          pricing_type: string | null
+          pricing_value: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          level: number
+          name: string
+          order_index?: number | null
+          parent_id?: string | null
+          pricing_notes?: string | null
+          pricing_type?: string | null
+          pricing_value?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          level?: number
+          name?: string
+          order_index?: number | null
+          parent_id?: string | null
+          pricing_notes?: string | null
+          pricing_type?: string | null
+          pricing_value?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "domains_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "domains"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "domains_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "revenue_by_domain"
+            referencedColumns: ["domain_id"]
+          },
         ]
       }
       events: {
         Row: {
+          contact_id: string | null
           created_at: string | null
           deal_id: string | null
           event_date: string | null
+          event_time: string | null
           extras: Json | null
           id: string
           location: string | null
+          notes: string | null
           participants_count: number | null
           staff_assigned: string[] | null
           status: string | null
+          title: string
+          updated_at: string | null
         }
         Insert: {
+          contact_id?: string | null
           created_at?: string | null
           deal_id?: string | null
           event_date?: string | null
+          event_time?: string | null
           extras?: Json | null
           id?: string
           location?: string | null
+          notes?: string | null
           participants_count?: number | null
           staff_assigned?: string[] | null
           status?: string | null
+          title: string
+          updated_at?: string | null
         }
         Update: {
+          contact_id?: string | null
           created_at?: string | null
           deal_id?: string | null
           event_date?: string | null
+          event_time?: string | null
           extras?: Json | null
           id?: string
           location?: string | null
+          notes?: string | null
           participants_count?: number | null
           staff_assigned?: string[] | null
           status?: string | null
+          title?: string
+          updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "events_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "events_deal_id_fkey"
             columns: ["deal_id"]
@@ -162,35 +325,51 @@ export type Database = {
       payments: {
         Row: {
           amount: number
+          contact_id: string | null
           created_at: string | null
           deal_id: string | null
+          due_date: string | null
           id: string
           is_deposit: boolean | null
           notes: string | null
           payment_date: string | null
           payment_method: string | null
+          status: string | null
         }
         Insert: {
           amount: number
+          contact_id?: string | null
           created_at?: string | null
           deal_id?: string | null
+          due_date?: string | null
           id?: string
           is_deposit?: boolean | null
           notes?: string | null
           payment_date?: string | null
           payment_method?: string | null
+          status?: string | null
         }
         Update: {
           amount?: number
+          contact_id?: string | null
           created_at?: string | null
           deal_id?: string | null
+          due_date?: string | null
           id?: string
           is_deposit?: boolean | null
           notes?: string | null
           payment_date?: string | null
           payment_method?: string | null
+          status?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "payments_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "payments_deal_id_fkey"
             columns: ["deal_id"]
@@ -203,45 +382,119 @@ export type Database = {
       tasks: {
         Row: {
           assigned_to: string | null
-          auto_generated: boolean | null
+          completed_at: string | null
+          contact_id: string | null
           created_at: string | null
+          deal_id: string | null
+          description: string | null
           due_date: string | null
+          event_id: string | null
           id: string
-          related_id: string | null
-          related_type: string | null
+          priority: string | null
           status: string | null
-          task_type: string | null
+          title: string
+          updated_at: string | null
         }
         Insert: {
           assigned_to?: string | null
-          auto_generated?: boolean | null
+          completed_at?: string | null
+          contact_id?: string | null
           created_at?: string | null
+          deal_id?: string | null
+          description?: string | null
           due_date?: string | null
+          event_id?: string | null
           id?: string
-          related_id?: string | null
-          related_type?: string | null
+          priority?: string | null
           status?: string | null
-          task_type?: string | null
+          title: string
+          updated_at?: string | null
         }
         Update: {
           assigned_to?: string | null
-          auto_generated?: boolean | null
+          completed_at?: string | null
+          contact_id?: string | null
           created_at?: string | null
+          deal_id?: string | null
+          description?: string | null
           due_date?: string | null
+          event_id?: string | null
           id?: string
-          related_id?: string | null
-          related_type?: string | null
+          priority?: string | null
           status?: string | null
-          task_type?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tasks_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+    }
+    Views: {
+      client_growth: {
+        Row: {
+          cumulative_clients: number | null
+          month: string | null
+          new_clients: number | null
+        }
+        Relationships: []
+      }
+      deals_by_stage: {
+        Row: {
+          avg_value: number | null
+          deal_count: number | null
+          total_value: number | null
+          workflow_stage: string | null
+        }
+        Relationships: []
+      }
+      monthly_performance: {
+        Row: {
+          active_clients: number | null
+          deals_paid: number | null
+          month: string | null
+          payment_count: number | null
+          total_revenue: number | null
+        }
+        Relationships: []
+      }
+      revenue_by_domain: {
+        Row: {
+          client_count: number | null
+          deal_count: number | null
+          domain_icon: string | null
+          domain_id: string | null
+          domain_name: string | null
+          total_revenue: number | null
         }
         Relationships: []
       }
     }
-    Views: {
-      [_ in never]: never
-    }
     Functions: {
-      [_ in never]: never
+      get_domain_full_path: {
+        Args: { domain_id: string }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
