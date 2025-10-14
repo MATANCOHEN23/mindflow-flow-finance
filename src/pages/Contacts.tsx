@@ -2,12 +2,14 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 import { MainLayout } from "@/components/Layout/MainLayout";
 import { useState } from "react";
 import { NewContactForm } from "@/components/Forms/NewContactForm";
 import { DeleteConfirmModal } from "@/components/DeleteConfirmModal";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { useContacts, useDeleteContact } from "@/hooks/useContacts";
+import { useContactDomains } from "@/hooks/useDomains";
 import { Edit, Trash2, Phone, Mail } from "lucide-react";
 import { Contact } from "@/types/database";
 
@@ -88,6 +90,7 @@ const Contacts = () => {
                   <TableRow className="table-header">
                     <TableHead className="text-right font-bold text-base">שם פרטי</TableHead>
                     <TableHead className="text-right font-bold text-base">שם משפחה</TableHead>
+                    <TableHead className="text-right font-bold text-base">תחומים</TableHead>
                     <TableHead className="text-right font-bold text-base">תפקיד</TableHead>
                     <TableHead className="text-right font-bold text-base">שם ילד</TableHead>
                     <TableHead className="text-right font-bold text-base">טלפון הורה</TableHead>
@@ -106,7 +109,7 @@ const Contacts = () => {
                     </TableRow>
                   ) : !contacts || contacts.length === 0 ? (
                     <TableRow className="table-row">
-                      <TableCell colSpan={8} className="py-16">
+                      <TableCell colSpan={9} className="py-16">
                         <div className="empty-state">
                           <div className="text-6xl mb-4">👥</div>
                           <h3 className="text-2xl font-bold text-blue-600 mb-3">אין לקוחות במערכת</h3>
@@ -124,53 +127,7 @@ const Contacts = () => {
                     </TableRow>
                   ) : (
                     contacts.map((contact) => (
-                      <TableRow key={contact.id} className="table-row">
-                        <TableCell className="font-semibold">{contact.first_name}</TableCell>
-                        <TableCell>{contact.last_name || '-'}</TableCell>
-                        <TableCell>
-                          <div className="flex flex-wrap gap-1">
-                            {contact.role_tags?.map((tag, index) => (
-                              <span key={index} className="status-badge bg-blue-100 text-blue-800">
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                        </TableCell>
-                        <TableCell>{contact.child_name || '-'}</TableCell>
-                        <TableCell>
-                          {contact.phone_parent && (
-                            <div className="flex items-center gap-2">
-                              <Phone className="h-4 w-4 text-gray-500" />
-                              <span>{contact.phone_parent}</span>
-                            </div>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {contact.email && (
-                            <div className="flex items-center gap-2">
-                              <Mail className="h-4 w-4 text-gray-500" />
-                              <span>{contact.email}</span>
-                            </div>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <div className="max-w-xs truncate" title={contact.notes}>
-                            {contact.notes || '-'}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex gap-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 hover:border-red-300"
-                              onClick={() => handleDeleteClick(contact)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
+                      <ContactRow key={contact.id} contact={contact} onDeleteClick={handleDeleteClick} />
                     ))
                   )}
                 </TableBody>
@@ -203,6 +160,82 @@ const Contacts = () => {
         </button>
       </div>
     </MainLayout>
+  );
+};
+
+// ContactRow Component with Domain Display
+const ContactRow = ({ contact, onDeleteClick }: { contact: Contact; onDeleteClick: (contact: Contact) => void }) => {
+  const { data: contactDomains } = useContactDomains(contact.id);
+
+  return (
+    <TableRow className="table-row">
+      <TableCell className="font-semibold">{contact.first_name}</TableCell>
+      <TableCell>{contact.last_name || '-'}</TableCell>
+      <TableCell>
+        <div className="flex flex-wrap gap-1">
+          {contactDomains && contactDomains.length > 0 ? (
+            contactDomains.slice(0, 3).map((cd) => {
+              const domain = (cd as any).domain;
+              return (
+                <Badge key={cd.id} variant="secondary" className="text-xs">
+                  {domain?.icon} {domain?.name || 'תחום'}
+                </Badge>
+              );
+            })
+          ) : (
+            <span className="text-xs text-gray-400">-</span>
+          )}
+          {contactDomains && contactDomains.length > 3 && (
+            <Badge variant="outline" className="text-xs">
+              +{contactDomains.length - 3}
+            </Badge>
+          )}
+        </div>
+      </TableCell>
+      <TableCell>
+        <div className="flex flex-wrap gap-1">
+          {contact.role_tags?.map((tag, index) => (
+            <span key={index} className="status-badge bg-blue-100 text-blue-800">
+              {tag}
+            </span>
+          ))}
+        </div>
+      </TableCell>
+      <TableCell>{contact.child_name || '-'}</TableCell>
+      <TableCell>
+        {contact.phone_parent && (
+          <div className="flex items-center gap-2">
+            <Phone className="h-4 w-4 text-gray-500" />
+            <span>{contact.phone_parent}</span>
+          </div>
+        )}
+      </TableCell>
+      <TableCell>
+        {contact.email && (
+          <div className="flex items-center gap-2">
+            <Mail className="h-4 w-4 text-gray-500" />
+            <span>{contact.email}</span>
+          </div>
+        )}
+      </TableCell>
+      <TableCell>
+        <div className="max-w-xs truncate" title={contact.notes || undefined}>
+          {contact.notes || '-'}
+        </div>
+      </TableCell>
+      <TableCell>
+        <div className="flex gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 hover:border-red-300"
+            onClick={() => onDeleteClick(contact)}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      </TableCell>
+    </TableRow>
   );
 };
 

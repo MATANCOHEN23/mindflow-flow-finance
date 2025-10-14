@@ -9,6 +9,7 @@ import { Deal } from "@/types/database";
 import { Loader2 } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface AddDealFormProps {
   isOpen: boolean;
@@ -17,6 +18,7 @@ interface AddDealFormProps {
 }
 
 export function AddDealForm({ isOpen, onClose, deal }: AddDealFormProps) {
+  const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
   
   const [formData, setFormData] = useState({
@@ -125,7 +127,7 @@ export function AddDealForm({ isOpen, onClose, deal }: AddDealFormProps) {
       onClose();
       
       // Refresh the deals list
-      window.location.reload();
+      await queryClient.invalidateQueries({ queryKey: ['deals'] });
     } catch (error: any) {
       console.error('Error saving deal:', error);
       toast.error('❌ שגיאה בשמירת העסקה: ' + (error.message || 'שגיאה לא ידועה'));

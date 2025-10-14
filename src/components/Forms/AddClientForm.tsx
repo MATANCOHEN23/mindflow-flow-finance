@@ -9,6 +9,7 @@ import { Contact } from "@/types/database";
 import { Loader2 } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface AddClientFormProps {
   isOpen: boolean;
@@ -28,6 +29,7 @@ const roleOptions = [
 ];
 
 export const AddClientForm = ({ isOpen, onClose, contact }: AddClientFormProps) => {
+  const queryClient = useQueryClient();
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
@@ -116,7 +118,7 @@ export const AddClientForm = ({ isOpen, onClose, contact }: AddClientFormProps) 
       onClose();
       
       // Refresh the contacts list
-      window.location.reload();
+      await queryClient.invalidateQueries({ queryKey: ['contacts'] });
     } catch (error: any) {
       console.error('Error saving contact:', error);
       toast.error('❌ שגיאה בשמירת הלקוח: ' + (error.message || 'שגיאה לא ידועה'));
