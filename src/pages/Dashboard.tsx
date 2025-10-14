@@ -1,29 +1,20 @@
 
 import { StatsCard } from "@/components/Dashboard/StatsCard";
-import { PaymentStatusChart } from "@/components/Dashboard/PaymentStatusChart";
-import { RevenueChart } from "@/components/Dashboard/RevenueChart";
 import { OverduePayments } from "@/components/Dashboard/OverduePayments";
 import { AIInsights } from "@/components/Dashboard/AIInsights";
 import { WidgetGrid } from "@/components/Dashboard/WidgetGrid";
+import { RealTimeRevenueChart } from "@/components/Dashboard/RealTimeRevenueChart";
+import { DealsByStageChart } from "@/components/Dashboard/DealsByStageChart";
 import { useState, useEffect } from "react";
 import { AddClientForm } from "@/components/Forms/AddClientForm";
-import { getDashboardStats } from "@/lib/mock-data";
 import { PremiumLoader } from "@/components/PremiumLoader";
+import { EmptyState } from "@/components/EmptyState";
+import { useDashboardStats } from "@/hooks/useDashboardStats";
+import { Link } from "react-router-dom";
 
 export function Dashboard() {
   const [isClientFormOpen, setIsClientFormOpen] = useState(false);
-  const [stats, setStats] = useState(getDashboardStats());
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Simulate loading for better UX
-    const timer = setTimeout(() => {
-      setStats(getDashboardStats());
-      setLoading(false);
-    }, 800);
-
-    return () => clearTimeout(timer);
-  }, []);
+  const { data: stats, isLoading, error } = useDashboardStats();
 
   // Event listener for opening deal form from sidebar
   useEffect(() => {
@@ -34,14 +25,52 @@ export function Dashboard() {
     return () => window.removeEventListener('openDealForm', handleOpenDealForm);
   }, []);
 
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-orange-50">
+      <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <PremiumLoader size="lg" className="mx-auto mb-6" />
-          <h2 className="text-2xl font-bold text-gray-700 mb-2">טוען את לוח הבקרה...</h2>
-          <p className="text-gray-500">מכין עבורך את הנתונים העדכניים</p>
+          <h2 className="text-2xl font-bold mb-2">טוען את לוח הבקרה...</h2>
+          <p className="text-muted-foreground">מכין עבורך את הנתונים העדכניים</p>
         </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <EmptyState
+          icon="⚠️"
+          title="שגיאה בטעינת הנתונים"
+          description="לא הצלחנו לטעון את נתוני לוח הבקרה. אנא נסה שוב."
+        />
+      </div>
+    );
+  }
+
+  if (!stats || (stats.activeClients === 0 && stats.openDeals === 0 && stats.totalRevenue === 0)) {
+    return (
+      <div className="space-y-8 animate-fade-in" dir="rtl">
+        <div className="text-center mb-10">
+          <h1 className="text-5xl font-bold text-blue-600 mb-4 glow-text">🏆 לוח בקרה ראשי 🏆</h1>
+          <p className="text-gray-600 text-xl font-semibold">התחל לנהל את העסק שלך</p>
+        </div>
+        
+        <EmptyState
+          icon="📊"
+          title="אין נתונים עדיין"
+          description="התחל להוסיף לקוחות ועסקאות כדי לראות סטטיסטיקות ותובנות"
+          action={{
+            label: "הוסף לקוח ראשון",
+            onClick: () => setIsClientFormOpen(true)
+          }}
+        />
+
+        <AddClientForm 
+          isOpen={isClientFormOpen}
+          onClose={() => setIsClientFormOpen(false)}
+        />
       </div>
     );
   }
@@ -57,30 +86,32 @@ export function Dashboard() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <Link to="/contacts" className="block hover-scale transition-smooth">
+            <StatsCard
+              title="👥 לקוחות פעילים"
+              value={stats.activeClients}
+              icon="⭐"
+            />
+          </Link>
+          <Link to="/deals" className="block hover-scale transition-smooth">
+            <StatsCard
+              title="💼 עסקאות פתוחות"
+              value={stats.openDeals}
+              icon="🚀"
+            />
+          </Link>
           <StatsCard
-            title="💰 סה״כ הכנסות החודש"
-            value={`₪${stats.monthlyRevenue.toLocaleString('he-IL')}`}
+            title="💰 סה״כ הכנסות"
+            value={`₪${stats.totalRevenue.toLocaleString('he-IL')}`}
             icon="💎"
-            trend={stats.trends.revenue}
           />
-          <StatsCard
-            title="👥 לקוחות פעילים"
-            value={stats.activeClients}
-            icon="⭐"
-            trend={stats.trends.clients}
-          />
-          <StatsCard
-            title="💼 עסקאות פתוחות"
-            value={stats.openDeals}
-            icon="🚀"
-            trend={stats.trends.deals}
-          />
-          <StatsCard
-            title="⏳ תשלומים ממתינים"
-            value={`₪${stats.pendingPayments.toLocaleString('he-IL')}`}
-            icon="⚡"
-            trend={stats.trends.payments}
-          />
+          <Link to="/payments" className="block hover-scale transition-smooth">
+            <StatsCard
+              title="⏳ תשלומים ממתינים"
+              value={stats.pendingPayments}
+              icon="⚡"
+            />
+          </Link>
         </div>
 
         {/* AI Insights Section */}
@@ -127,8 +158,8 @@ export function Dashboard() {
 
         {/* Charts Row */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <RevenueChart />
-          <PaymentStatusChart />
+          <RealTimeRevenueChart />
+          <DealsByStageChart />
         </div>
 
         {/* Bottom Section */}
