@@ -97,3 +97,7 @@ export interface DomainWithChildren extends Domain {
   children?: DomainWithChildren[];
   full_path?: string;
 }
+
+export interface ContactDomainWithDetails extends ContactDomain {
+  domain?: Domain;
+}

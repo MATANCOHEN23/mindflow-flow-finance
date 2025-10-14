@@ -19,8 +19,12 @@ export const useContact = (id: string) => {
   return useQuery({
     queryKey: ['contact', id],
     queryFn: async () => {
-      const { data } = await supabaseWithFallback.getContacts();
-      return data?.find(contact => contact.id === id) || null;
+      const { data, error } = await supabaseWithFallback.getContactById(id);
+      if (error) {
+        console.error('Error fetching contact:', error);
+        return null;
+      }
+      return data;
     },
     enabled: !!id,
   });

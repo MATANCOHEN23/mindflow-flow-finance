@@ -135,6 +135,27 @@ class SupabaseWithFallback {
 
     return await supabase.from('contacts').delete().eq('id', id);
   }
+
+  async getContactById(id: string) {
+    if (this.useMockData) {
+      const contact = mockContacts.find(c => c.id === id);
+      return { data: contact || null, error: null };
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('contacts')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (error) throw error;
+      return { data, error: null };
+    } catch (error) {
+      console.warn('Error fetching contact by id:', error);
+      return { data: null, error };
+    }
+  }
 }
 
 export const supabaseWithFallback = new SupabaseWithFallback();

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, ChevronLeft, Check, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
 import { DomainSelector } from './DomainSelector';
 import { useCreateContact } from '@/hooks/useContacts';
 import { useAssignContactToDomain } from '@/hooks/useDomains';
@@ -45,6 +46,7 @@ export function SmartClientWizard({ isOpen, onClose }: SmartClientWizardProps) {
     notes: ''
   });
 
+  const queryClient = useQueryClient();
   const createContact = useCreateContact();
   const assignDomain = useAssignContactToDomain();
 
@@ -106,10 +108,12 @@ export function SmartClientWizard({ isOpen, onClose }: SmartClientWizardProps) {
       }
       
       toast.success('✅ הלקוח נוסף בהצלחה!');
-      onClose();
       
-      // רענן את הדף
-      window.location.reload();
+      // רענון חכם - רק נתוני הלקוחות
+      await queryClient.invalidateQueries({ queryKey: ['contacts'] });
+      await queryClient.invalidateQueries({ queryKey: ['contact-domains'] });
+      
+      onClose();
     } catch (error: any) {
       console.error('Error creating contact:', error);
       toast.error('❌ שגיאה: ' + error.message);

@@ -127,7 +127,18 @@ export const contactDomainsApi = {
   async getByContact(contactId: string): Promise<ContactDomain[]> {
     const { data, error } = await supabase
       .from('contact_domains' as any)
-      .select('*')
+      .select(`
+        *,
+        domain:domains (
+          id,
+          name,
+          icon,
+          level,
+          parent_id,
+          pricing_type,
+          pricing_value
+        )
+      `)
       .eq('contact_id', contactId);
 
     if (error) {
@@ -199,6 +210,30 @@ export const contactDomainsApi = {
     if (error) {
       console.error('Error updating contact domain status:', error);
       throw new Error(`שגיאה בעדכון סטטוס: ${error.message}`);
+    }
+  },
+
+  async getFullPath(domainId: string): Promise<string> {
+    try {
+      // Build path by following parent_id chain
+      const domains = await domainsApi.getAll();
+      const domainMap = new Map(domains.map(d => [d.id, d]));
+      const domain = domainMap.get(domainId);
+      
+      if (!domain) return 'נתיב לא זמין';
+      
+      const path: string[] = [];
+      let current = domain;
+      
+      while (current) {
+        path.unshift(`${current.icon || ''} ${current.name}`.trim());
+        current = current.parent_id ? domainMap.get(current.parent_id) : undefined;
+      }
+      
+      return path.join(' > ');
+    } catch (err) {
+      console.error('Error in getFullPath:', err);
+      return 'נתיב לא זמין';
     }
   }
 };

@@ -102,20 +102,23 @@ export default function CustomerProfile() {
                 </div>
               </div>
 
-              <div className="flex flex-wrap gap-2 mb-4">
-                {contactDomains && contactDomains.length > 0 ? (
-                  contactDomains.map(cd => (
+            <div className="flex flex-wrap gap-2 mb-4">
+              {contactDomains && contactDomains.length > 0 ? (
+                contactDomains.map(cd => {
+                  const domain = (cd as any).domain;
+                  return (
                     <Badge key={cd.id} variant="secondary" className="gap-1">
                       {cd.status === 'active' && '✅'}
                       {cd.status === 'paused' && '⏸️'}
                       {cd.status === 'completed' && '✔️'}
-                      תחום #{cd.domain_id.slice(0, 8)}
+                      {domain?.icon} {domain?.name || 'תחום לא ידוע'}
                     </Badge>
-                  ))
-                ) : (
-                  <Badge variant="outline">אין תחומים</Badge>
-                )}
-              </div>
+                  );
+                })
+              ) : (
+                <Badge variant="outline">אין תחומים</Badge>
+              )}
+            </div>
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                 {contact.phone && (
