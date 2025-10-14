@@ -33,6 +33,7 @@ export interface Deal {
 export interface Payment {
   id: string;
   deal_id?: string;
+  contact_id?: string;
   amount: number;
   payment_date: string;
   payment_method?: string;
