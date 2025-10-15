@@ -15,7 +15,7 @@ export default defineConfig(({ mode }) => ({
     mode === 'development' && componentTagger(),
     VitePWA({
       registerType: 'prompt',
-      includeAssets: ['favicon.ico'],
+      includeAssets: ['favicon.ico', 'icon-192.png', 'icon-512.png'],
       manifest: {
         name: 'MC-MindFlow CRM',
         short_name: 'MindFlow',
@@ -24,7 +24,10 @@ export default defineConfig(({ mode }) => ({
         background_color: '#ffffff',
         display: 'standalone',
         orientation: 'portrait',
-        start_url: '/',
+        scope: '/',
+        start_url: '/?source=pwa',
+        dir: 'rtl',
+        lang: 'he',
         icons: [
           {
             src: '/favicon.ico',
@@ -42,6 +45,36 @@ export default defineConfig(({ mode }) => ({
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any maskable'
+          }
+        ],
+        shortcuts: [
+          {
+            name: 'לקוחות',
+            short_name: 'לקוחות',
+            description: 'גישה מהירה לרשימת לקוחות',
+            url: '/contacts?source=shortcut',
+            icons: [{ src: '/icon-192.png', sizes: '192x192' }]
+          },
+          {
+            name: 'דשבורד',
+            short_name: 'דשבורד',
+            description: 'מסך ראשי - סטטיסטיקות ומשימות',
+            url: '/?source=shortcut',
+            icons: [{ src: '/icon-192.png', sizes: '192x192' }]
+          },
+          {
+            name: 'תשלומים',
+            short_name: 'תשלומים',
+            description: 'ניהול תשלומים ועסקאות',
+            url: '/payments?source=shortcut',
+            icons: [{ src: '/icon-192.png', sizes: '192x192' }]
+          },
+          {
+            name: 'אירועים',
+            short_name: 'אירועים',
+            description: 'לוח אירועים ומשימות',
+            url: '/events?source=shortcut',
+            icons: [{ src: '/icon-192.png', sizes: '192x192' }]
           }
         ]
       },
@@ -68,13 +101,13 @@ export default defineConfig(({ mode }) => ({
             }
           },
           {
-            urlPattern: /^https:\/\/khlxdlvlyycatlaslusc\.supabase\.co\/.*/i,
-            handler: 'NetworkFirst',
+            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+            handler: 'CacheFirst',
             options: {
-              cacheName: 'supabase-cache',
+              cacheName: 'google-fonts-cache',
               expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 60 * 24
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 365
               }
             }
           }

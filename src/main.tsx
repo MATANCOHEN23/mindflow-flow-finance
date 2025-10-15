@@ -18,32 +18,69 @@ if ('caches' in window) {
   });
 }
 
-// Register service worker with auto-update
+// Enhanced Service Worker registration
+let deferredUpdatePrompt: (() => Promise<void>) | null = null;
+
 const updateSW = registerSW({
   immediate: true,
   onNeedRefresh() {
-    const shouldUpdate = confirm(
-      '🎉 גרסה חדשה של האפליקציה זמינה!\n\nהאם ברצונך לרענן ולקבל את העדכון?'
+    // Store the update function
+    deferredUpdatePrompt = () => updateSW(true);
+    
+    // Show custom notification with options
+    const userChoice = confirm(
+      '🎉 גרסה חדשה של MindFlow CRM זמינה!\n\n' +
+      '✨ מה חדש:\n' +
+      '• ביצועים משופרים\n' +
+      '• תיקוני באגים\n' +
+      '• תכונות חדשות\n\n' +
+      'האם ברצונך לרענן עכשיו?\n\n' +
+      '(אם תבחר "ביטול", תוכל לעדכן מאוחר יותר)'
     );
-    if (shouldUpdate) {
+    
+    if (userChoice) {
       updateSW(true);
+    } else {
+      // Show persistent notification that update is available
+      console.log('⏳ עדכון נדחה - זמין לביצוע מאוחר יותר');
+      
+      // Add update badge/notification in UI (optional)
+      localStorage.setItem('pwa-update-available', 'true');
+      
+      // Show reminder after 1 hour
+      setTimeout(() => {
+        if (deferredUpdatePrompt && localStorage.getItem('pwa-update-available') === 'true') {
+          const reminderChoice = confirm(
+            '🔔 תזכורת: גרסה חדשה עדיין ממתינה\n\n' +
+            'רוצה לעדכן עכשיו?'
+          );
+          if (reminderChoice) {
+            deferredUpdatePrompt();
+            localStorage.removeItem('pwa-update-available');
+          }
+        }
+      }, 60 * 60 * 1000); // 1 hour
     }
   },
   onOfflineReady() {
-    console.log('✅ App ready to work offline');
+    console.log('✅ האפליקציה מוכנה לעבודה ללא אינטרנט');
   },
   onRegistered(registration) {
-    console.log('✅ Service Worker registered:', registration);
+    console.log('✅ Service Worker רשום בהצלחה:', registration);
     
     // Check for updates every 60 seconds
     if (registration) {
       setInterval(() => {
+        console.log('🔍 מחפש עדכונים...');
         registration.update();
       }, 60000);
     }
+    
+    // Clear update flag on successful registration
+    localStorage.removeItem('pwa-update-available');
   },
   onRegisterError(error) {
-    console.error('❌ Service Worker registration error:', error);
+    console.error('❌ שגיאה ברישום Service Worker:', error);
   },
 });
 

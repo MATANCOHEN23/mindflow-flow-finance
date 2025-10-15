@@ -216,6 +216,65 @@ export default function Install() {
                     </ul>
                   </div>
                 </div>
+
+                {/* Advanced Tips */}
+                <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg">
+                  <h4 className="font-bold text-lg mb-3 text-blue-900">🎓 טיפים מתקדמים</h4>
+                  <ul className="space-y-2 text-sm text-blue-800">
+                    <li className="flex items-start gap-2">
+                      <span className="font-bold min-w-[20px]">⚡</span>
+                      <span><strong>קיצורי דרך:</strong> לחץ לחיצה ארוכה על האייקון במסך הבית כדי לקבל גישה מהירה ללקוחות, תשלומים, אירועים ועוד!</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="font-bold min-w-[20px]">🔄</span>
+                      <span><strong>עדכונים אוטומטיים:</strong> האפליקציה תבדוק עדכונים כל דקה ותציג הודעה כשיש גרסה חדשה</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="font-bold min-w-[20px]">💾</span>
+                      <span><strong>מצב אופליין:</strong> כל הנתונים שצפית בהם ישמרו במטמון ויהיו זמינים גם ללא אינטרנט</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="font-bold min-w-[20px]">🔒</span>
+                      <span><strong>אבטחה:</strong> האפליקציה פועלת עם הצפנת HTTPS מלאה והנתונים שלך מאובטחים</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="font-bold min-w-[20px]">🎨</span>
+                      <span><strong>מסך מלא:</strong> האפליקציה תיפתח ללא סרגל הכתובות של Safari לחוויה נקייה</span>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Video Tutorial - Optional but Recommended */}
+                <div className="mt-6 text-center p-4 bg-gray-50 rounded-lg">
+                  <h4 className="font-bold text-lg mb-3">🎬 מדריך וידאו - כיצד להתקין</h4>
+                  <p className="text-sm text-gray-600 mb-3">
+                    צפה בהדרכה חזותית של תהליך ההתקנה (30 שניות)
+                  </p>
+                  
+                  <div className="bg-gray-200 rounded-lg p-8 text-gray-500">
+                    <p className="text-sm mb-2">🎥 הדרכת וידאו תתווסף בקרוב</p>
+                    <p className="text-xs">בינתיים, עקוב אחר ההוראות המפורטות למעלה</p>
+                  </div>
+                </div>
+
+                {/* Troubleshooting Section */}
+                <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <h4 className="font-bold text-lg mb-3 text-red-900">🔧 פתרון בעיות נפוצות</h4>
+                  <ul className="space-y-2 text-sm text-red-800">
+                    <li className="flex items-start gap-2">
+                      <span className="font-bold min-w-[20px]">❓</span>
+                      <span><strong>לא רואה "הוסף למסך הבית"?</strong><br/>ודא שאתה ב-Safari ולא ב-Chrome. נסה לסגור ולפתוח מחדש את Safari.</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="font-bold min-w-[20px]">❓</span>
+                      <span><strong>האייקון לא מופיע?</strong><br/>נסה לרענן את המסך הבית או לעשות restart למכשיר.</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="font-bold min-w-[20px]">❓</span>
+                      <span><strong>האפליקציה נפתחת בדפדפן?</strong><br/>ודא שאתה לוחץ על האייקון במסך הבית ולא על סימניה בדפדפן.</span>
+                    </li>
+                  </ul>
+                </div>
               </div>
             )}
 

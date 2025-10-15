@@ -1,4 +1,3 @@
-
 {
   "name": "MC-MindFlow CRM",
   "short_name": "MindFlow",
@@ -8,7 +7,7 @@
   "display": "standalone",
   "orientation": "portrait",
   "scope": "/",
-  "start_url": "/",
+  "start_url": "/?source=pwa",
   "dir": "rtl",
   "lang": "he",
   "icons": [
@@ -28,6 +27,44 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "לקוחות",
+      "short_name": "לקוחות",
+      "description": "גישה מהירה לרשימת לקוחות",
+      "url": "/contacts?source=shortcut",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "דשבורד",
+      "short_name": "דשבורד",
+      "description": "מסך ראשי - סטטיסטיקות ומשימות",
+      "url": "/?source=shortcut",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "תשלומים",
+      "short_name": "תשלומים",
+      "description": "ניהול תשלומים ועסקאות",
+      "url": "/payments?source=shortcut",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "אירועים",
+      "short_name": "אירועים",
+      "description": "לוח אירועים ומשימות",
+      "url": "/events?source=shortcut",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "wide"
     }
   ]
 }
