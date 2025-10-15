@@ -17,7 +17,13 @@ export function AppSidebar() {
 
   return (
     <>
-      <Sidebar className="border-r border-gray-700" style={{ background: 'var(--sidebar-bg)' }}>
+      <Sidebar 
+        className="border-r border-gray-700" 
+        style={{ 
+          background: 'linear-gradient(180deg, rgba(17, 24, 39, 0.95) 0%, rgba(31, 41, 55, 0.95) 100%)',
+          backdropFilter: 'blur(10px)'
+        }}
+      >
         <UISidebarHeader>
           <SidebarHeader
             onOpenSmartWizard={() => setIsSmartWizardOpen(true)}

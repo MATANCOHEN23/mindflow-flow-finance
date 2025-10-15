@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 import { DomainSelector } from './DomainSelector';
+import { PriceCalculatorStep } from './PriceCalculatorStep';
 import { useCreateContact } from '@/hooks/useContacts';
 import { useAssignContactToDomain } from '@/hooks/useDomains';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -23,10 +24,19 @@ interface WizardData {
     parentPhone?: string;
     childName?: string;
   };
+  pricing: {
+    totalPrice: number;
+    breakdown: Array<{
+      domainName: string;
+      domainIcon: string;
+      price: number;
+      explanation: string;
+    }>;
+  };
   notes: string;
 }
 
-const STEPS = ['בחר תחומים', 'פרטי קשר', 'סיכום'];
+const STEPS = ['בחר תחומים', 'פרטי קשר', 'חישוב מחיר', 'סיכום'];
 
 interface SmartClientWizardProps {
   isOpen: boolean;
@@ -42,6 +52,10 @@ export function SmartClientWizard({ isOpen, onClose }: SmartClientWizardProps) {
       lastName: '',
       phone: '',
       email: ''
+    },
+    pricing: {
+      totalPrice: 0,
+      breakdown: []
     },
     notes: ''
   });
@@ -129,6 +143,10 @@ export function SmartClientWizard({ isOpen, onClose }: SmartClientWizardProps) {
         lastName: '',
         phone: '',
         email: ''
+      },
+      pricing: {
+        totalPrice: 0,
+        breakdown: []
       },
       notes: ''
     });
@@ -248,7 +266,10 @@ export function SmartClientWizard({ isOpen, onClose }: SmartClientWizardProps) {
           </div>
         );
 
-      case 2: // Summary
+      case 2: // Price Calculator
+        return <PriceCalculatorStep wizardData={wizardData} setWizardData={setWizardData} />;
+
+      case 3: // Summary
         return (
           <div className="space-y-6">
             <div className="bg-accent/30 rounded-lg p-4">
@@ -279,6 +300,14 @@ export function SmartClientWizard({ isOpen, onClose }: SmartClientWizardProps) {
                 <div>
                   <span className="font-semibold">מספר תחומים:</span> {wizardData.selectedDomains.length}
                 </div>
+                {wizardData.pricing.totalPrice > 0 && (
+                  <div className="pt-3 border-t mt-3">
+                    <span className="font-semibold">מחיר משוער:</span>{' '}
+                    <span className="text-xl font-bold text-primary">
+                      ₪{wizardData.pricing.totalPrice.toLocaleString()}
+                    </span>
+                  </div>
+                )}
                 {wizardData.notes && (
                   <div>
                     <span className="font-semibold">הערות:</span> {wizardData.notes}

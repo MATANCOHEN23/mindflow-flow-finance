@@ -4,6 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { RevenueByDomainChart } from '@/components/Reports/RevenueByDomainChart';
 import { ClientGrowthChart } from '@/components/Reports/ClientGrowthChart';
+import { OverduePaymentsChart } from '@/components/Reports/OverduePaymentsChart';
 import { MainLayout } from '@/components/Layout/MainLayout';
 import { Download } from 'lucide-react';
 
@@ -74,14 +75,13 @@ export default function Reports() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {reportType === 'revenue' && <RevenueByDomainChart />}
         {reportType === 'growth' && <ClientGrowthChart />}
+        {reportType === 'payments' && <OverduePaymentsChart />}
       </div>
 
-      {(reportType === 'payments' || reportType === 'deals') && (
+      {reportType === 'deals' && (
         <Card className="premium-card">
           <CardHeader>
-            <CardTitle>
-              {reportType === 'payments' ? 'תשלומים באיחור' : 'עסקאות לפי שלב'}
-            </CardTitle>
+            <CardTitle>עסקאות לפי שלב</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-center text-muted-foreground py-8">

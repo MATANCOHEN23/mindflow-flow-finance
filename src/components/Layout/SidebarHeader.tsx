@@ -28,7 +28,7 @@ export function SidebarHeader({ onOpenSmartWizard, onOpenDealForm, onOpenImport 
             <span className="text-2xl">🧠</span>
           </div>
           <div>
-            <h2 className="text-xl font-bold text-white glow-text">MindFlow</h2>
+            <h2 className="text-xl font-bold text-white glow-text" style={{ color: '#f97316' }}>MC-MindFlow</h2>
             <p className="text-white/80 text-sm font-medium">CRM System</p>
           </div>
         </div>
