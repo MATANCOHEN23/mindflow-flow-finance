@@ -13,7 +13,6 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Index from "./pages/Index";
 import Home from "./pages/Home";
 import Contacts from "./pages/Contacts";
-import Deals from "./pages/Deals";
 import Payments from "./pages/Payments";
 import BirthdayEvents from "./pages/BirthdayEvents";
 import Therapy from "./pages/Therapy";
@@ -40,7 +39,6 @@ const App = () => (
             <Route path="/dashboard" element={<Index />} />
             <Route path="/contacts" element={<Contacts />} />
             <Route path="/customer/:id" element={<CustomerProfile />} />
-            <Route path="/deals" element={<Deals />} />
             <Route path="/payments" element={<Payments />} />
             <Route path="/domains" element={<Domains />} />
             <Route path="/domain/:id" element={<DomainProfile />} />

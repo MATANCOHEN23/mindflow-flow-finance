@@ -49,12 +49,33 @@ export class FileProcessor {
   private static transformData(rows: any[], selectedTable: string): any[] {
     return rows.map(row => {
       if (selectedTable === 'contacts') {
+        // זיהוי אוטומטי של תחום
+        const detectDomains = (row: any): string[] => {
+          const domains = [];
+          const rowText = JSON.stringify(row).toLowerCase();
+          
+          if (rowText.includes('פסיכולוג') || rowText.includes('טיפול') || rowText.includes('therapy')) {
+            domains.push('מטופל');
+          }
+          if (rowText.includes('כדורסל') || rowText.includes('מאמן') || rowText.includes('basketball')) {
+            domains.push('שחקן כדורסל');
+          }
+          if (rowText.includes('יום הולדת') || rowText.includes('אירוע') || rowText.includes('birthday')) {
+            domains.push('יזם');
+          }
+          if (rowText.includes('סדנה') || rowText.includes('בית ספר') || rowText.includes('workshop')) {
+            domains.push('יזם');
+          }
+          
+          return domains.length > 0 ? domains : ['לקוח'];
+        };
+
         return {
           first_name: row.first_name || row['שם פרטי'] || row.name || 'לא צוין',
           last_name: row.last_name || row['שם משפחה'] || '',
           phone_parent: row.phone_parent || row['טלפון'] || row.phone || '',
           email: row.email || row['אימייל'] || '',
-          role_tags: row.role_tags || [row['תפקיד'] || 'לקוח'],
+          role_tags: detectDomains(row),
           notes: row.notes || row['הערות'] || ''
         };
       }

@@ -3,7 +3,8 @@ import { MainLayout } from "@/components/Layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useDomains, useDeleteDomain } from "@/hooks/useDomains";
+import { Input } from "@/components/ui/input";
+import { useDomains, useDeleteDomain, useUpdateDomain } from "@/hooks/useDomains";
 import { DomainForm } from "@/components/Forms/DomainForm";
 import { Domain, DomainWithChildren } from "@/types/database";
 import { Settings, Plus, Trash2, Edit, ChevronDown, ChevronLeft } from "lucide-react";
@@ -13,11 +14,14 @@ import { DeleteConfirmModal } from "@/components/DeleteConfirmModal";
 export default function Domains() {
   const { data: domains, isLoading } = useDomains();
   const deleteDomain = useDeleteDomain();
+  const updateDomain = useUpdateDomain();
   const [isDomainFormOpen, setIsDomainFormOpen] = useState(false);
   const [editingDomain, setEditingDomain] = useState<Domain | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [domainToDelete, setDomainToDelete] = useState<string | null>(null);
   const [expandedDomains, setExpandedDomains] = useState<Set<string>>(new Set());
+  const [editingInline, setEditingInline] = useState<string | null>(null);
+  const [inlineEditValue, setInlineEditValue] = useState('');
 
   const buildHierarchy = (domains: Domain[]): DomainWithChildren[] => {
     const domainMap = new Map<string, DomainWithChildren>();
@@ -114,9 +118,41 @@ export default function Domains() {
                   <span className="text-2xl">{domain.icon || "📁"}</span>
                   
                   <div className="flex-1">
-                    <h3 className="font-semibold text-lg">{domain.name}</h3>
+                    {editingInline === domain.id ? (
+                      <Input
+                        value={inlineEditValue}
+                        onChange={(e) => setInlineEditValue(e.target.value)}
+                        onBlur={async () => {
+                          if (inlineEditValue !== domain.name) {
+                            await updateDomain.mutateAsync({
+                              id: domain.id,
+                              data: { name: inlineEditValue }
+                            });
+                            toast.success('התחום עודכן בהצלחה');
+                          }
+                          setEditingInline(null);
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.currentTarget.blur();
+                          }
+                        }}
+                        autoFocus
+                        className="text-lg font-semibold"
+                      />
+                    ) : (
+                      <h3 
+                        className="font-semibold text-lg cursor-pointer hover:text-primary"
+                        onDoubleClick={() => {
+                          setEditingInline(domain.id);
+                          setInlineEditValue(domain.name);
+                        }}
+                        title="לחץ פעמיים לעריכה"
+                      >
+                        {domain.name}
+                      </h3>
+                    )}
                     <div className="flex items-center gap-2 mt-1">
-                      <Badge variant="outline">רמה {domain.level}</Badge>
                       {pricingLabel && (
                         <Badge variant="secondary">{pricingLabel}</Badge>
                       )}

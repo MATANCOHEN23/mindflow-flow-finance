@@ -12,6 +12,8 @@ import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 import { useContacts } from '@/hooks/useContacts';
 import { useDomains } from '@/hooks/useDomains';
+import { useLastAction } from '@/hooks/useLastAction';
+import { dealTemplates } from '@/data/dealTemplates';
 
 interface AddDealFormProps {
   isOpen: boolean;
@@ -24,6 +26,7 @@ export function AddDealForm({ isOpen, onClose, deal }: AddDealFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { data: contacts } = useContacts();
   const { data: domains } = useDomains();
+  const { setLastAction } = useLastAction();
   
   const [formData, setFormData] = useState({
     base_price: '',
@@ -110,8 +113,8 @@ export function AddDealForm({ isOpen, onClose, deal }: AddDealFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.title || !formData.amount_total) {
-      toast.error("כותרת וסכום כולל הם שדות חובה");
+    if (!formData.contact_id) {
+      toast.error("יש לבחור לקוח");
       return;
     }
 
@@ -154,6 +157,8 @@ export function AddDealForm({ isOpen, onClose, deal }: AddDealFormProps) {
 
         if (error) throw error;
         toast.success("✅ העסקה נוספה בהצלחה!");
+        
+        setLastAction({ type: 'deal', id: data.id, timestamp: Date.now() });
       }
       
       onClose();
@@ -182,6 +187,33 @@ export function AddDealForm({ isOpen, onClose, deal }: AddDealFormProps) {
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Quick Templates */}
+          <div>
+            <Label htmlFor="template">תבניות מהירות</Label>
+            <Select onValueChange={(templateId) => {
+              const template = dealTemplates.find(t => t.id === templateId);
+              if (template) {
+                setFormData({
+                  ...formData,
+                  category: template.category,
+                  package_type: template.package_type,
+                  amount_total: template.amount_total.toString(),
+                  notes: template.notes
+                });
+                toast.success('תבנית נטענה בהצלחה');
+              }
+            }}>
+              <SelectTrigger className="text-right">
+                <SelectValue placeholder="בחר תבנית מהירה (אופציונלי)" />
+              </SelectTrigger>
+              <SelectContent>
+                {dealTemplates.map(t => (
+                  <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label className="text-right font-bold text-primary">
@@ -222,7 +254,7 @@ export function AddDealForm({ isOpen, onClose, deal }: AddDealFormProps) {
 
           <div>
             <Label htmlFor="title" className="text-right font-bold text-primary">
-              כותרת העסקה *
+              כותרת העסקה
             </Label>
             <Input
               id="title"
@@ -230,7 +262,6 @@ export function AddDealForm({ isOpen, onClose, deal }: AddDealFormProps) {
               onChange={(e) => handleChange('title', e.target.value)}
               className="text-right"
               placeholder="למשל: יום הולדת של דני"
-              required
             />
           </div>
 
@@ -315,7 +346,7 @@ export function AddDealForm({ isOpen, onClose, deal }: AddDealFormProps) {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="amount_total" className="text-right font-bold text-primary">
-                סכום כולל *
+                סכום כולל
               </Label>
               <Input
                 id="amount_total"
@@ -324,7 +355,6 @@ export function AddDealForm({ isOpen, onClose, deal }: AddDealFormProps) {
                 onChange={(e) => handleChange('amount_total', e.target.value)}
                 className="text-right"
                 placeholder="1500"
-                required
               />
             </div>
 

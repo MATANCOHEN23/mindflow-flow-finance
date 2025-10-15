@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, ChevronLeft, Check, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -13,6 +13,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import { useLastAction } from '@/hooks/useLastAction';
+import { useContacts } from '@/hooks/useContacts';
 
 interface WizardData {
   selectedDomains: string[];
@@ -63,6 +65,41 @@ export function SmartClientWizard({ isOpen, onClose }: SmartClientWizardProps) {
   const queryClient = useQueryClient();
   const createContact = useCreateContact();
   const assignDomain = useAssignContactToDomain();
+  const { setLastAction } = useLastAction();
+  const { data: existingContacts } = useContacts();
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const autoSaveInterval = useRef<NodeJS.Timeout | null>(null);
+
+  // Auto-save draft
+  useEffect(() => {
+    if (isOpen) {
+      autoSaveInterval.current = setInterval(() => {
+        localStorage.setItem('draft-client', JSON.stringify(wizardData));
+        toast.info('💾 טיוטה נשמרה', { duration: 1000 });
+      }, 30000);
+    }
+
+    return () => {
+      if (autoSaveInterval.current) {
+        clearInterval(autoSaveInterval.current);
+      }
+    };
+  }, [isOpen, wizardData]);
+
+  // Load draft on open
+  useEffect(() => {
+    if (isOpen) {
+      const draft = localStorage.getItem('draft-client');
+      if (draft) {
+        const shouldRestore = confirm('נמצאה טיוטה שמורה. האם לשחזר?');
+        if (shouldRestore) {
+          setWizardData(JSON.parse(draft));
+        } else {
+          localStorage.removeItem('draft-client');
+        }
+      }
+    }
+  }, [isOpen]);
 
   const handleNext = () => {
     if (currentStep === 0 && wizardData.selectedDomains.length === 0) {
@@ -123,6 +160,9 @@ export function SmartClientWizard({ isOpen, onClose }: SmartClientWizardProps) {
       
       toast.success('✅ הלקוח נוסף בהצלחה!');
       
+      setLastAction({ type: 'contact', id: newContact.id, timestamp: Date.now() });
+      localStorage.removeItem('draft-client');
+      
       // רענון חכם - רק נתוני הלקוחות
       await queryClient.invalidateQueries({ queryKey: ['contacts'] });
       await queryClient.invalidateQueries({ queryKey: ['contact-domains'] });
@@ -135,22 +175,25 @@ export function SmartClientWizard({ isOpen, onClose }: SmartClientWizardProps) {
   };
 
   const handleClose = () => {
-    setCurrentStep(0);
-    setWizardData({
-      selectedDomains: [],
-      contactInfo: {
-        firstName: '',
-        lastName: '',
-        phone: '',
-        email: ''
-      },
-      pricing: {
-        totalPrice: 0,
-        breakdown: []
-      },
-      notes: ''
-    });
-    onClose();
+    if (confirm('האם אתה בטוח שברצונך לסגור את האשף? כל השינויים לא ישמרו.')) {
+      setCurrentStep(0);
+      setWizardData({
+        selectedDomains: [],
+        contactInfo: {
+          firstName: '',
+          lastName: '',
+          phone: '',
+          email: ''
+        },
+        pricing: {
+          totalPrice: 0,
+          breakdown: []
+        },
+        notes: ''
+      });
+      localStorage.removeItem('draft-client');
+      onClose();
+    }
   };
 
   const renderStepContent = () => {
@@ -169,18 +212,50 @@ export function SmartClientWizard({ isOpen, onClose }: SmartClientWizardProps) {
         return (
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <div>
+              <div className="relative">
                 <Label htmlFor="firstName">שם פרטי *</Label>
                 <Input
                   id="firstName"
                   value={wizardData.contactInfo.firstName}
-                  onChange={(e) => setWizardData({
-                    ...wizardData,
-                    contactInfo: { ...wizardData.contactInfo, firstName: e.target.value }
-                  })}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setWizardData({
+                      ...wizardData,
+                      contactInfo: { ...wizardData.contactInfo, firstName: value }
+                    });
+                    
+                    if (value.length >= 2) {
+                      const matches = existingContacts
+                        ?.filter(c => c.first_name.startsWith(value))
+                        .map(c => c.first_name)
+                        .slice(0, 5) || [];
+                      setSuggestions(matches);
+                    } else {
+                      setSuggestions([]);
+                    }
+                  }}
                   placeholder="שם פרטי"
                   required
                 />
+                {suggestions.length > 0 && (
+                  <div className="absolute z-10 bg-white border rounded-lg shadow-lg mt-1 w-full">
+                    {suggestions.map(name => (
+                      <button
+                        key={name}
+                        onClick={() => {
+                          setWizardData({
+                            ...wizardData,
+                            contactInfo: { ...wizardData.contactInfo, firstName: name }
+                          });
+                          setSuggestions([]);
+                        }}
+                        className="w-full text-right p-2 hover:bg-gray-100"
+                      >
+                        {name}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
               <div>
                 <Label htmlFor="lastName">שם משפחה</Label>
@@ -333,16 +408,21 @@ export function SmartClientWizard({ isOpen, onClose }: SmartClientWizardProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto" dir="rtl">
+      <DialogContent 
+        className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto bg-white/95" 
+        dir="rtl"
+        onEscapeKeyDown={handleClose}
+      >
         <div className="space-y-6">
           {/* Header */}
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold gradient-text">הוסף לקוח חדש</h2>
             <button
               onClick={handleClose}
-              className="p-2 hover:bg-accent rounded-full transition-colors"
+              className="p-2 hover:bg-orange-500/20 rounded-full transition-colors border-2 border-orange-500"
+              aria-label="סגור"
             >
-              <X className="w-5 h-5" />
+              <X className="w-6 h-6 text-orange-500" />
             </button>
           </div>
 
@@ -400,7 +480,7 @@ export function SmartClientWizard({ isOpen, onClose }: SmartClientWizardProps) {
               disabled={currentStep === 0}
               className="gap-2"
             >
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="w-4 w-4" />
               הקודם
             </Button>
 

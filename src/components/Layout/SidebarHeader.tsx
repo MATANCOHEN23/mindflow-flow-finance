@@ -1,8 +1,10 @@
 
 import { useEffect, useState } from "react";
-import { UserPlus, Briefcase, Upload, TestTube, Navigation } from "lucide-react";
+import { UserPlus, Briefcase, Upload, TestTube, Navigation, RotateCcw } from "lucide-react";
 import { SystemTester } from "@/tests/SystemTester";
 import { NavigationTester } from "@/components/NavigationTester";
+import { useLastAction } from "@/hooks/useLastAction";
+import { Button } from "@/components/ui/button";
 
 interface SidebarHeaderProps {
   onOpenSmartWizard: () => void;
@@ -13,6 +15,7 @@ interface SidebarHeaderProps {
 export function SidebarHeader({ onOpenSmartWizard, onOpenDealForm, onOpenImport }: SidebarHeaderProps) {
   const [isSystemTesterOpen, setIsSystemTesterOpen] = useState(false);
   const [isNavigationTesterOpen, setIsNavigationTesterOpen] = useState(false);
+  const { lastAction } = useLastAction();
   
   useEffect(() => {
     const handleOpenDealForm = () => onOpenDealForm();
@@ -36,7 +39,20 @@ export function SidebarHeader({ onOpenSmartWizard, onOpenDealForm, onOpenImport 
       
       {/* Quick Action Buttons */}
       <div className="p-4 space-y-3 border-b border-gray-700">
-        <button 
+        {lastAction && (
+          <Button
+            onClick={() => {
+              if (lastAction.type === 'contact') onOpenSmartWizard();
+              if (lastAction.type === 'deal') onOpenDealForm();
+            }}
+            className="w-full sidebar-btn text-sm py-3 px-4 flex items-center gap-3 justify-center"
+            variant="outline"
+          >
+            <RotateCcw className="h-4 w-4" />
+            חזור לפעולה אחרונה
+          </Button>
+        )}
+        <button
           className="w-full sidebar-btn text-sm py-3 px-4 flex items-center gap-3 justify-center rounded-lg font-semibold hover:bg-orange-600 transition-all duration-300 sidebar-button"
           aria-label="אשף לקוח חכם"
           tabIndex={0}
