@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { MainLayout } from "@/components/Layout/MainLayout";
 import { usePayments, useDeletePayment } from "@/hooks/usePayments";
 import { PaymentForm } from "@/components/Forms/PaymentForm";
@@ -15,20 +16,37 @@ import { format } from "date-fns";
 import { he } from "date-fns/locale";
 import { Trash2, Edit } from "lucide-react";
 import { DeleteConfirmModal } from "@/components/DeleteConfirmModal";
+import { useBulkSelection } from "@/hooks/useBulkSelection";
+import { BulkActionsToolbar } from "@/components/common/BulkActionsToolbar";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 const Payments = () => {
   const { data: payments, isLoading, error } = usePayments();
   const deletePayment = useDeletePayment();
+  const queryClient = useQueryClient();
   
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingPayment, setEditingPayment] = useState<Payment | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterMethod, setFilterMethod] = useState<string>("all");
+  const [isBulkDeleting, setIsBulkDeleting] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; id: string; name: string }>({
     isOpen: false,
     id: "",
     name: ""
   });
+
+  const {
+    selectedIds,
+    toggleItem,
+    toggleAll,
+    clearSelection,
+    isSelected,
+    isAllSelected,
+    count
+  } = useBulkSelection(payments || []);
 
   // Filter and search payments
   const filteredPayments = useMemo(() => {
@@ -71,6 +89,27 @@ const Payments = () => {
   const handleCloseForm = () => {
     setIsFormOpen(false);
     setEditingPayment(null);
+  };
+
+  const handleBulkDelete = async () => {
+    setIsBulkDeleting(true);
+    try {
+      const { error } = await supabase
+        .from('payments')
+        .delete()
+        .in('id', selectedIds);
+      
+      if (error) throw error;
+      
+      toast.success(`${selectedIds.length} תשלומים נמחקו בהצלחה`);
+      clearSelection();
+      queryClient.invalidateQueries({ queryKey: ['payments'] });
+    } catch (error) {
+      console.error('Error deleting payments:', error);
+      toast.error('שגיאה במחיקת תשלומים');
+    } finally {
+      setIsBulkDeleting(false);
+    }
   };
 
   const getPaymentMethodLabel = (method: string | null) => {
@@ -198,6 +237,12 @@ const Payments = () => {
               <Table>
                 <TableHeader>
                   <TableRow className="table-header">
+                    <TableHead className="w-12">
+                      <Checkbox
+                        checked={isAllSelected}
+                        onCheckedChange={toggleAll}
+                      />
+                    </TableHead>
                     <TableHead className="text-right font-black text-lg">לקוח</TableHead>
                     <TableHead className="text-right font-black text-lg">עסקה</TableHead>
                     <TableHead className="text-right font-black text-lg">סכום</TableHead>
@@ -228,6 +273,12 @@ const Payments = () => {
                   ) : (
                     filteredPayments.map((payment: PaymentWithDetails) => (
                       <TableRow key={payment.id} className="table-row hover:bg-primary/5">
+                        <TableCell>
+                          <Checkbox
+                            checked={isSelected(payment.id)}
+                            onCheckedChange={() => toggleItem(payment.id)}
+                          />
+                        </TableCell>
                         <TableCell className="font-semibold">
                           {payment.contact_name}
                         </TableCell>
@@ -300,6 +351,13 @@ const Payments = () => {
         onConfirm={handleDelete}
         title="מחיקת תשלום"
         itemName={deleteConfirm.name}
+      />
+
+      <BulkActionsToolbar
+        count={count}
+        onDelete={handleBulkDelete}
+        onClear={clearSelection}
+        isDeleting={isBulkDeleting}
       />
     </MainLayout>
   );

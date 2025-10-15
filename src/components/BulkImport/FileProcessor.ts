@@ -47,6 +47,21 @@ export class FileProcessor {
   }
 
   private static transformData(rows: any[], selectedTable: string): any[] {
+    // Phone normalization function
+    const normalizePhone = (phone: string): string => {
+      if (!phone) return '';
+      let cleaned = phone.replace(/[\s\-\(\)\.]/g, '');
+      if (cleaned.startsWith('+972')) {
+        cleaned = '0' + cleaned.slice(4);
+      } else if (cleaned.startsWith('972')) {
+        cleaned = '0' + cleaned.slice(3);
+      }
+      if (cleaned.match(/^5\d{8,9}$/)) {
+        cleaned = '0' + cleaned;
+      }
+      return cleaned;
+    };
+
     return rows.map(row => {
       if (selectedTable === 'contacts') {
         // זיהוי אוטומטי של תחום
@@ -70,11 +85,18 @@ export class FileProcessor {
           return domains.length > 0 ? domains : ['לקוח'];
         };
 
+        const phone = row.phone || row['טלפון'] || row['נייד'] || '';
+        const phoneParent = row.phone_parent || row['טלפון הורה'] || '';
+
         return {
           first_name: row.first_name || row['שם פרטי'] || row.name || 'לא צוין',
           last_name: row.last_name || row['שם משפחה'] || '',
-          phone_parent: row.phone_parent || row['טלפון'] || row.phone || '',
+          phone: normalizePhone(phone),
+          phone_parent: normalizePhone(phoneParent),
           email: row.email || row['אימייל'] || '',
+          domain: row.domain || row['תחום'] || row['קטגוריה'] || '',
+          sub_domain: row.sub_domain || row['תת-תחום'] || row['תת תחום'] || '',
+          sub_sub_domain: row.sub_sub_domain || row['תת-תת-תחום'] || row['חבילה'] || '',
           role_tags: detectDomains(row),
           notes: row.notes || row['הערות'] || ''
         };

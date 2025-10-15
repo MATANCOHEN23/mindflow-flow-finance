@@ -16,13 +16,15 @@
 }
 
 .sidebar-item.collapsed,
-.group-data-\[collapsible\=icon\] .sidebar-item {
+.group-data-\[collapsible\=icon\] .sidebar-item,
+.sidebar-item[data-state="collapsed"] {
   justify-content: center;
   padding: 12px 8px;
 }
 
 .sidebar-item.collapsed span:not(.icon),
-.group-data-\[collapsible\=icon\] .sidebar-item span:not(.icon) {
+.group-data-\[collapsible\=icon\] .sidebar-item span:not(.icon),
+.sidebar-item[data-state="collapsed"] span:not(.icon) {
   display: none;
 }
 

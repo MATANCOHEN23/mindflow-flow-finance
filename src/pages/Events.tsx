@@ -1,12 +1,18 @@
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useEvents } from '@/hooks/useEvents';
 import { Calendar, MapPin, Users, Clock } from 'lucide-react';
 import { PremiumLoader } from '@/components/PremiumLoader';
 import { EmptyState } from '@/components/EmptyState';
 import { EventForm } from '@/components/Forms/EventForm';
 import { MainLayout } from '@/components/Layout/MainLayout';
+import { useBulkSelection } from '@/hooks/useBulkSelection';
+import { BulkActionsToolbar } from '@/components/common/BulkActionsToolbar';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
 
@@ -14,6 +20,24 @@ export default function Events() {
   const { data: events, isLoading } = useEvents();
   const [isEventFormOpen, setIsEventFormOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [isBulkDeleting, setIsBulkDeleting] = useState(false);
+  const queryClient = useQueryClient();
+  
+  const { selectedIds, toggleItem, clearSelection, isSelected, count } = useBulkSelection(events || []);
+  
+  const handleBulkDelete = async () => {
+    setIsBulkDeleting(true);
+    try {
+      await supabase.from('events').delete().in('id', selectedIds);
+      toast.success(`${selectedIds.length} אירועים נמחקו`);
+      clearSelection();
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+    } catch (error) {
+      toast.error('שגיאה במחיקה');
+    } finally {
+      setIsBulkDeleting(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -67,8 +91,9 @@ export default function Events() {
           {events.map((event: any) => (
             <Card key={event.id} className="premium-card hover-scale cursor-pointer">
               <CardHeader>
-                <div className="flex justify-between items-start">
-                  <CardTitle className="text-xl">{event.title}</CardTitle>
+                <div className="flex justify-between items-start gap-2">
+                  <Checkbox checked={isSelected(event.id)} onCheckedChange={() => toggleItem(event.id)} onClick={(e) => e.stopPropagation()} />
+                  <CardTitle className="text-xl flex-1">{event.title}</CardTitle>
                   <span className={`px-3 py-1 rounded-full text-xs font-bold ${statusColors[event.status as keyof typeof statusColors]}`}>
                     {statusLabels[event.status as keyof typeof statusLabels]}
                   </span>
@@ -116,6 +141,7 @@ export default function Events() {
         }}
         event={selectedEvent}
       />
+      <BulkActionsToolbar count={count} onDelete={handleBulkDelete} onClear={clearSelection} isDeleting={isBulkDeleting} />
       </div>
     </MainLayout>
   );

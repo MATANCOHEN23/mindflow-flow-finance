@@ -458,7 +458,7 @@ export function AddDealForm({ isOpen, onClose, deal }: AddDealFormProps) {
                       placeholder="500"
                     />
                   </div>
-                ) : (
+                 ) : (
                   <div>
                     <Label htmlFor="partial_percentage">אחוז ששולם (%)</Label>
                     <Input
@@ -466,21 +466,14 @@ export function AddDealForm({ isOpen, onClose, deal }: AddDealFormProps) {
                       type="number"
                       value={partialPercentage}
                       onChange={(e) => {
+                        const percentage = parseFloat(e.target.value) || 0;
                         setPartialPercentage(e.target.value);
-                        const total = parseFloat(formData.amount_total);
-                        const pct = parseFloat(e.target.value);
-                        if (!isNaN(total) && !isNaN(pct)) {
-                          setPartialAmount(((total * pct) / 100).toString());
-                        }
+                        const total = parseFloat(formData.amount_total) || 0;
+                        setPartialAmount((total * percentage / 100).toString());
                       }}
-                      placeholder="30"
-                      max="100"
+                      placeholder="50"
+                      max={100}
                     />
-                    {partialAmount && (
-                      <p className="text-sm text-green-600 mt-1">
-                        = ₪{parseFloat(partialAmount).toLocaleString()}
-                      </p>
-                    )}
                   </div>
                 )}
               </div>

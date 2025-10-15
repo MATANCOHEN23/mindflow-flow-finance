@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { MainLayout } from "@/components/Layout/MainLayout";
 import { useState } from "react";
 import { AddDealForm } from "@/components/Forms/AddDealForm";
@@ -14,17 +15,34 @@ import { Deal } from "@/types/database";
 import { DealBoard } from "@/components/DealBoard/DealBoard";
 import { useContacts } from "@/hooks/useContacts";
 import { useDomains } from "@/hooks/useDomains";
+import { useBulkSelection } from "@/hooks/useBulkSelection";
+import { BulkActionsToolbar } from "@/components/common/BulkActionsToolbar";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 const Deals = () => {
   const [isDealFormOpen, setIsDealFormOpen] = useState(false);
   const [editingDeal, setEditingDeal] = useState<Deal | null>(null);
   const [deleteDeal, setDeleteDeal] = useState<Deal | null>(null);
   const [viewMode, setViewMode] = useState<'board' | 'table'>('board');
+  const [isBulkDeleting, setIsBulkDeleting] = useState(false);
   
   const { data: deals, isLoading, error } = useDeals();
   const { data: contacts } = useContacts();
   const { data: domains } = useDomains();
   const deleteDealMutation = useDeleteDeal();
+  const queryClient = useQueryClient();
+  
+  const {
+    selectedIds,
+    toggleItem,
+    toggleAll,
+    clearSelection,
+    isSelected,
+    isAllSelected,
+    count
+  } = useBulkSelection(deals || []);
   
   const getContactName = (contactId?: string) => {
     if (!contactId || !contacts) return null;
@@ -61,6 +79,27 @@ const Deals = () => {
   const handleFormClose = () => {
     setIsDealFormOpen(false);
     setEditingDeal(null);
+  };
+
+  const handleBulkDelete = async () => {
+    setIsBulkDeleting(true);
+    try {
+      const { error } = await supabase
+        .from('deals')
+        .delete()
+        .in('id', selectedIds);
+      
+      if (error) throw error;
+      
+      toast.success(`${selectedIds.length} עסקאות נמחקו בהצלחה`);
+      clearSelection();
+      queryClient.invalidateQueries({ queryKey: ['deals'] });
+    } catch (error) {
+      console.error('Error deleting deals:', error);
+      toast.error('שגיאה במחיקת עסקאות');
+    } finally {
+      setIsBulkDeleting(false);
+    }
   };
 
   const formatAmount = (amount: number) => {
@@ -159,6 +198,12 @@ const Deals = () => {
                 <Table>
                   <TableHeader>
                     <TableRow className="table-header">
+                      <TableHead className="w-12">
+                        <Checkbox
+                          checked={isAllSelected}
+                          onCheckedChange={toggleAll}
+                        />
+                      </TableHead>
                       <TableHead className="text-right font-bold text-base">כותרת</TableHead>
                       <TableHead className="text-right font-bold text-base">לקוח</TableHead>
                       <TableHead className="text-right font-bold text-base">תחום</TableHead>
@@ -202,6 +247,12 @@ const Deals = () => {
                         
                         return (
                           <TableRow key={deal.id} className="table-row">
+                            <TableCell>
+                              <Checkbox
+                                checked={isSelected(deal.id)}
+                                onCheckedChange={() => toggleItem(deal.id)}
+                              />
+                            </TableCell>
                             <TableCell className="font-semibold">{deal.title}</TableCell>
                             <TableCell>
                               {contactName ? (
@@ -297,6 +348,13 @@ const Deals = () => {
         >
           ➕
         </button>
+
+        <BulkActionsToolbar
+          count={count}
+          onDelete={handleBulkDelete}
+          onClear={clearSelection}
+          isDeleting={isBulkDeleting}
+        />
       </div>
     </MainLayout>
   );

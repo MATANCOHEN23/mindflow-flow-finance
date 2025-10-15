@@ -1,12 +1,18 @@
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useTasks } from '@/hooks/useTasks';
 import { PremiumLoader } from '@/components/PremiumLoader';
 import { EmptyState } from '@/components/EmptyState';
 import { TaskForm } from '@/components/Forms/TaskForm';
 import { MainLayout } from '@/components/Layout/MainLayout';
 import { Card, CardContent } from "@/components/ui/card";
+import { useBulkSelection } from '@/hooks/useBulkSelection';
+import { BulkActionsToolbar } from '@/components/common/BulkActionsToolbar';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
 import { Calendar, AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
@@ -14,6 +20,24 @@ import { he } from 'date-fns/locale';
 export default function Tasks() {
   const { data: tasks, isLoading } = useTasks();
   const [isTaskFormOpen, setIsTaskFormOpen] = useState(false);
+  const [isBulkDeleting, setIsBulkDeleting] = useState(false);
+  const queryClient = useQueryClient();
+  
+  const { selectedIds, toggleItem, clearSelection, isSelected, count } = useBulkSelection(tasks || []);
+  
+  const handleBulkDelete = async () => {
+    setIsBulkDeleting(true);
+    try {
+      await supabase.from('tasks').delete().in('id', selectedIds);
+      toast.success(`${selectedIds.length} משימות נמחקו`);
+      clearSelection();
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+    } catch (error) {
+      toast.error('שגיאה במחיקה');
+    } finally {
+      setIsBulkDeleting(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -46,8 +70,9 @@ export default function Tasks() {
   const renderTaskCard = (task: any) => (
     <Card key={task.id} className="premium-card hover-scale cursor-pointer mb-4">
       <CardContent className="pt-6">
-        <div className="flex justify-between items-start mb-3">
-          <h3 className="font-bold text-lg">{task.title}</h3>
+        <div className="flex justify-between items-start mb-3 gap-2">
+          <Checkbox checked={isSelected(task.id)} onCheckedChange={() => toggleItem(task.id)} onClick={(e) => e.stopPropagation()} />
+          <h3 className="font-bold text-lg flex-1">{task.title}</h3>
           <span className={`px-3 py-1 rounded-full text-xs font-bold ${priorityColors[task.priority as keyof typeof priorityColors]}`}>
             {priorityLabels[task.priority as keyof typeof priorityLabels]}
           </span>
@@ -140,6 +165,7 @@ export default function Tasks() {
         isOpen={isTaskFormOpen}
         onClose={() => setIsTaskFormOpen(false)}
       />
+      <BulkActionsToolbar count={count} onDelete={handleBulkDelete} onClear={clearSelection} isDeleting={isBulkDeleting} />
       </div>
     </MainLayout>
   );
