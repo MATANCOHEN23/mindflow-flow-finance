@@ -24,7 +24,9 @@ import DomainProfile from "./pages/DomainProfile";
 import Events from "./pages/Events";
 import Tasks from "./pages/Tasks";
 import Reports from "./pages/Reports";
+import Install from "./pages/Install";
 import NotFound from "./pages/NotFound";
+import { InstallPrompt } from "./components/InstallPrompt";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +35,7 @@ const App = () => (
     <TooltipProvider>
       <ErrorBoundary>
         <Toaster />
+        <InstallPrompt />
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Home />} />
@@ -45,6 +48,7 @@ const App = () => (
             <Route path="/events" element={<Events />} />
             <Route path="/tasks" element={<Tasks />} />
             <Route path="/reports" element={<Reports />} />
+            <Route path="/install" element={<Install />} />
             <Route path="/birthday-events" element={<BirthdayEvents />} />
             <Route path="/therapy" element={<Therapy />} />
             <Route path="/basketball" element={<Basketball />} />

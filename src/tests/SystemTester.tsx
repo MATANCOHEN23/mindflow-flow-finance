@@ -278,6 +278,49 @@ export function SystemTester({ isOpen, onClose }: SystemTesterProps) {
         
         return `נמחקו ${safeToDelete.length} לקוחות "לא צוין" שאינם קשורים לנתונים`;
       }
+    },
+    {
+      id: 'pwa-ready',
+      name: '📱 בדיקת PWA',
+      test: async () => {
+        const checks: string[] = [];
+        
+        // Service Worker
+        if ('serviceWorker' in navigator) {
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          checks.push(`Service Worker: ${registrations.length > 0 ? '✅' : '❌'}`);
+        } else {
+          checks.push('Service Worker: ❌ לא נתמך');
+        }
+        
+        // Manifest
+        const manifestLink = document.querySelector('link[rel="manifest"]');
+        checks.push(`Manifest: ${manifestLink ? '✅' : '❌'}`);
+        
+        // Icons
+        try {
+          const [icon192Response, icon512Response] = await Promise.all([
+            fetch('/icon-192.png'),
+            fetch('/icon-512.png')
+          ]);
+          const icon192 = icon192Response.ok;
+          const icon512 = icon512Response.ok;
+          checks.push(`Icons 192x192: ${icon192 ? '✅' : '❌'}`);
+          checks.push(`Icons 512x512: ${icon512 ? '✅' : '❌'}`);
+        } catch {
+          checks.push('Icons: ❌ שגיאה בבדיקה');
+        }
+        
+        // Standalone check
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+        checks.push(`Standalone: ${isStandalone ? '✅ מותקן' : 'ℹ️ לא מותקן'}`);
+        
+        // HTTPS check
+        const isHTTPS = window.location.protocol === 'https:' || window.location.hostname === 'localhost';
+        checks.push(`HTTPS: ${isHTTPS ? '✅' : '❌'}`);
+        
+        return checks.join('\n');
+      }
     }
   ];
 
