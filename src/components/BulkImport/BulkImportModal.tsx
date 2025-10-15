@@ -2,6 +2,7 @@
 import React, { useState, useCallback } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import { useSmartInsert } from "@/hooks/useSmartInsert";
 import { FileDropZone } from "./FileDropZone";
 import { DataPreview } from "./DataPreview";
@@ -46,17 +47,54 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({ isOpen, onClos
     }
   }, [selectedTable]);
 
-  const handleMappingChange = (mapping: Record<string, string>) => {
+  const handleMappingChange = async (mapping: Record<string, string>) => {
     setColumnMapping(mapping);
     
-    // Transform data according to mapping
+    // Fetch all domains for resolution
+    const { data: allDomains } = await supabase.from('domains').select('*');
+    
+    // Build domain lookup map
+    const domainMap = new Map<string, string>();
+    allDomains?.forEach(d => {
+      const key = `${d.name.toLowerCase()}_${d.level}_${d.parent_id || 'root'}`;
+      domainMap.set(key, d.id);
+      // Also add simple name lookup for level 1 (root domains)
+      if (d.level === 1) {
+        domainMap.set(d.name.toLowerCase(), d.id);
+      }
+    });
+    
+    // Transform data according to mapping with domain resolution
     const transformed = rawData.map(row => {
       const newRow: any = {};
+      let unresolved = false;
+      
       Object.entries(mapping).forEach(([csvCol, systemField]) => {
         if (systemField !== 'ignore' && row[csvCol] !== undefined) {
-          newRow[systemField] = row[csvCol];
+          // Handle domain fields - resolve to IDs
+          if (systemField === 'domain') {
+            const domainName = row[csvCol]?.toString().toLowerCase().trim();
+            const domainId = domainMap.get(domainName);
+            if (domainId) {
+              newRow.domain_id = domainId;
+            } else {
+              newRow.domain = row[csvCol]; // Keep original for manual fixing
+              unresolved = true;
+            }
+          } else if (systemField === 'sub_domain' || systemField === 'sub_sub_domain') {
+            // Store for later processing after domain is resolved
+            newRow[systemField] = row[csvCol];
+          } else {
+            newRow[systemField] = row[csvCol];
+          }
         }
       });
+      
+      // Mark unresolved rows
+      if (unresolved) {
+        newRow._unresolved = true;
+      }
+      
       return newRow;
     });
     

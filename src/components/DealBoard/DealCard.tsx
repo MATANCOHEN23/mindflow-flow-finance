@@ -61,10 +61,10 @@ export const DealCard: React.FC<DealCardProps> = ({ deal, isDragging = false }) 
       {...attributes}
       {...listeners}
       className={`
-        bg-white rounded-lg border shadow-sm p-4 cursor-grab transition-all duration-300
-        hover:shadow-md hover:scale-105 drag-item
-        ${isDragging || isSortableDragging ? 'dragging opacity-70' : ''}
+        bg-white rounded-lg border shadow-sm p-4 cursor-grab transition-all duration-200
+        ${isDragging || isSortableDragging ? 'dragging opacity-70 shadow-xl' : 'hover:shadow-md hover:scale-105'}
         ${isDragging ? 'rotate-2 scale-105' : ''}
+        drag-item
       `}
     >
       <div className="flex justify-between items-start mb-3">

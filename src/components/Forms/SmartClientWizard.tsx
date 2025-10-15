@@ -70,12 +70,12 @@ export function SmartClientWizard({ isOpen, onClose }: SmartClientWizardProps) {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const autoSaveInterval = useRef<NodeJS.Timeout | null>(null);
 
-  // Auto-save draft
+  // Auto-save draft silently
   useEffect(() => {
     if (isOpen) {
       autoSaveInterval.current = setInterval(() => {
         localStorage.setItem('draft-client', JSON.stringify(wizardData));
-        toast.info('💾 טיוטה נשמרה', { duration: 1000 });
+        // Silent save - no toast
       }, 30000);
     }
 
@@ -85,6 +85,15 @@ export function SmartClientWizard({ isOpen, onClose }: SmartClientWizardProps) {
       }
     };
   }, [isOpen, wizardData]);
+
+  // Prefetch domains hierarchy on open
+  useEffect(() => {
+    if (isOpen) {
+      queryClient.prefetchQuery({
+        queryKey: ['domains-hierarchy'],
+      });
+    }
+  }, [isOpen, queryClient]);
 
   // Load draft on open
   useEffect(() => {

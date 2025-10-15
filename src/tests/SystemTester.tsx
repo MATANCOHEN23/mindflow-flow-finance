@@ -190,6 +190,94 @@ export function SystemTester({ isOpen, onClose }: SystemTesterProps) {
         
         return `נמצאו ${buttonElements.length} כפתורים, ${selectElements.length} רכיבי בחירה`;
       }
+    },
+    {
+      id: 'domains-hierarchy-ready',
+      name: '🏢 בדיקת היררכיית תחומים',
+      test: async () => {
+        const { data: domains, error } = await supabase
+          .from('domains')
+          .select('*')
+          .eq('level', 1);
+        
+        if (error) throw new Error(`שגיאה בטעינת תחומים: ${error.message}`);
+        if (!domains || domains.length === 0) {
+          throw new Error('אין תחומי שורש במערכת');
+        }
+        
+        return `נמצאו ${domains.length} תחומי שורש`;
+      }
+    },
+    {
+      id: 'cleanup-unnamed-contacts',
+      name: '🧹 ניקוי לקוחות "לא צוין"',
+      test: async () => {
+        // Find "לא צוין" contacts
+        const { data: unnamedContacts, error: fetchError } = await supabase
+          .from('contacts')
+          .select('id')
+          .eq('first_name', 'לא צוין');
+        
+        if (fetchError) throw new Error(`שגיאה באיתור: ${fetchError.message}`);
+        if (!unnamedContacts || unnamedContacts.length === 0) {
+          return 'לא נמצאו לקוחות "לא צוין"';
+        }
+        
+        const contactIds = unnamedContacts.map(c => c.id);
+        
+        // Check if they're linked to deals/payments/events/tasks
+        const { data: deals } = await supabase
+          .from('deals')
+          .select('id')
+          .in('contact_id', contactIds);
+        
+        const { data: payments } = await supabase
+          .from('payments')
+          .select('id')
+          .in('contact_id', contactIds);
+        
+        const { data: events } = await supabase
+          .from('events')
+          .select('id')
+          .in('contact_id', contactIds);
+        
+        const { data: tasks } = await supabase
+          .from('tasks')
+          .select('id')
+          .in('contact_id', contactIds);
+        
+        // Find IDs that are NOT linked to anything
+        const linkedIds = new Set([
+          ...(deals || []).map(d => d.id),
+          ...(payments || []).map(p => p.id),
+          ...(events || []).map(e => e.id),
+          ...(tasks || []).map(t => t.id),
+        ]);
+        
+        const safeToDelete = contactIds.filter(id => !linkedIds.has(id));
+        
+        if (safeToDelete.length === 0) {
+          return `נמצאו ${contactIds.length} לקוחות "לא צוין" אך כולם קשורים לנתונים`;
+        }
+        
+        // Delete orphan contact_domains entries first
+        const { error: cdError } = await supabase
+          .from('contact_domains')
+          .delete()
+          .in('contact_id', safeToDelete);
+        
+        if (cdError) throw new Error(`שגיאה במחיקת קשרי תחומים: ${cdError.message}`);
+        
+        // Delete contacts
+        const { error: deleteError } = await supabase
+          .from('contacts')
+          .delete()
+          .in('id', safeToDelete);
+        
+        if (deleteError) throw new Error(`שגיאה במחיקה: ${deleteError.message}`);
+        
+        return `נמחקו ${safeToDelete.length} לקוחות "לא צוין" שאינם קשורים לנתונים`;
+      }
     }
   ];
 

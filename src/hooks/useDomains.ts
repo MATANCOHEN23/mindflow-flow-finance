@@ -14,6 +14,9 @@ export const useDomainsHierarchy = () => {
   return useQuery({
     queryKey: ['domains-hierarchy'],
     queryFn: domainsApi.getHierarchy,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false,
+    retry: 2,
   });
 };
 

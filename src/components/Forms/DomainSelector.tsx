@@ -108,8 +108,9 @@ export function DomainSelector({ selectedDomains, onChange }: DomainSelectorProp
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-8">
+      <div className="flex flex-col items-center justify-center py-8 space-y-2">
         <PremiumLoader size="md" />
+        <p className="text-sm text-muted-foreground">בונה היררכיית תחומים...</p>
       </div>
     );
   }

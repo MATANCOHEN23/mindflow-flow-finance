@@ -80,7 +80,7 @@ export function SidebarNavigation() {
                     to={item.url} 
                     className={`sidebar-item ${location.pathname === item.url ? 'active' : ''}`}
                   >
-                    <span className="text-xl">{item.icon}</span>
+                    <span className="text-xl icon">{item.icon}</span>
                     <span className="font-medium">{item.title}</span>
                   </Link>
                 </SidebarMenuButton>
@@ -98,13 +98,13 @@ export function SidebarNavigation() {
                   >
                     <CollapsibleTrigger className="sidebar-item w-full justify-between">
                       <div className="flex items-center gap-3">
-                        <span className="text-xl">{group.icon}</span>
+                        <span className="text-xl icon">{group.icon}</span>
                         <span className="font-medium">{group.title}</span>
                       </div>
                       {group.children && group.children.length > 0 && (
                         openGroups.has(group.id) ? 
-                          <ChevronDown className="h-4 w-4" /> : 
-                          <ChevronLeft className="h-4 w-4" />
+                          <ChevronDown className="h-4 w-4 icon" /> : 
+                          <ChevronLeft className="h-4 w-4 icon" />
                       )}
                     </CollapsibleTrigger>
                     {group.children && group.children.length > 0 && (
@@ -115,7 +115,7 @@ export function SidebarNavigation() {
                             to={child.url} 
                             className={`sidebar-item text-sm ${location.pathname === child.url ? 'active' : ''}`}
                           >
-                            <span className="text-lg">{child.icon}</span>
+                            <span className="text-lg icon">{child.icon}</span>
                             <span className="font-medium">{child.title}</span>
                           </Link>
                         ))}

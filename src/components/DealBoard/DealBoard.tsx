@@ -37,7 +37,7 @@ export const DealBoard: React.FC = () => {
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 8,
+        distance: 4, // Smoother dragging - reduced from 8
       },
     })
   );

@@ -15,16 +15,22 @@
   overflow: hidden;
 }
 
-.sidebar-item.collapsed,
-.group-data-\[collapsible\=icon\] .sidebar-item,
-.sidebar-item[data-state="collapsed"] {
+/* Mini mode styling */
+[data-collapsible="icon"] .sidebar-item {
   justify-content: center;
   padding: 12px 8px;
 }
 
-.sidebar-item.collapsed span:not(.icon),
-.group-data-\[collapsible\=icon\] .sidebar-item span:not(.icon),
-.sidebar-item[data-state="collapsed"] span:not(.icon) {
+[data-collapsible="icon"] .sidebar-item span:not(.icon) {
+  display: none;
+}
+
+[data-state="collapsed"] .sidebar-item {
+  justify-content: center;
+  padding: 12px 8px;
+}
+
+[data-state="collapsed"] .sidebar-item span:not(.icon) {
   display: none;
 }
 
