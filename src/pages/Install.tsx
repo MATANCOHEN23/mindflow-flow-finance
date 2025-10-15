@@ -166,28 +166,55 @@ export default function Install() {
                   <Smartphone className="w-6 h-6 text-purple-600" />
                   🍎 הוראות התקנה ל-iPhone/iPad
                 </h3>
-                <ol className="space-y-3 text-right list-decimal list-inside">
+                <ol className="space-y-4 text-right list-decimal list-inside">
                   <li className="flex items-start gap-2">
-                    <span className="font-bold text-purple-600">1.</span>
-                    <span>פתח את האתר ב<strong>Safari</strong> (לא Chrome!)</span>
+                    <span className="font-bold text-purple-600 min-w-[24px]">1.</span>
+                    <span>פתח את האתר ב<strong>Safari</strong> (חשוב! לא Chrome או דפדפן אחר)</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="font-bold text-purple-600">2.</span>
-                    <span>לחץ על כפתור <Share2 className="w-4 h-4 inline text-blue-500" /> <strong>"שתף"</strong> בתחתית המסך</span>
+                    <span className="font-bold text-purple-600 min-w-[24px]">2.</span>
+                    <span>לחץ על כפתור <Share2 className="w-4 h-4 inline text-blue-500 mx-1" /> <strong>"שיתוף"</strong> בתחתית המסך או בסרגל הכתובות</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="font-bold text-purple-600">3.</span>
-                    <span>גלול למטה ובחר <strong>"הוסף למסך הבית"</strong></span>
+                    <span className="font-bold text-purple-600 min-w-[24px]">3.</span>
+                    <span>גלול למטה עד שתראה <strong>"הוסף למסך הבית"</strong> (Add to Home Screen) ולחץ עליו</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="font-bold text-purple-600">4.</span>
-                    <span>לחץ <strong>"הוסף"</strong> בפינה הימנית העליונה</span>
+                    <span className="font-bold text-purple-600 min-w-[24px]">4.</span>
+                    <span>תוכל לשנות את השם (או להשאיר "MindFlow CRM")</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="font-bold text-purple-600 min-w-[24px]">5.</span>
+                    <span>לחץ <strong>"הוסף"</strong> (Add) בפינה הימנית העליונה</span>
                   </li>
                 </ol>
-                <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded">
-                  <p className="text-sm text-yellow-800">
-                    ⚠️ <strong>חשוב:</strong> ההתקנה עובדת רק דרך Safari, לא דרך Chrome או דפדפנים אחרים
-                  </p>
+
+                <div className="mt-4 space-y-3">
+                  <div className="p-3 bg-yellow-50 border border-yellow-200 rounded">
+                    <p className="text-sm text-yellow-800">
+                      ⚠️ <strong>חשוב:</strong> ההתקנה עובדת רק דרך Safari! אם אתה משתמש ב-Chrome או דפדפן אחר, העתק את הכתובת ופתח ב-Safari.
+                    </p>
+                  </div>
+
+                  <div className="p-3 bg-blue-50 border border-blue-200 rounded">
+                    <p className="text-sm font-bold mb-2 text-blue-900">💡 טיפים חשובים:</p>
+                    <ul className="list-disc list-inside space-y-1 text-sm text-blue-800">
+                      <li>אחרי ההתקנה - האייקון יופיע במסך הבית שלך</li>
+                      <li>האפליקציה תיפתח במסך מלא ללא סרגל כתובות</li>
+                      <li>תעבוד גם ללא אינטרנט (עבור נתונים שכבר נטענו)</li>
+                      <li><strong>לחץ ארוך</strong> על האייקון יציג קיצורי דרך למסכים שונים! ⚡</li>
+                    </ul>
+                  </div>
+                  
+                  <div className="p-3 bg-green-50 border border-green-200 rounded">
+                    <p className="text-sm font-bold mb-2 text-green-900">✨ יתרונות נוספים:</p>
+                    <ul className="list-disc list-inside space-y-1 text-sm text-green-800">
+                      <li>טעינה מהירה יותר מאתר רגיל</li>
+                      <li>פחות צריכה של סוללה וגלישה</li>
+                      <li>עדכונים אוטומטיים ברקע</li>
+                      <li>עבודה גם באזורים עם קליטה חלשה</li>
+                    </ul>
+                  </div>
                 </div>
               </div>
             )}

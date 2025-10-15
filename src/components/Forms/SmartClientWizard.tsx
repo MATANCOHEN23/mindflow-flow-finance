@@ -68,23 +68,26 @@ export function SmartClientWizard({ isOpen, onClose }: SmartClientWizardProps) {
   const { setLastAction } = useLastAction();
   const { data: existingContacts } = useContacts();
   const [suggestions, setSuggestions] = useState<string[]>([]);
-  const autoSaveInterval = useRef<NodeJS.Timeout | null>(null);
+  const [lastSaved, setLastSaved] = useState<string>('');
 
-  // Auto-save draft silently
+  // Smart auto-save - only on significant changes after 3 seconds
   useEffect(() => {
-    if (isOpen) {
-      autoSaveInterval.current = setInterval(() => {
-        localStorage.setItem('draft-client', JSON.stringify(wizardData));
-        // Silent save - no toast
-      }, 30000);
-    }
+    if (!isOpen) return;
 
-    return () => {
-      if (autoSaveInterval.current) {
-        clearInterval(autoSaveInterval.current);
+    const currentData = JSON.stringify(wizardData);
+    
+    // Save only if data changed AND user stopped typing for 3 seconds
+    const timeoutId = setTimeout(() => {
+      if (currentData !== lastSaved && currentData !== '{}' && wizardData.contactInfo.firstName) {
+        localStorage.setItem('draft-client', currentData);
+        setLastSaved(currentData);
+        // Silent save - no toast to avoid interrupting the user
+        console.log('💾 Draft auto-saved');
       }
-    };
-  }, [isOpen, wizardData]);
+    }, 3000); // 3 seconds instead of 30 seconds
+
+    return () => clearTimeout(timeoutId);
+  }, [isOpen, wizardData, lastSaved]);
 
   // Prefetch domains hierarchy on open
   useEffect(() => {

@@ -321,6 +321,170 @@ export function SystemTester({ isOpen, onClose }: SystemTesterProps) {
         
         return checks.join('\n');
       }
+    },
+    {
+      id: 'cleanup-unnamed-auto',
+      name: '🧹 ניקוי אוטומטי: לקוחות "לא צוין"',
+      test: async () => {
+        const { data: unnamed } = await supabase
+          .from('contacts')
+          .select('id')
+          .eq('first_name', 'לא צוין');
+
+        if (!unnamed || unnamed.length === 0) {
+          return '✅ אין לקוחות "לא צוין" - המערכת נקייה!';
+        }
+
+        // Delete contact_domains first
+        await supabase
+          .from('contact_domains')
+          .delete()
+          .in('contact_id', unnamed.map(c => c.id));
+
+        // Delete contacts
+        const { error } = await supabase
+          .from('contacts')
+          .delete()
+          .eq('first_name', 'לא צוין');
+
+        if (error) throw error;
+
+        return `✅ נמחקו ${unnamed.length} לקוחות "לא צוין" בהצלחה`;
+      }
+    },
+    {
+      id: 'integration-client-domain',
+      name: '🔗 אינטגרציה: לקוח ↔ תחום',
+      test: async () => {
+        // Create test contact
+        const { data: contact, error: contactError } = await supabase
+          .from('contacts')
+          .insert({ first_name: 'Test Integration', phone: '050-0000000' })
+          .select()
+          .single();
+
+        if (contactError) throw contactError;
+
+        // Get a domain
+        const { data: domain } = await supabase
+          .from('domains')
+          .select('id')
+          .limit(1)
+          .single();
+
+        if (!domain) throw new Error('No domains found');
+
+        // Assign to domain
+        const { error: assignError } = await supabase
+          .from('contact_domains')
+          .insert({
+            contact_id: contact.id,
+            domain_id: domain.id,
+            status: 'active'
+          });
+
+        // Verify relationship
+        const { data: verify } = await supabase
+          .from('contact_domains')
+          .select('*')
+          .eq('contact_id', contact.id);
+
+        // Cleanup
+        await supabase.from('contact_domains').delete().eq('contact_id', contact.id);
+        await supabase.from('contacts').delete().eq('id', contact.id);
+
+        if (assignError || !verify || verify.length === 0) {
+          throw new Error('Integration test failed');
+        }
+
+        return '✅ אינטגרציה לקוח-תחום עובדת תקין';
+      }
+    },
+    {
+      id: 'integration-deal-payment',
+      name: '💳 אינטגרציה: עסקה ↔ תשלום + Cascade Delete',
+      test: async () => {
+        // Create test contact
+        const { data: contact } = await supabase
+          .from('contacts')
+          .insert({ first_name: 'Payment Test', phone: '050-9999999' })
+          .select()
+          .single();
+
+        // Create deal
+        const { data: deal } = await supabase
+          .from('deals')
+          .insert({
+            contact_id: contact!.id,
+            title: 'Test Deal for Payment',
+            amount_total: 1000,
+            amount_paid: 500,
+            payment_status: 'partial',
+            workflow_stage: 'booked'
+          })
+          .select()
+          .single();
+
+        // Create payment
+        const { data: payment } = await supabase
+          .from('payments')
+          .insert({
+            deal_id: deal!.id,
+            contact_id: contact!.id,
+            amount: 500,
+            is_deposit: true,
+            payment_date: new Date().toISOString().split('T')[0]
+          })
+          .select()
+          .single();
+
+        // Test cascade delete - delete contact should cascade to payment
+        await supabase.from('contacts').delete().eq('id', contact!.id);
+
+        // Verify payment was deleted (if cascade is set up)
+        const { data: orphanPayment } = await supabase
+          .from('payments')
+          .select('id')
+          .eq('id', payment!.id);
+
+        return orphanPayment && orphanPayment.length === 0
+          ? '✅ Cascade delete עובד - תשלום נמחק עם הלקוח'
+          : '⚠️ Cascade delete לא מוגדר - תשלום נשאר יתום';
+      }
+    },
+    {
+      id: 'pwa-shortcuts-test',
+      name: '⚡ בדיקת PWA Shortcuts',
+      test: async () => {
+        // Fetch manifest
+        const manifestResponse = await fetch('/manifest.json');
+        const manifest = await manifestResponse.json();
+
+        const checks: string[] = [];
+
+        // Check shortcuts exist
+        if (manifest.shortcuts && manifest.shortcuts.length > 0) {
+          checks.push(`✅ Shortcuts: ${manifest.shortcuts.length} קיצורים`);
+          
+          // Verify each shortcut structure
+          manifest.shortcuts.forEach((shortcut: any) => {
+            if (shortcut.name && shortcut.url) {
+              checks.push(`  └─ "${shortcut.name}" → ${shortcut.url}`);
+            }
+          });
+        } else {
+          checks.push('❌ אין shortcuts מוגדרים');
+        }
+
+        // Check start_url tracking
+        if (manifest.start_url && manifest.start_url.includes('?source=')) {
+          checks.push('✅ Start URL מכיל tracking parameter');
+        } else {
+          checks.push('⚠️ Start URL ללא tracking');
+        }
+
+        return checks.join('\n');
+      }
     }
   ];
 

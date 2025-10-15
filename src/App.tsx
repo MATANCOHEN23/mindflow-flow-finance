@@ -10,6 +10,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { useUrlTracking } from "@/hooks/useUrlTracking";
 import Index from "./pages/Index";
 import Home from "./pages/Home";
 import Contacts from "./pages/Contacts";
@@ -30,14 +31,12 @@ import { InstallPrompt } from "./components/InstallPrompt";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <ErrorBoundary>
-        <Toaster />
-        <InstallPrompt />
-        <BrowserRouter>
-          <Routes>
+// App with URL tracking
+function AppWithTracking() {
+  useUrlTracking(); // Track all navigation
+  
+  return (
+    <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/dashboard" element={<Index />} />
             <Route path="/contacts" element={<Contacts />} />
@@ -55,6 +54,17 @@ const App = () => (
             <Route path="/school-workshops" element={<SchoolWorkshops />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
+  );
+}
+
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <ErrorBoundary>
+        <Toaster />
+        <InstallPrompt />
+        <BrowserRouter>
+          <AppWithTracking />
         </BrowserRouter>
       </ErrorBoundary>
     </TooltipProvider>
