@@ -93,10 +93,10 @@ export function SystemTester({ isOpen, onClose }: SystemTesterProps) {
         
         if (createError) throw new Error(`שגיאה ביצירת עסקה: ${createError.message}`);
         
-        // Update deal status
+        // Update deal status - תקין עם constraint החדש
         const { error: updateError } = await supabase
           .from('deals')
-          .update({ workflow_stage: 'booked' })
+          .update({ workflow_stage: 'contacted' })
           .eq('id', newDeal.id);
         
         if (updateError) throw new Error(`שגיאה בעדכון עסקה: ${updateError.message}`);
@@ -109,7 +109,7 @@ export function SystemTester({ isOpen, onClose }: SystemTesterProps) {
         
         if (deleteError) throw new Error(`שגיאה במחיקת עסקה: ${deleteError.message}`);
         
-        return 'פעולות עסקאות עובדות תקין';
+        return 'פעולות עסקאות עובדות תקין ✅';
       }
     },
     {

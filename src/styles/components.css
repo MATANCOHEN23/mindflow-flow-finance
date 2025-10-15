@@ -1,7 +1,7 @@
 
 /* Brand-specific styles */
 .brand-card {
-  @apply premium-card;
+  @apply bg-white rounded-lg shadow-lg border-2 border-gray-100;
 }
 
 .brand-card-header {

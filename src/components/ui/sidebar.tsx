@@ -38,7 +38,7 @@ const SidebarProvider = React.forwardRef<HTMLDivElement, React.ComponentProps<"d
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }>(({
-  defaultOpen = true,
+  defaultOpen = false, // Start collapsed for hover-based sidebar
   open: openProp,
   onOpenChange: setOpenProp,
   className,
@@ -48,6 +48,8 @@ const SidebarProvider = React.forwardRef<HTMLDivElement, React.ComponentProps<"d
 }, ref) => {
   const isMobile = useIsMobile();
   const [openMobile, setOpenMobile] = React.useState(false);
+  const [isHovered, setIsHovered] = React.useState(false);
+  const hoverTimeout = React.useRef<NodeJS.Timeout | null>(null);
 
   // This is the internal state of the sidebar.
   // We use openProp and setOpenProp for control from outside the component.
@@ -82,19 +84,41 @@ const SidebarProvider = React.forwardRef<HTMLDivElement, React.ComponentProps<"d
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [toggleSidebar]);
 
+  // Handle hover for sidebar expansion
+  const handleMouseEnter = React.useCallback(() => {
+    if (!isMobile) {
+      hoverTimeout.current = setTimeout(() => {
+        setIsHovered(true);
+        setOpen(true);
+      }, 200); // 200ms delay before expanding
+    }
+  }, [isMobile, setOpen]);
+
+  const handleMouseLeave = React.useCallback(() => {
+    if (hoverTimeout.current) {
+      clearTimeout(hoverTimeout.current);
+    }
+    if (!isMobile) {
+      setIsHovered(false);
+      setOpen(false);
+    }
+  }, [isMobile, setOpen]);
+
   // We add a state so that we can do data-state="expanded" or "collapsed".
   // This makes it easier to style the sidebar with Tailwind classes.
-  const state = open ? "expanded" : "collapsed";
-  const contextValue = React.useMemo<SidebarContext>(() => ({
+  const state = (open || isHovered) ? "expanded" : "collapsed";
+  const contextValue = React.useMemo(() => ({
     state,
-    open,
+    open: open || isHovered,
     setOpen,
     isMobile,
     openMobile,
     setOpenMobile,
-    toggleSidebar
-  }), [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar]);
-  return <SidebarContext.Provider value={contextValue}>
+    toggleSidebar,
+    handleMouseEnter,
+    handleMouseLeave
+  }), [state, open, isHovered, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar, handleMouseEnter, handleMouseLeave]);
+  return <SidebarContext.Provider value={contextValue as SidebarContext}>
         <TooltipProvider delayDuration={0}>
           <div style={{
         "--sidebar-width": SIDEBAR_WIDTH,
@@ -139,7 +163,18 @@ const Sidebar = React.forwardRef<HTMLDivElement, React.ComponentProps<"div"> & {
           </SheetContent>
         </Sheet>;
   }
-  return <div ref={ref} data-state={state} data-collapsible={state === "collapsed" ? collapsible : ""} data-variant={variant} data-side={side} className="group peer hidden md:block text-sidebar-foreground bg-accent-DEFAULT">
+  const { handleMouseEnter, handleMouseLeave } = React.useContext(SidebarContext) as any;
+  
+  return <div 
+      ref={ref} 
+      data-state={state} 
+      data-collapsible={state === "collapsed" ? collapsible : ""} 
+      data-variant={variant} 
+      data-side={side} 
+      className="group peer hidden md:block text-sidebar-foreground bg-accent-DEFAULT"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
         {/* This is what handles the sidebar gap on desktop */}
         <div className={cn("duration-200 relative h-svh w-[--sidebar-width] bg-transparent transition-[width] ease-linear", "group-data-[collapsible=offcanvas]:w-0", "group-data-[side=right]:rotate-180", variant === "floating" || variant === "inset" ? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4))]" : "group-data-[collapsible=icon]:w-[--sidebar-width-icon]")} />
         <div className={cn("duration-200 fixed inset-y-0 z-10 hidden h-svh w-[--sidebar-width] transition-[left,right,width] ease-linear md:flex", side === "left" ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]" : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",

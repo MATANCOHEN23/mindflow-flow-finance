@@ -9,6 +9,8 @@ export interface Contact {
   child_name?: string;
   role_tags: string[];
   notes?: string;
+  sub_domain_id?: string;
+  sub_sub_domain_id?: string;
   created_at: string;
   updated_at: string;
 }

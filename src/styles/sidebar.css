@@ -15,6 +15,15 @@
   overflow: hidden;
 }
 
+.sidebar-item.collapsed {
+  justify-content: center;
+  padding: 12px 8px;
+}
+
+.sidebar-item.collapsed span:not(.icon) {
+  display: none;
+}
+
 .sidebar-item::before {
   content: '';
   position: absolute;

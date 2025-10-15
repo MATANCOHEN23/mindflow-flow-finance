@@ -6,7 +6,10 @@ export interface DashboardStats {
   activeClients: number;
   openDeals: number;
   pendingPayments: number;
-  monthlyRevenue: Array<{ month: string; amount: number }>;
+  monthlyRevenue: number;
+  completedTasks: number;
+  totalTasks: number;
+  upcomingEvents: number;
   dealsByStage: Array<{ stage: string; count: number }>;
 }
 
@@ -20,8 +23,12 @@ async function fetchDashboardStats(): Promise<DashboardStats> {
 
   const totalRevenue = paidPayments?.reduce((sum, p) => sum + (p.amount || 0), 0) || 0;
 
-  // Calculate monthly revenue for the last 6 months
-  const monthlyRevenue = calculateMonthlyRevenue(paidPayments || []);
+  // Calculate current month revenue
+  const now = new Date();
+  const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  const monthlyRevenue = paidPayments
+    ?.filter(p => p.payment_date?.startsWith(currentMonth))
+    .reduce((sum, p) => sum + (p.amount || 0), 0) || 0;
 
   // Fetch active clients count
   const { count: activeClients, error: clientsError } = await supabase
@@ -54,37 +61,39 @@ async function fetchDashboardStats(): Promise<DashboardStats> {
 
   const dealsByStage = calculateDealsByStage(deals || []);
 
+  // Fetch tasks stats
+  const { data: tasks, error: tasksError } = await supabase
+    .from('tasks')
+    .select('status');
+
+  if (tasksError) throw tasksError;
+
+  const completedTasks = tasks?.filter(t => t.status === 'done').length || 0;
+  const totalTasks = tasks?.length || 0;
+
+  // Fetch upcoming events
+  const { count: upcomingEvents, error: eventsError } = await supabase
+    .from('events')
+    .select('*', { count: 'exact', head: true })
+    .gte('event_date', now.toISOString())
+    .lte('event_date', new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString());
+
+  if (eventsError) throw eventsError;
+
   return {
     totalRevenue,
     activeClients: activeClients || 0,
     openDeals: openDeals || 0,
     pendingPayments: pendingPayments || 0,
     monthlyRevenue,
+    completedTasks,
+    totalTasks,
+    upcomingEvents: upcomingEvents || 0,
     dealsByStage,
   };
 }
 
-function calculateMonthlyRevenue(payments: Array<{ payment_date: string; amount: number }>) {
-  const monthNames = ['ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני', 'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר'];
-  const last6Months: Array<{ month: string; amount: number }> = [];
-  const now = new Date();
-
-  for (let i = 5; i >= 0; i--) {
-    const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-    
-    const monthTotal = payments
-      .filter(p => p.payment_date?.startsWith(monthKey))
-      .reduce((sum, p) => sum + (p.amount || 0), 0);
-
-    last6Months.push({
-      month: monthNames[date.getMonth()],
-      amount: monthTotal,
-    });
-  }
-
-  return last6Months;
-}
+// Function removed - no longer needed
 
 function calculateDealsByStage(deals: Array<{ workflow_stage?: string }>) {
   const stages: Record<string, number> = {};

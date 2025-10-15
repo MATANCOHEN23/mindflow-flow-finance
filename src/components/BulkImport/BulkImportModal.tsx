@@ -8,6 +8,7 @@ import { DataPreview } from "./DataPreview";
 import { ImportActions } from "./ImportActions";
 import { FileProcessor } from "./FileProcessor";
 import { TableSelector } from "./TableSelector";
+import { ColumnMapper } from "./ColumnMapper";
 
 interface BulkImportModalProps {
   isOpen: boolean;
@@ -17,6 +18,9 @@ interface BulkImportModalProps {
 export const BulkImportModal: React.FC<BulkImportModalProps> = ({ isOpen, onClose }) => {
   const [selectedTable, setSelectedTable] = useState<string>('contacts');
   const [parsedData, setParsedData] = useState<any[]>([]);
+  const [rawData, setRawData] = useState<any[]>([]);
+  const [csvColumns, setCsvColumns] = useState<string[]>([]);
+  const [columnMapping, setColumnMapping] = useState<Record<string, string>>({});
   const [isProcessing, setIsProcessing] = useState(false);
   const { bulkInsert } = useSmartInsert();
 
@@ -24,9 +28,16 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({ isOpen, onClos
     setIsProcessing(true);
     
     try {
-      const transformedRows = await FileProcessor.parseFile(file, selectedTable);
-      setParsedData(transformedRows);
-      toast.success(`${transformedRows.length} שורות נטענו בהצלחה! 📊`);
+      const rows = await FileProcessor.parseFile(file, selectedTable);
+      setRawData(rows);
+      
+      // Extract column names from first row
+      if (rows.length > 0) {
+        const columns = Object.keys(rows[0]);
+        setCsvColumns(columns);
+      }
+      
+      toast.success(`${rows.length} שורות נטענו בהצלחה! 📊`);
     } catch (error) {
       console.error('File parsing error:', error);
       toast.error('שגיאה בפענוח הקובץ');
@@ -34,6 +45,23 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({ isOpen, onClos
       setIsProcessing(false);
     }
   }, [selectedTable]);
+
+  const handleMappingChange = (mapping: Record<string, string>) => {
+    setColumnMapping(mapping);
+    
+    // Transform data according to mapping
+    const transformed = rawData.map(row => {
+      const newRow: any = {};
+      Object.entries(mapping).forEach(([csvCol, systemField]) => {
+        if (systemField !== 'ignore' && row[csvCol] !== undefined) {
+          newRow[systemField] = row[csvCol];
+        }
+      });
+      return newRow;
+    });
+    
+    setParsedData(transformed);
+  };
 
   const handleImport = async () => {
     if (parsedData.length === 0) {
@@ -55,6 +83,9 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({ isOpen, onClos
 
   const handleClearData = () => {
     setParsedData([]);
+    setRawData([]);
+    setCsvColumns([]);
+    setColumnMapping({});
   };
 
   return (
@@ -76,6 +107,13 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({ isOpen, onClos
             onFileSelect={handleFileSelect}
             isProcessing={isProcessing}
           />
+
+          {csvColumns.length > 0 && (
+            <ColumnMapper 
+              csvColumns={csvColumns}
+              onMappingChange={handleMappingChange}
+            />
+          )}
 
           <DataPreview 
             data={parsedData}
