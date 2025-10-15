@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Deal } from "@/types/database";
 import { Loader2 } from "lucide-react";
@@ -11,9 +12,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 import { useContacts } from '@/hooks/useContacts';
-import { useDomains } from '@/hooks/useDomains';
 import { useLastAction } from '@/hooks/useLastAction';
 import { dealTemplates } from '@/data/dealTemplates';
+import { DomainSelector } from './DomainSelector';
 
 interface AddDealFormProps {
   isOpen: boolean;
@@ -25,22 +26,23 @@ export function AddDealForm({ isOpen, onClose, deal }: AddDealFormProps) {
   const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
   const { data: contacts } = useContacts();
-  const { data: domains } = useDomains();
   const { setLastAction } = useLastAction();
+  
+  const [selectedDomains, setSelectedDomains] = useState<string[]>([]);
+  const [paymentType, setPaymentType] = useState<'full' | 'partial' | 'none'>('none');
+  const [partialAmount, setPartialAmount] = useState('');
+  const [partialPercentage, setPartialPercentage] = useState('');
+  const [partialType, setPartialType] = useState<'amount' | 'percentage'>('amount');
   
   const [formData, setFormData] = useState({
     base_price: '',
     commission_rate: '',
     calculated_total: 0,
     contact_id: '',
-    domain_id: '',
     title: '',
     category: '',
     package_type: '',
     amount_total: '',
-    amount_paid: '0',
-    payment_status: 'pending' as 'pending' | 'partial' | 'paid',
-    workflow_stage: 'lead',
     next_action_date: '',
     notes: ''
   });
@@ -79,34 +81,41 @@ export function AddDealForm({ isOpen, onClose, deal }: AddDealFormProps) {
         commission_rate: '',
         calculated_total: 0,
         contact_id: deal.contact_id || '',
-        domain_id: (deal as any).domain_id || '',
         title: deal.title || '',
         category: deal.category || '',
         package_type: deal.package_type || '',
         amount_total: deal.amount_total?.toString() || '',
-        amount_paid: deal.amount_paid?.toString() || '0',
-        payment_status: deal.payment_status || 'pending',
-        workflow_stage: deal.workflow_stage || 'lead',
         next_action_date: deal.next_action_date || '',
         notes: deal.notes || ''
       });
+      if ((deal as any).domain_id) {
+        setSelectedDomains([(deal as any).domain_id]);
+      }
+      // Load payment status
+      if (deal.payment_status === 'paid') {
+        setPaymentType('full');
+      } else if (deal.payment_status === 'partial') {
+        setPaymentType('partial');
+        setPartialAmount(deal.amount_paid?.toString() || '');
+      } else {
+        setPaymentType('none');
+      }
     } else {
       setFormData({
         base_price: '',
         commission_rate: '',
         calculated_total: 0,
         contact_id: '',
-        domain_id: '',
         title: '',
         category: '',
         package_type: '',
         amount_total: '',
-        amount_paid: '0',
-        payment_status: 'pending',
-        workflow_stage: 'lead',
         next_action_date: '',
         notes: ''
       });
+      setSelectedDomains([]);
+      setPaymentType('none');
+      setPartialAmount('');
     }
   }, [deal]);
 
@@ -117,54 +126,116 @@ export function AddDealForm({ isOpen, onClose, deal }: AddDealFormProps) {
       toast.error("יש לבחור לקוח");
       return;
     }
+    
+    if (!deal && selectedDomains.length === 0) {
+      toast.error("יש לבחור לפחות תחום אחד");
+      return;
+    }
 
     setIsLoading(true);
 
-    const dealData = {
-      contact_id: formData.contact_id || null,
-      domain_id: formData.domain_id || null,
-      title: formData.title,
-      category: formData.category || null,
-      package_type: formData.package_type || null,
-      amount_total: parseFloat(formData.amount_total),
-      amount_paid: parseFloat(formData.amount_paid),
-      payment_status: formData.payment_status,
-      workflow_stage: formData.workflow_stage,
-      next_action_date: formData.next_action_date || null,
-      notes: formData.notes || null,
-      custom_fields: {}
-    };
-
     try {
+      const amountTotal = parseFloat(formData.amount_total);
+      let amountPaid = 0;
+      let paymentStatus: 'pending' | 'partial' | 'paid' = 'pending';
+      
+      if (paymentType === 'full') {
+        amountPaid = amountTotal;
+        paymentStatus = 'paid';
+      } else if (paymentType === 'partial') {
+        amountPaid = parseFloat(partialAmount) || 0;
+        paymentStatus = 'partial';
+      }
+
       if (deal) {
-        // Update existing deal
-        const { data, error } = await supabase
+        // Update existing deal (single domain mode)
+        const dealData = {
+          contact_id: formData.contact_id,
+          domain_id: selectedDomains[0] || null,
+          title: formData.title,
+          category: formData.category || null,
+          package_type: formData.package_type || null,
+          amount_total: amountTotal,
+          amount_paid: amountPaid,
+          payment_status: paymentStatus,
+          workflow_stage: 'lead',
+          next_action_date: formData.next_action_date || null,
+          notes: formData.notes || null,
+        };
+
+        const { error } = await supabase
           .from('deals')
           .update(dealData)
-          .eq('id', deal.id)
-          .select()
-          .single();
+          .eq('id', deal.id);
 
         if (error) throw error;
+        
+        // Update payment if needed
+        if (paymentType !== 'none') {
+          const { error: payError } = await supabase
+            .from('payments')
+            .upsert({
+              deal_id: deal.id,
+              contact_id: formData.contact_id,
+              amount: amountPaid,
+              payment_date: new Date().toISOString().split('T')[0],
+              status: paymentStatus === 'paid' ? 'completed' : 'pending',
+              is_deposit: paymentStatus === 'partial',
+            });
+          
+          if (payError) console.error('Payment error:', payError);
+        }
+        
         toast.success("✅ העסקה עודכנה בהצלחה!");
       } else {
-        // Create new deal
-        const { data, error } = await supabase
-          .from('deals')
-          .insert([dealData])
-          .select()
-          .single();
+        // Create new deals (one per domain)
+        for (const domainId of selectedDomains) {
+          const dealData = {
+            contact_id: formData.contact_id,
+            domain_id: domainId,
+            title: formData.title,
+            category: formData.category || null,
+            package_type: formData.package_type || null,
+            amount_total: amountTotal,
+            amount_paid: amountPaid,
+            payment_status: paymentStatus,
+            workflow_stage: 'lead',
+            next_action_date: formData.next_action_date || null,
+            notes: formData.notes || null,
+          };
 
-        if (error) throw error;
-        toast.success("✅ העסקה נוספה בהצלחה!");
+          const { data: newDeal, error } = await supabase
+            .from('deals')
+            .insert([dealData])
+            .select()
+            .single();
+
+          if (error) throw error;
+          
+          // Create payment record if paid
+          if (paymentType !== 'none' && newDeal) {
+            await supabase
+              .from('payments')
+              .insert({
+                deal_id: newDeal.id,
+                contact_id: formData.contact_id,
+                amount: amountPaid,
+                payment_date: new Date().toISOString().split('T')[0],
+                status: paymentStatus === 'paid' ? 'completed' : 'pending',
+                is_deposit: paymentStatus === 'partial',
+                notes: paymentStatus === 'partial' ? 'תשלום חלקי' : 'תשלום מלא',
+              });
+          }
+          
+          setLastAction({ type: 'deal', id: newDeal.id, timestamp: Date.now() });
+        }
         
-        setLastAction({ type: 'deal', id: data.id, timestamp: Date.now() });
+        toast.success(`✅ ${selectedDomains.length} עסקאות נוצרו בהצלחה!`);
       }
       
       onClose();
-      
-      // Refresh the deals list
       await queryClient.invalidateQueries({ queryKey: ['deals'] });
+      await queryClient.invalidateQueries({ queryKey: ['payments'] });
     } catch (error: any) {
       console.error('Error saving deal:', error);
       toast.error('❌ שגיאה בשמירת העסקה: ' + (error.message || 'שגיאה לא ידועה'));
@@ -214,43 +285,31 @@ export function AddDealForm({ isOpen, onClose, deal }: AddDealFormProps) {
             </Select>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label className="text-right font-bold text-primary">
-                לקוח
-              </Label>
-              <Select value={formData.contact_id} onValueChange={(value) => handleChange('contact_id', value)}>
-                <SelectTrigger className="text-right">
-                  <SelectValue placeholder="בחר לקוח" />
-                </SelectTrigger>
-                <SelectContent>
-                  {contacts?.map((contact) => (
-                    <SelectItem key={contact.id} value={contact.id}>
-                      {contact.first_name} {contact.last_name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label className="text-right font-bold text-primary">
-                תחום
-              </Label>
-              <Select value={formData.domain_id} onValueChange={(value) => handleChange('domain_id', value)}>
-                <SelectTrigger className="text-right">
-                  <SelectValue placeholder="בחר תחום" />
-                </SelectTrigger>
-                <SelectContent>
-                  {domains?.map((domain) => (
-                    <SelectItem key={domain.id} value={domain.id}>
-                      {domain.icon} {domain.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          <div>
+            <Label className="text-right font-bold text-primary">
+              לקוח
+            </Label>
+            <Select value={formData.contact_id} onValueChange={(value) => handleChange('contact_id', value)}>
+              <SelectTrigger className="text-right">
+                <SelectValue placeholder="בחר לקוח" />
+              </SelectTrigger>
+              <SelectContent>
+                {contacts?.map((contact) => (
+                  <SelectItem key={contact.id} value={contact.id}>
+                    {contact.first_name} {contact.last_name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
+
+          {/* Domain Selector */}
+          {!deal && (
+            <DomainSelector 
+              selectedDomains={selectedDomains}
+              onChange={setSelectedDomains}
+            />
+          )}
 
           <div>
             <Label htmlFor="title" className="text-right font-bold text-primary">
@@ -343,34 +402,89 @@ export function AddDealForm({ isOpen, onClose, deal }: AddDealFormProps) {
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="amount_total" className="text-right font-bold text-primary">
-                סכום כולל
-              </Label>
-              <Input
-                id="amount_total"
-                type="number"
-                value={formData.amount_total}
-                onChange={(e) => handleChange('amount_total', e.target.value)}
-                className="text-right"
-                placeholder="1500"
-              />
-            </div>
+          <div>
+            <Label htmlFor="amount_total" className="text-right font-bold text-primary">
+              סכום כולל
+            </Label>
+            <Input
+              id="amount_total"
+              type="number"
+              value={formData.amount_total}
+              onChange={(e) => handleChange('amount_total', e.target.value)}
+              className="text-right"
+              placeholder="1500"
+            />
+          </div>
 
-            <div>
-              <Label htmlFor="amount_paid" className="text-right font-bold text-primary">
-                סכום ששולם
-              </Label>
-              <Input
-                id="amount_paid"
-                type="number"
-                value={formData.amount_paid}
-                onChange={(e) => handleChange('amount_paid', e.target.value)}
-                className="text-right"
-                placeholder="0"
-              />
-            </div>
+          {/* Payment Status */}
+          <div className="border-2 border-primary/20 rounded-lg p-4 bg-gradient-to-br from-green-50 to-blue-50">
+            <Label className="text-lg font-bold mb-3 block">💰 סטטוס תשלום</Label>
+            <RadioGroup value={paymentType} onValueChange={(val) => setPaymentType(val as any)}>
+              <div className="flex items-center space-x-2 space-x-reverse mb-2">
+                <RadioGroupItem value="full" id="full" />
+                <Label htmlFor="full" className="cursor-pointer">🟢 שילם מלא</Label>
+              </div>
+              <div className="flex items-center space-x-2 space-x-reverse mb-2">
+                <RadioGroupItem value="partial" id="partial" />
+                <Label htmlFor="partial" className="cursor-pointer">🟠 שילם חלקית</Label>
+              </div>
+              <div className="flex items-center space-x-2 space-x-reverse">
+                <RadioGroupItem value="none" id="none" />
+                <Label htmlFor="none" className="cursor-pointer">🔴 לא שילם</Label>
+              </div>
+            </RadioGroup>
+
+            {paymentType === 'partial' && (
+              <div className="mt-4 space-y-3">
+                <RadioGroup value={partialType} onValueChange={(val) => setPartialType(val as any)}>
+                  <div className="flex items-center space-x-2 space-x-reverse">
+                    <RadioGroupItem value="amount" id="amount_type" />
+                    <Label htmlFor="amount_type">סכום קבוע</Label>
+                  </div>
+                  <div className="flex items-center space-x-2 space-x-reverse">
+                    <RadioGroupItem value="percentage" id="percentage_type" />
+                    <Label htmlFor="percentage_type">אחוזים</Label>
+                  </div>
+                </RadioGroup>
+
+                {partialType === 'amount' ? (
+                  <div>
+                    <Label htmlFor="partial_amount">סכום ששולם (₪)</Label>
+                    <Input
+                      id="partial_amount"
+                      type="number"
+                      value={partialAmount}
+                      onChange={(e) => setPartialAmount(e.target.value)}
+                      placeholder="500"
+                    />
+                  </div>
+                ) : (
+                  <div>
+                    <Label htmlFor="partial_percentage">אחוז ששולם (%)</Label>
+                    <Input
+                      id="partial_percentage"
+                      type="number"
+                      value={partialPercentage}
+                      onChange={(e) => {
+                        setPartialPercentage(e.target.value);
+                        const total = parseFloat(formData.amount_total);
+                        const pct = parseFloat(e.target.value);
+                        if (!isNaN(total) && !isNaN(pct)) {
+                          setPartialAmount(((total * pct) / 100).toString());
+                        }
+                      }}
+                      placeholder="30"
+                      max="100"
+                    />
+                    {partialAmount && (
+                      <p className="text-sm text-green-600 mt-1">
+                        = ₪{parseFloat(partialAmount).toLocaleString()}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           <div>

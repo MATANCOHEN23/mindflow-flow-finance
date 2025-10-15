@@ -116,9 +116,10 @@ export function DomainSelector({ selectedDomains, onChange }: DomainSelectorProp
 
   if (!hierarchy || hierarchy.length === 0) {
     return (
-      <div className="text-center py-8 text-muted-foreground">
-        <p>אין תחומים במערכת</p>
-        <p className="text-sm mt-2">הרץ את ה-SQL migration כדי להוסיף תחומים</p>
+      <div className="text-center py-8">
+        <div className="text-4xl mb-3">🏢</div>
+        <p className="text-muted-foreground font-semibold">אין תחומים זמינים</p>
+        <p className="text-sm mt-2 text-muted-foreground">יש ליצור תחומים במערכת תחילה</p>
       </div>
     );
   }

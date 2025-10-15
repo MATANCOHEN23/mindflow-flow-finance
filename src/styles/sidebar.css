@@ -15,12 +15,14 @@
   overflow: hidden;
 }
 
-.sidebar-item.collapsed {
+.sidebar-item.collapsed,
+.group-data-\[collapsible\=icon\] .sidebar-item {
   justify-content: center;
   padding: 12px 8px;
 }
 
-.sidebar-item.collapsed span:not(.icon) {
+.sidebar-item.collapsed span:not(.icon),
+.group-data-\[collapsible\=icon\] .sidebar-item span:not(.icon) {
   display: none;
 }
 

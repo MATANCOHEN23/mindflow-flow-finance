@@ -96,7 +96,7 @@ export function SystemTester({ isOpen, onClose }: SystemTesterProps) {
         // Update deal status - תקין עם constraint החדש
         const { error: updateError } = await supabase
           .from('deals')
-          .update({ workflow_stage: 'contacted' })
+          .update({ workflow_stage: 'booked' })
           .eq('id', newDeal.id);
         
         if (updateError) throw new Error(`שגיאה בעדכון עסקה: ${updateError.message}`);

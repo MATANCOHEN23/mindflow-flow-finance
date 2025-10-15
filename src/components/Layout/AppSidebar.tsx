@@ -19,6 +19,7 @@ export function AppSidebar() {
     <>
       <Sidebar 
         side="right"
+        collapsible="icon"
         className="border-l border-gray-700"
         style={{ 
           background: 'linear-gradient(180deg, rgba(17, 24, 39, 0.95) 0%, rgba(31, 41, 55, 0.95) 100%)',

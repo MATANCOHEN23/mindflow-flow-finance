@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { MainLayout } from "@/components/Layout/MainLayout";
 import { useState } from "react";
 import { NewContactForm } from "@/components/Forms/NewContactForm";
@@ -13,13 +14,20 @@ import { useContactDomains } from "@/hooks/useDomains";
 import { Edit, Trash2, Phone, Mail } from "lucide-react";
 import { Contact } from "@/types/database";
 import { Link } from "react-router-dom";
+import { useBulkSelection } from "@/hooks/useBulkSelection";
+import { BulkActionsToolbar } from "@/components/common/BulkActionsToolbar";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const Contacts = () => {
   const [isContactFormOpen, setIsContactFormOpen] = useState(false);
   const [deleteContact, setDeleteContact] = useState<Contact | null>(null);
+  const [isBulkDeleting, setIsBulkDeleting] = useState(false);
   
   const { data: contacts, isLoading, error } = useContacts();
   const deleteContactMutation = useDeleteContact();
+  
+  const bulkSelection = useBulkSelection(contacts || []);
 
   const handleAddClient = () => {
     setIsContactFormOpen(true);
@@ -38,6 +46,26 @@ const Contacts = () => {
 
   const handleFormClose = () => {
     setIsContactFormOpen(false);
+  };
+
+  const handleBulkDelete = async () => {
+    setIsBulkDeleting(true);
+    try {
+      const { error } = await supabase
+        .from('contacts')
+        .delete()
+        .in('id', bulkSelection.selectedIds);
+      
+      if (error) throw error;
+      
+      toast.success(`✅ ${bulkSelection.count} לקוחות נמחקו בהצלחה!`);
+      bulkSelection.clearSelection();
+      window.location.reload();
+    } catch (error: any) {
+      toast.error('❌ שגיאה במחיקה: ' + error.message);
+    } finally {
+      setIsBulkDeleting(false);
+    }
   };
 
   if (error) {
@@ -89,6 +117,12 @@ const Contacts = () => {
               <Table>
                 <TableHeader>
                   <TableRow className="table-header">
+                    <TableHead className="w-12">
+                      <Checkbox
+                        checked={bulkSelection.isAllSelected}
+                        onCheckedChange={bulkSelection.toggleAll}
+                      />
+                    </TableHead>
                     <TableHead className="text-right font-bold text-base">שם פרטי</TableHead>
                     <TableHead className="text-right font-bold text-base">שם משפחה</TableHead>
                     <TableHead className="text-right font-bold text-base">תחומים</TableHead>
@@ -128,7 +162,13 @@ const Contacts = () => {
                     </TableRow>
                   ) : (
                     contacts.map((contact) => (
-                      <ContactRow key={contact.id} contact={contact} onDeleteClick={handleDeleteClick} />
+                      <ContactRow 
+                        key={contact.id} 
+                        contact={contact} 
+                        onDeleteClick={handleDeleteClick}
+                        isSelected={bulkSelection.isSelected(contact.id)}
+                        onToggleSelect={() => bulkSelection.toggleItem(contact.id)}
+                      />
                     ))
                   )}
                 </TableBody>
@@ -152,6 +192,13 @@ const Contacts = () => {
         />
 
         {/* Floating Action Button */}
+        <BulkActionsToolbar
+          count={bulkSelection.count}
+          onDelete={handleBulkDelete}
+          onClear={bulkSelection.clearSelection}
+          isDeleting={isBulkDeleting}
+        />
+
         <button
           onClick={handleAddClient}
           className="floating-add-btn cta"
@@ -165,11 +212,24 @@ const Contacts = () => {
 };
 
 // ContactRow Component with Domain Display
-const ContactRow = ({ contact, onDeleteClick }: { contact: Contact; onDeleteClick: (contact: Contact) => void }) => {
+const ContactRow = ({ 
+  contact, 
+  onDeleteClick, 
+  isSelected, 
+  onToggleSelect 
+}: { 
+  contact: Contact; 
+  onDeleteClick: (contact: Contact) => void;
+  isSelected: boolean;
+  onToggleSelect: () => void;
+}) => {
   const { data: contactDomains } = useContactDomains(contact.id);
 
   return (
     <TableRow className="table-row">
+      <TableCell>
+        <Checkbox checked={isSelected} onCheckedChange={onToggleSelect} />
+      </TableCell>
       <TableCell className="font-semibold">{contact.first_name}</TableCell>
       <TableCell>{contact.last_name || '-'}</TableCell>
       <TableCell>
