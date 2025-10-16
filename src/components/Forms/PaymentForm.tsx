@@ -32,19 +32,24 @@ export function PaymentForm({ isOpen, onClose, payment }: PaymentFormProps) {
     contact_id: "",
     amount: "",
     payment_date: format(new Date(), 'yyyy-MM-dd'),
+    due_date: "",
     payment_method: "",
+    status: "pending" as "pending" | "paid" | "overdue",
     is_deposit: false,
     notes: "",
   });
 
   useEffect(() => {
     if (payment) {
+      const paymentAny = payment as any;
       setFormData({
         deal_id: payment.deal_id || "",
         contact_id: payment.contact_id || "",
         amount: payment.amount.toString(),
         payment_date: payment.payment_date || format(new Date(), 'yyyy-MM-dd'),
+        due_date: paymentAny.due_date || "",
         payment_method: payment.payment_method || "",
+        status: paymentAny.status || "pending",
         is_deposit: payment.is_deposit,
         notes: payment.notes || "",
       });
@@ -55,7 +60,9 @@ export function PaymentForm({ isOpen, onClose, payment }: PaymentFormProps) {
         contact_id: "",
         amount: "",
         payment_date: format(new Date(), 'yyyy-MM-dd'),
+        due_date: "",
         payment_method: "",
+        status: "pending",
         is_deposit: false,
         notes: "",
       });
@@ -66,13 +73,32 @@ export function PaymentForm({ isOpen, onClose, payment }: PaymentFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // ולידציה
+    const amount = parseFloat(formData.amount);
+    if (isNaN(amount) || amount <= 0) {
+      toast.error("סכום חייב להיות מספר חיובי");
+      return;
+    }
+
+    if (paymentType === "deal" && (!formData.deal_id || formData.deal_id === "none")) {
+      toast.error("יש לבחור עסקה");
+      return;
+    }
+
+    if (paymentType === "direct" && !formData.contact_id) {
+      toast.error("יש לבחור לקוח");
+      return;
+    }
+
     try {
       const paymentData = {
         deal_id: paymentType === "deal" && formData.deal_id !== "none" ? formData.deal_id : null,
         contact_id: paymentType === "direct" ? formData.contact_id : null,
-        amount: parseFloat(formData.amount),
+        amount: amount,
         payment_date: formData.payment_date,
+        due_date: formData.due_date || null,
         payment_method: formData.payment_method || null,
+        status: formData.status,
         is_deposit: formData.is_deposit,
         notes: formData.notes || null,
       };
@@ -103,6 +129,8 @@ export function PaymentForm({ isOpen, onClose, payment }: PaymentFormProps) {
     );
   }
 
+  const openDeals = deals?.filter(d => d.payment_status !== 'paid') || [];
+
   if (!contacts || contacts.length === 0) {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
@@ -117,6 +145,31 @@ export function PaymentForm({ isOpen, onClose, payment }: PaymentFormProps) {
             <h3 className="text-xl font-bold">אין לקוחות במערכת</h3>
             <p className="text-muted-foreground">כדי להוסיף תשלום, צריך קודם להוסיף לקוח</p>
             <Button onClick={onClose} className="btn-premium">
+              סגור
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  if (!payment && openDeals.length === 0 && paymentType === "deal") {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="sm:max-w-[500px]" dir="rtl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold gradient-text">
+              ➕ תשלום חדש
+            </DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center justify-center min-h-[200px] gap-4 text-center">
+            <div className="text-6xl">💼</div>
+            <h3 className="text-xl font-bold">אין עסקאות פתוחות</h3>
+            <p className="text-muted-foreground">כדי להוסיף תשלום לעסקה, צריך שתהיה עסקה פתוחה במערכת</p>
+            <Button onClick={() => setPaymentType("direct")} className="btn-premium">
+              צור תשלום ישיר
+            </Button>
+            <Button onClick={onClose} variant="outline">
               סגור
             </Button>
           </div>
@@ -174,12 +227,18 @@ export function PaymentForm({ isOpen, onClose, payment }: PaymentFormProps) {
                   <SelectValue placeholder="בחר עסקה" />
                 </SelectTrigger>
                 <SelectContent className="bg-background z-50">
-                  <SelectItem value="none">ללא עסקה</SelectItem>
-                  {deals?.map((deal) => (
-                    <SelectItem key={deal.id} value={deal.id}>
-                      {deal.title} - ₪{deal.amount_total.toLocaleString('he-IL')}
-                    </SelectItem>
-                  ))}
+                  {openDeals.length === 0 ? (
+                    <SelectItem value="none" disabled>אין עסקאות פתוחות</SelectItem>
+                  ) : (
+                    <>
+                      <SelectItem value="none">ללא עסקה</SelectItem>
+                      {openDeals.map((deal) => (
+                        <SelectItem key={deal.id} value={deal.id}>
+                          {deal.title} - ₪{deal.amount_total.toLocaleString('he-IL')}
+                        </SelectItem>
+                      ))}
+                    </>
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -227,6 +286,33 @@ export function PaymentForm({ isOpen, onClose, payment }: PaymentFormProps) {
               value={formData.payment_date}
               onChange={(e) => setFormData({ ...formData, payment_date: e.target.value })}
             />
+          </div>
+
+          <div>
+            <Label htmlFor="due_date">תאריך לתשלום</Label>
+            <Input
+              id="due_date"
+              type="date"
+              value={formData.due_date}
+              onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="status">סטטוס *</Label>
+            <Select
+              value={formData.status}
+              onValueChange={(value: any) => setFormData({ ...formData, status: value })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="בחר סטטוס" />
+              </SelectTrigger>
+              <SelectContent className="bg-background z-50">
+                <SelectItem value="pending">ממתין</SelectItem>
+                <SelectItem value="paid">שולם</SelectItem>
+                <SelectItem value="overdue">באיחור</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div>

@@ -1,9 +1,11 @@
 import { supabase } from "@/integrations/supabase/client";
 import { Payment } from "@/types/database";
 
-export interface PaymentWithDetails extends Payment {
+export interface PaymentWithDetails extends Omit<Payment, 'due_date' | 'status'> {
   contact_name?: string;
   deal_title?: string;
+  due_date?: string | null;
+  status?: 'pending' | 'paid' | 'overdue';
 }
 
 export const paymentsApi = {
@@ -34,11 +36,12 @@ export const paymentsApi = {
       
       return {
         ...payment,
+        status: (payment.status || 'pending') as 'pending' | 'paid' | 'overdue',
         deal_title: deal?.title || 'ללא עסקה',
         contact_name: contact 
           ? `${contact.first_name} ${contact.last_name || ''}`.trim()
           : 'ללא לקוח'
-      };
+      } as PaymentWithDetails;
     });
   },
 
@@ -68,11 +71,12 @@ export const paymentsApi = {
 
     return {
       ...data,
+      status: (data.status || 'pending') as 'pending' | 'paid' | 'overdue',
       deal_title: deal?.title || 'ללא עסקה',
       contact_name: contact 
         ? `${contact.first_name} ${contact.last_name || ''}`.trim()
         : 'ללא לקוח'
-    };
+    } as PaymentWithDetails;
   },
 
   async getByDealId(dealId: string): Promise<Payment[]> {

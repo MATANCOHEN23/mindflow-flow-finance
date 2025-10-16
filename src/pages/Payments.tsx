@@ -31,6 +31,7 @@ const Payments = () => {
   const [editingPayment, setEditingPayment] = useState<Payment | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterMethod, setFilterMethod] = useState<string>("all");
+  const [filterStatus, setFilterStatus] = useState<string>("all");
   const [isBulkDeleting, setIsBulkDeleting] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; id: string; name: string }>({
     isOpen: false,
@@ -57,13 +58,15 @@ const Payments = () => {
                           payment.deal_title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           payment.notes?.toLowerCase().includes(searchQuery.toLowerCase());
       
-      const matchesFilter = filterMethod === "all" || 
+      const matchesMethodFilter = filterMethod === "all" || 
                            payment.payment_method === filterMethod ||
                            (filterMethod === "deposit" && payment.is_deposit);
 
-      return matchesSearch && matchesFilter;
+      const matchesStatusFilter = filterStatus === "all" || payment.status === filterStatus;
+
+      return matchesSearch && matchesMethodFilter && matchesStatusFilter;
     });
-  }, [payments, searchQuery, filterMethod]);
+  }, [payments, searchQuery, filterMethod, filterStatus]);
 
   // Calculate totals
   const totals = useMemo(() => {
@@ -195,7 +198,7 @@ const Payments = () => {
         {/* Filters */}
         <Card className="premium-card">
           <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <Input
                   placeholder="🔍 חפש לפי לקוח, עסקה או הערות..."
@@ -203,6 +206,19 @@ const Payments = () => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full"
                 />
+              </div>
+              <div>
+                <Select value={filterStatus} onValueChange={setFilterStatus}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="סנן לפי סטטוס" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background z-50">
+                    <SelectItem value="all">כל הסטטוסים</SelectItem>
+                    <SelectItem value="paid">✅ שולם</SelectItem>
+                    <SelectItem value="pending">⏳ ממתין</SelectItem>
+                    <SelectItem value="overdue">⚠️ באיחור</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div>
                 <Select value={filterMethod} onValueChange={setFilterMethod}>
@@ -247,6 +263,7 @@ const Payments = () => {
                     <TableHead className="text-right font-black text-lg">עסקה</TableHead>
                     <TableHead className="text-right font-black text-lg">סכום</TableHead>
                     <TableHead className="text-right font-black text-lg">תאריך</TableHead>
+                    <TableHead className="text-right font-black text-lg">סטטוס</TableHead>
                     <TableHead className="text-right font-black text-lg">אמצעי תשלום</TableHead>
                     <TableHead className="text-right font-black text-lg">סוג</TableHead>
                     <TableHead className="text-right font-black text-lg">הערות</TableHead>
@@ -256,7 +273,7 @@ const Payments = () => {
                 <TableBody>
                   {filteredPayments.length === 0 ? (
                     <TableRow className="table-row">
-                      <TableCell colSpan={8} className="py-16">
+                      <TableCell colSpan={10} className="py-16">
                         <EmptyState
                           icon="💳"
                           title="אין תשלומים להצגה"
@@ -291,6 +308,21 @@ const Payments = () => {
                             ? format(new Date(payment.payment_date), 'dd/MM/yyyy', { locale: he })
                             : '-'
                           }
+                        </TableCell>
+                        <TableCell>
+                          {payment.status === 'paid' ? (
+                            <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-sm font-bold">
+                              ✅ שולם
+                            </span>
+                          ) : payment.status === 'overdue' ? (
+                            <span className="bg-red-100 text-red-800 px-2 py-1 rounded-full text-sm font-bold">
+                              ⚠️ באיחור
+                            </span>
+                          ) : (
+                            <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-sm font-bold">
+                              ⏳ ממתין
+                            </span>
+                          )}
                         </TableCell>
                         <TableCell>{getPaymentMethodLabel(payment.payment_method)}</TableCell>
                         <TableCell>
