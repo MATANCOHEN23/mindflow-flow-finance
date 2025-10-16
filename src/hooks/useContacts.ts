@@ -39,12 +39,13 @@ export const useCreateContact = () => {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['contacts'] });
-      toast.success('הלקוח נוסף בהצלחה!');
+      const fullName = `${data?.first_name} ${data?.last_name || ''}`.trim();
+      toast.success(`✅ הלקוח ${fullName} נוסף בהצלחה! 🎉`);
     },
     onError: (error: Error) => {
-      toast.error(error.message);
+      toast.error(`❌ שגיאה בהוספת לקוח: ${error.message || 'אנא נסה שוב'}`);
     },
   });
 };
@@ -58,12 +59,13 @@ export const useUpdateContact = () => {
       if (result.error) throw result.error;
       return result.data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['contacts'] });
-      toast.success('הלקוח עודכן בהצלחה!');
+      const fullName = `${data?.first_name || ''} ${data?.last_name || ''}`.trim();
+      toast.success(`✅ הלקוח ${fullName || 'עודכן'} עודכן בהצלחה! 🔄`);
     },
     onError: (error: Error) => {
-      toast.error(error.message);
+      toast.error(`❌ שגיאה בעדכון לקוח: ${error.message || 'אנא נסה שוב'}`);
     },
   });
 };
@@ -75,13 +77,14 @@ export const useDeleteContact = () => {
     mutationFn: async (id: string) => {
       const { error } = await supabaseWithFallback.deleteContact(id);
       if (error) throw error;
+      return id;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['contacts'] });
-      toast.success('הלקוח נמחק בהצלחה!');
+      toast.success('🗑️ הלקוח נמחק בהצלחה!');
     },
     onError: (error: Error) => {
-      toast.error(error.message);
+      toast.error(`❌ שגיאה במחיקת לקוח: ${error.message || 'לא ניתן למחוק לקוח זה כרגע'}`);
     },
   });
 };

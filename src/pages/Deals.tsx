@@ -91,12 +91,12 @@ const Deals = () => {
       
       if (error) throw error;
       
-      toast.success(`${selectedIds.length} עסקאות נמחקו בהצלחה`);
+      toast.success(`✅ ${selectedIds.length} עסקאות נמחקו בהצלחה! 🗑️`);
       clearSelection();
       queryClient.invalidateQueries({ queryKey: ['deals'] });
-    } catch (error) {
-      console.error('Error deleting deals:', error);
-      toast.error('שגיאה במחיקת עסקאות');
+    } catch (error: any) {
+      const errorMsg = error?.message || 'שגיאה לא ידועה';
+      toast.error(`❌ שגיאה במחיקת עסקאות: ${errorMsg}. אנא נסה שוב.`);
     } finally {
       setIsBulkDeleting(false);
     }

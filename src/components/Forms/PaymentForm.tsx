@@ -76,17 +76,17 @@ export function PaymentForm({ isOpen, onClose, payment }: PaymentFormProps) {
     // ולידציה
     const amount = parseFloat(formData.amount);
     if (isNaN(amount) || amount <= 0) {
-      toast.error("סכום חייב להיות מספר חיובי");
+      toast.error("❌ סכום חייב להיות מספר חיובי");
       return;
     }
 
     if (paymentType === "deal" && (!formData.deal_id || formData.deal_id === "none")) {
-      toast.error("יש לבחור עסקה");
+      toast.error("❌ יש לבחור עסקה");
       return;
     }
 
     if (paymentType === "direct" && !formData.contact_id) {
-      toast.error("יש לבחור לקוח");
+      toast.error("❌ יש לבחור לקוח");
       return;
     }
 
@@ -110,9 +110,9 @@ export function PaymentForm({ isOpen, onClose, payment }: PaymentFormProps) {
       }
 
       onClose();
-    } catch (error) {
-      console.error("Payment error:", error);
-      toast.error("⚠️ שגיאה בשמירת התשלום. נסה שוב.");
+    } catch (error: any) {
+      const errorMsg = error?.message || 'שגיאה לא ידועה';
+      toast.error(`❌ שגיאה בשמירת תשלום: ${errorMsg}. אנא בדוק את הפרטים ונסה שוב.`);
     }
   };
 

@@ -59,13 +59,14 @@ export const NewDealForm: React.FC<NewDealFormProps> = ({ isOpen, onClose }) => 
           custom_fields: {}
         },
         onSuccess: () => {
-          toast.success('עסקה חדשה נוספה בהצלחה! 💼');
+          toast.success(`✅ העסקה "${data.title}" נוספה בהצלחה! 💼🎉`);
           reset();
           onClose();
         }
       });
-    } catch (error) {
-      toast.error('שגיאה בהוספת העסקה');
+    } catch (error: any) {
+      const errorMsg = error?.message || 'שגיאה לא ידועה';
+      toast.error(`❌ שגיאה בהוספת עסקה: ${errorMsg}. אנא בדוק את הפרטים ונסה שוב.`);
     } finally {
       setIsLoading(false);
     }

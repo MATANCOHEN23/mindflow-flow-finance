@@ -47,13 +47,15 @@ export const NewContactForm: React.FC<NewContactFormProps> = ({ isOpen, onClose 
           role_tags: data.role_tags || []
         },
         onSuccess: () => {
-          toast.success('לקוח חדש נוסף בהצלחה! 🎉');
+          const fullName = `${data.first_name} ${data.last_name || ''}`.trim();
+          toast.success(`✅ הלקוח ${fullName} נוסף בהצלחה! 🎉`);
           reset();
           onClose();
         }
       });
-    } catch (error) {
-      toast.error('שגיאה בהוספת הלקוח');
+    } catch (error: any) {
+      const errorMsg = error?.message || 'שגיאה לא ידועה';
+      toast.error(`❌ שגיאה בהוספת לקוח: ${errorMsg}. אנא בדוק את הפרטים ונסה שוב.`);
     } finally {
       setIsLoading(false);
     }

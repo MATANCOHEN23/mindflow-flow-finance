@@ -29,12 +29,12 @@ export function useCreateEvent() {
   
   return useMutation({
     mutationFn: eventsApi.create,
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['events'] });
-      toast.success('✅ האירוע נוסף בהצלחה!');
+      toast.success(`✅ האירוע "${data?.title || 'חדש'}" נוסף בהצלחה! 📅🎉`);
     },
     onError: (error: any) => {
-      toast.error('❌ שגיאה ביצירת אירוע: ' + error.message);
+      toast.error(`❌ שגיאה ביצירת אירוע: ${error?.message || 'אנא נסה שוב'}`);
     }
   });
 }
@@ -44,12 +44,12 @@ export function useUpdateEvent() {
   
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: any }) => eventsApi.update(id, data),
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['events'] });
-      toast.success('✅ האירוע עודכן בהצלחה!');
+      toast.success(`✅ האירוע "${data?.title || ''}" עודכן בהצלחה! 🔄`);
     },
     onError: (error: any) => {
-      toast.error('❌ שגיאה בעדכון אירוע: ' + error.message);
+      toast.error(`❌ שגיאה בעדכון אירוע: ${error?.message || 'אנא נסה שוב'}`);
     }
   });
 }
@@ -61,10 +61,10 @@ export function useDeleteEvent() {
     mutationFn: eventsApi.delete,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['events'] });
-      toast.success('✅ האירוע נמחק בהצלחה!');
+      toast.success('🗑️ האירוע נמחק בהצלחה!');
     },
     onError: (error: any) => {
-      toast.error('❌ שגיאה במחיקת אירוע: ' + error.message);
+      toast.error(`❌ שגיאה במחיקת אירוע: ${error?.message || 'לא ניתן למחוק אירוע זה כרגע'}`);
     }
   });
 }

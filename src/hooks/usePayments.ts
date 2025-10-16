@@ -41,13 +41,14 @@ export const useCreatePayment = () => {
   
   return useMutation({
     mutationFn: paymentsApi.create,
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['payments'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
-      toast.success('התשלום נוסף בהצלחה!');
+      const amount = data?.amount ? `₪${data.amount.toLocaleString('he-IL')}` : '';
+      toast.success(`✅ תשלום של ${amount} נוסף בהצלחה! 💰🎉`);
     },
     onError: (error: Error) => {
-      toast.error(`שגיאה: ${error.message}`);
+      toast.error(`❌ שגיאה ביצירת תשלום: ${error.message || 'אנא נסה שוב'}`);
     },
   });
 };
@@ -58,13 +59,14 @@ export const useUpdatePayment = () => {
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<Payment> }) => 
       paymentsApi.update(id, data),
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['payments'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
-      toast.success('התשלום עודכן בהצלחה!');
+      const amount = data?.amount ? `₪${data.amount.toLocaleString('he-IL')}` : '';
+      toast.success(`✅ תשלום של ${amount} עודכן בהצלחה! 🔄`);
     },
     onError: (error: Error) => {
-      toast.error(`שגיאה: ${error.message}`);
+      toast.error(`❌ שגיאה בעדכון תשלום: ${error.message || 'אנא נסה שוב'}`);
     },
   });
 };
@@ -77,10 +79,10 @@ export const useDeletePayment = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['payments'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
-      toast.success('התשלום נמחק בהצלחה!');
+      toast.success('🗑️ התשלום נמחק בהצלחה!');
     },
     onError: (error: Error) => {
-      toast.error(`שגיאה: ${error.message}`);
+      toast.error(`❌ שגיאה במחיקת תשלום: ${error.message || 'לא ניתן למחוק תשלום זה כרגע'}`);
     },
   });
 };

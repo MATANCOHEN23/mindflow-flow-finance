@@ -24,12 +24,12 @@ export const useCreateDeal = () => {
   
   return useMutation({
     mutationFn: dealsApi.create,
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['deals'] });
-      toast.success('העסקה נוספה בהצלחה!');
+      toast.success(`✅ העסקה "${data?.title || 'חדשה'}" נוספה בהצלחה! 💼🎉`);
     },
     onError: (error: Error) => {
-      toast.error(error.message);
+      toast.error(`❌ שגיאה ביצירת עסקה: ${error.message || 'אנא נסה שוב'}`);
     },
   });
 };
@@ -40,12 +40,12 @@ export const useUpdateDeal = () => {
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<Deal> }) => 
       dealsApi.update(id, data),
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['deals'] });
-      toast.success('העסקה עודכנה בהצלחה!');
+      toast.success(`✅ העסקה "${data?.title || ''}" עודכנה בהצלחה! 🔄`);
     },
     onError: (error: Error) => {
-      toast.error(error.message);
+      toast.error(`❌ שגיאה בעדכון עסקה: ${error.message || 'אנא נסה שוב'}`);
     },
   });
 };
@@ -57,10 +57,10 @@ export const useDeleteDeal = () => {
     mutationFn: dealsApi.delete,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['deals'] });
-      toast.success('העסקה נמחקה בהצלחה!');
+      toast.success('🗑️ העסקה נמחקה בהצלחה!');
     },
     onError: (error: Error) => {
-      toast.error(error.message);
+      toast.error(`❌ שגיאה במחיקת עסקה: ${error.message || 'לא ניתן למחוק עסקה זו כרגע'}`);
     },
   });
 };

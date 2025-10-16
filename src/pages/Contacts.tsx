@@ -58,11 +58,12 @@ const Contacts = () => {
       
       if (error) throw error;
       
-      toast.success(`✅ ${bulkSelection.count} לקוחות נמחקו בהצלחה!`);
+      toast.success(`✅ ${bulkSelection.count} לקוחות נמחקו בהצלחה! 🗑️`);
       bulkSelection.clearSelection();
       window.location.reload();
     } catch (error: any) {
-      toast.error('❌ שגיאה במחיקה: ' + error.message);
+      const errorMsg = error?.message || 'שגיאה לא ידועה';
+      toast.error(`❌ שגיאה במחיקת לקוחות: ${errorMsg}. אנא נסה שוב.`);
     } finally {
       setIsBulkDeleting(false);
     }

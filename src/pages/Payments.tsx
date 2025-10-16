@@ -104,12 +104,12 @@ const Payments = () => {
       
       if (error) throw error;
       
-      toast.success(`${selectedIds.length} תשלומים נמחקו בהצלחה`);
+      toast.success(`✅ ${selectedIds.length} תשלומים נמחקו בהצלחה! 🗑️`);
       clearSelection();
       queryClient.invalidateQueries({ queryKey: ['payments'] });
-    } catch (error) {
-      console.error('Error deleting payments:', error);
-      toast.error('שגיאה במחיקת תשלומים');
+    } catch (error: any) {
+      const errorMsg = error?.message || 'שגיאה לא ידועה';
+      toast.error(`❌ שגיאה במחיקת תשלומים: ${errorMsg}. אנא נסה שוב.`);
     } finally {
       setIsBulkDeleting(false);
     }
