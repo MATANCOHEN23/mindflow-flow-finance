@@ -1,7 +1,10 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useEvents } from '@/hooks/useEvents';
 import { Calendar, MapPin, Users, Clock } from 'lucide-react';
 import { PremiumLoader } from '@/components/PremiumLoader';
@@ -13,7 +16,7 @@ import { BulkActionsToolbar } from '@/components/common/BulkActionsToolbar';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { he } from 'date-fns/locale';
 
 export default function Events() {
@@ -21,6 +24,9 @@ export default function Events() {
   const [isEventFormOpen, setIsEventFormOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [isBulkDeleting, setIsBulkDeleting] = useState(false);
+  const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [filterDateFrom, setFilterDateFrom] = useState<string>('');
+  const [filterDateTo, setFilterDateTo] = useState<string>('');
   const queryClient = useQueryClient();
   
   const { selectedIds, toggleItem, clearSelection, isSelected, count } = useBulkSelection(events || []);
@@ -61,6 +67,33 @@ export default function Events() {
     cancelled: 'בוטל'
   };
 
+  // Filter events based on status and date range
+  const filteredEvents = useMemo(() => {
+    if (!events) return [];
+    
+    return events.filter((event: any) => {
+      // Filter by status
+      if (filterStatus !== 'all' && event.status !== filterStatus) {
+        return false;
+      }
+      
+      // Filter by date range
+      if (filterDateFrom && event.event_date) {
+        const eventDate = new Date(event.event_date);
+        const fromDate = new Date(filterDateFrom);
+        if (eventDate < fromDate) return false;
+      }
+      
+      if (filterDateTo && event.event_date) {
+        const eventDate = new Date(event.event_date);
+        const toDate = new Date(filterDateTo);
+        if (eventDate > toDate) return false;
+      }
+      
+      return true;
+    });
+  }, [events, filterStatus, filterDateFrom, filterDateTo]);
+
   return (
     <MainLayout>
       <div className="space-y-8 animate-fade-in" dir="rtl">
@@ -76,6 +109,44 @@ export default function Events() {
         </Button>
       </div>
 
+      {/* Filters Section */}
+      <Card className="premium-card">
+        <CardContent className="pt-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <Label>סטטוס</Label>
+              <Select value={filterStatus} onValueChange={setFilterStatus}>
+                <SelectTrigger>
+                  <SelectValue placeholder="כל הסטטוסים" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">כל הסטטוסים</SelectItem>
+                  <SelectItem value="scheduled">מתוכנן</SelectItem>
+                  <SelectItem value="completed">הושלם</SelectItem>
+                  <SelectItem value="cancelled">בוטל</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>מתאריך</Label>
+              <Input
+                type="date"
+                value={filterDateFrom}
+                onChange={(e) => setFilterDateFrom(e.target.value)}
+              />
+            </div>
+            <div>
+              <Label>עד תאריך</Label>
+              <Input
+                type="date"
+                value={filterDateTo}
+                onChange={(e) => setFilterDateTo(e.target.value)}
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {!events || events.length === 0 ? (
         <EmptyState
           icon="📅"
@@ -86,9 +157,15 @@ export default function Events() {
             onClick: () => setIsEventFormOpen(true)
           }}
         />
+      ) : filteredEvents.length === 0 ? (
+        <EmptyState
+          icon="🔍"
+          title="לא נמצאו אירועים"
+          description="נסה לשנות את הסינון או להוסיף אירועים חדשים"
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {events.map((event: any) => (
+          {filteredEvents.map((event: any) => (
             <Card key={event.id} className="premium-card hover-scale cursor-pointer">
               <CardHeader>
                 <div className="flex justify-between items-start gap-2">

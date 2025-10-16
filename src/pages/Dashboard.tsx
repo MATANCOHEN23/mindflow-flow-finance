@@ -12,11 +12,15 @@ import { AddClientForm } from "@/components/Forms/AddClientForm";
 import { PremiumLoader } from "@/components/PremiumLoader";
 import { EmptyState } from "@/components/EmptyState";
 import { useDashboardStats } from "@/hooks/useDashboardStats";
+import { useEventReminders } from "@/hooks/useEventReminders";
 import { Link } from "react-router-dom";
 
 export function Dashboard() {
   const [isClientFormOpen, setIsClientFormOpen] = useState(false);
   const { data: stats, isLoading, error } = useDashboardStats();
+  
+  // Initialize event and payment reminders
+  useEventReminders();
 
   // Event listener for opening deal form from sidebar
   useEffect(() => {

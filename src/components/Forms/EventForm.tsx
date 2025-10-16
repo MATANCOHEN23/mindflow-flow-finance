@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { useCreateEvent, useUpdateEvent } from '@/hooks/useEvents';
 import { useDeals } from '@/hooks/useDeals';
 import { Loader2 } from "lucide-react";
+import { toast } from 'sonner';
 
 interface EventFormProps {
   isOpen: boolean;
@@ -69,11 +70,28 @@ export function EventForm({ isOpen, onClose, event }: EventFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validation
+    if (!formData.title.trim()) {
+      toast.error('נא להזין כותרת לאירוע');
+      return;
+    }
+    
+    if (!formData.event_date) {
+      toast.error('נא לבחור תאריך לאירוע');
+      return;
+    }
+    
+    const participantsCount = parseInt(formData.participants_count) || 0;
+    if (participantsCount < 0) {
+      toast.error('מספר המשתתפים חייב להיות חיובי');
+      return;
+    }
+    
     const eventData = {
       ...formData,
       deal_id: formData.deal_id || null,
       contact_id: formData.contact_id || null,
-      participants_count: parseInt(formData.participants_count) || 0
+      participants_count: participantsCount
     };
 
     if (event) {
