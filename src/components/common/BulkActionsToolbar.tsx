@@ -12,9 +12,9 @@ export function BulkActionsToolbar({ count, onDelete, onClear, isDeleting }: Bul
   if (count === 0) return null;
 
   return (
-    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 animate-fade-in">
-      <div className="premium-card flex items-center gap-4 p-4 shadow-2xl border-2 border-primary">
-        <div className="flex items-center gap-2 font-semibold">
+    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 animate-fade-in" dir="rtl">
+      <div className="premium-card flex flex-row-reverse items-center gap-4 p-4 shadow-2xl border-2 border-primary">
+        <div className="flex flex-row-reverse items-center gap-2 font-semibold">
           <span className="text-lg">{count}</span>
           <span>פריטים נבחרו</span>
         </div>

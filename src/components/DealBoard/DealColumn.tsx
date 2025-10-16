@@ -27,6 +27,7 @@ export const DealColumn: React.FC<DealColumnProps> = ({ column, deals }) => {
         ${column.color}
         ${isOver ? 'drop-zone drag-over' : 'drop-zone'}
       `}
+      dir="rtl"
     >
       <div className="mb-4 text-center">
         <h3 className="text-lg font-bold text-gray-800">{column.title}</h3>

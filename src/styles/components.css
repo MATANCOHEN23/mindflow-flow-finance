@@ -26,7 +26,7 @@
   padding: 3rem 1rem;
 }
 
-/* Floating action button */
+/* Floating action button with RTL support */
 .floating-add-btn {
   position: fixed;
   bottom: 2rem;
@@ -42,6 +42,11 @@
   cursor: pointer;
   transition: all 0.3s ease;
   z-index: 1000;
+}
+
+[dir="rtl"] .floating-add-btn {
+  left: auto;
+  right: 2rem;
 }
 
 .floating-add-btn:hover {

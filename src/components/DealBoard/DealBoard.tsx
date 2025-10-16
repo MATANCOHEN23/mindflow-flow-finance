@@ -108,7 +108,7 @@ export const DealBoard: React.FC = () => {
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6" style={{ direction: 'rtl' }}>
           {COLUMNS.map((column) => (
             <DealColumn
               key={column.id}

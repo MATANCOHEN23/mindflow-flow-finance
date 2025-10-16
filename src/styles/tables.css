@@ -1,5 +1,5 @@
 
-/* Table styles */
+/* Table styles with RTL support */
 .table-header {
   background: var(--orange-gradient);
 }
@@ -8,9 +8,26 @@
   color: white;
   font-weight: 700;
   text-align: right;
+  direction: rtl;
 }
 
 .table-row:hover {
   background: rgba(249, 115, 22, 0.05);
   transition: background 0.3s ease;
+}
+
+/* RTL table adjustments */
+table[dir="rtl"] th,
+table[dir="rtl"] td {
+  text-align: right;
+}
+
+table[dir="rtl"] th:first-child,
+table[dir="rtl"] td:first-child {
+  padding-right: 1rem;
+}
+
+table[dir="rtl"] th:last-child,
+table[dir="rtl"] td:last-child {
+  padding-left: 1rem;
 }

@@ -67,11 +67,11 @@ export const DealCard: React.FC<DealCardProps> = ({ deal, isDragging = false }) 
         drag-item
       `}
     >
-      <div className="flex justify-between items-start mb-3">
+      <div className="flex flex-row-reverse justify-between items-start mb-3">
         <h4 className="font-semibold text-gray-900 text-sm line-clamp-2">
           {deal.title}
         </h4>
-        <div className="flex-shrink-0 mr-2">
+        <div className="flex-shrink-0 ml-2">
           <span className={`inline-block w-3 h-3 rounded-full ${
             deal.payment_status === 'paid' ? 'bg-green-500' :
             deal.payment_status === 'partial' ? 'bg-blue-500' : 'bg-orange-500'
@@ -81,19 +81,19 @@ export const DealCard: React.FC<DealCardProps> = ({ deal, isDragging = false }) 
 
       <div className="space-y-2 text-xs text-gray-600">
         {deal.category && (
-          <div className="flex items-center gap-1">
+          <div className="flex flex-row-reverse items-center gap-1">
             <User size={12} />
             <span>{deal.category}</span>
           </div>
         )}
         
-        <div className="flex items-center gap-1">
+        <div className="flex flex-row-reverse items-center gap-1">
           <DollarSign size={12} />
           <span>{formatAmount(deal.amount_total)}</span>
         </div>
 
         {deal.next_action_date && (
-          <div className="flex items-center gap-1">
+          <div className="flex flex-row-reverse items-center gap-1">
             <Calendar size={12} />
             <span>{new Date(deal.next_action_date).toLocaleDateString('he-IL')}</span>
           </div>
