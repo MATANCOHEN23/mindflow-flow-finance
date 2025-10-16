@@ -9,8 +9,12 @@ import { register, getSession } from "@/lib/auth";
 import { z } from "zod";
 
 const registerSchema = z.object({
-  email: z.string().email("כתובת אימייל לא תקינה").trim(),
-  password: z.string().min(6, "הסיסמה חייבת להכיל לפחות 6 תווים"),
+  email: z.string().trim().email("כתובת אימייל לא תקינה").max(255, "האימייל ארוך מדי"),
+  password: z.string()
+    .min(8, "הסיסמה חייבת להכיל לפחות 8 תווים")
+    .max(128, "הסיסמה ארוכה מדי")
+    .regex(/[A-Za-z]/, "הסיסמה חייבת להכיל לפחות אות אחת")
+    .regex(/[0-9]/, "הסיסמה חייבת להכיל לפחות ספרה אחת"),
   confirmPassword: z.string(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "הסיסמאות אינן תואמות",
@@ -56,13 +60,17 @@ export default function Register() {
     
     try {
       await register(email.trim(), password);
-      toast.success("נרשמת בהצלחה! בדוק את האימייל שלך לאימות.");
-      navigate("/login");
+      toast.success("נרשמת בהצלחה! כעת תועבר לדף ההתחברות.");
+      
+      // Redirect to login with success message after a brief delay
+      setTimeout(() => {
+        navigate("/login");
+      }, 1500);
     } catch (error: any) {
       if (error.message.includes("User already registered")) {
         toast.error("משתמש עם אימייל זה כבר קיים");
-      } else if (error.message.includes("Password should be at least 6 characters")) {
-        toast.error("הסיסמה חייבת להכיל לפחות 6 תווים");
+      } else if (error.message.includes("Password should be at least")) {
+        toast.error("הסיסמה חייבת להכיל לפחות 8 תווים");
       } else {
         toast.error("שגיאה בהרשמה. נסה שוב.");
       }
@@ -85,7 +93,7 @@ export default function Register() {
               <Input
                 id="email"
                 type="email"
-                placeholder="your@email.com"
+                placeholder="name@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -98,7 +106,7 @@ export default function Register() {
               <Input
                 id="password"
                 type="password"
-                placeholder="••••••"
+                placeholder="לפחות 8 תווים עם אות וספרה"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -111,7 +119,7 @@ export default function Register() {
               <Input
                 id="confirmPassword"
                 type="password"
-                placeholder="••••••"
+                placeholder="הקלד את הסיסמה שוב"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required

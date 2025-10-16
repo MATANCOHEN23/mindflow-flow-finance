@@ -9,8 +9,8 @@ import { login, getSession } from "@/lib/auth";
 import { z } from "zod";
 
 const loginSchema = z.object({
-  email: z.string().email("כתובת אימייל לא תקינה").trim(),
-  password: z.string().min(6, "הסיסמה חייבת להכיל לפחות 6 תווים"),
+  email: z.string().trim().email("כתובת אימייל לא תקינה").max(255, "האימייל ארוך מדי"),
+  password: z.string().min(8, "הסיסמה חייבת להכיל לפחות 8 תווים").max(128, "הסיסמה ארוכה מדי"),
 });
 
 export default function Login() {
@@ -50,8 +50,22 @@ export default function Login() {
     setLoading(true);
     
     try {
-      await login(email.trim(), password);
+      const { user } = await login(email.trim(), password);
       toast.success("התחברת בהצלחה!");
+      
+      // Check if this is a new user (first login)
+      if (user?.created_at) {
+        const createdDate = new Date(user.created_at);
+        const now = new Date();
+        const diffInMinutes = (now.getTime() - createdDate.getTime()) / (1000 * 60);
+        
+        // If account was created in the last 5 minutes, redirect to install
+        if (diffInMinutes < 5) {
+          navigate("/install");
+          return;
+        }
+      }
+      
       navigate("/dashboard");
     } catch (error: any) {
       if (error.message.includes("Invalid login credentials")) {
@@ -80,7 +94,7 @@ export default function Login() {
               <Input
                 id="email"
                 type="email"
-                placeholder="your@email.com"
+                placeholder="name@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -93,7 +107,7 @@ export default function Login() {
               <Input
                 id="password"
                 type="password"
-                placeholder="••••••"
+                placeholder="לפחות 8 תווים"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
