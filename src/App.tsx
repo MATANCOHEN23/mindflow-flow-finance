@@ -17,6 +17,8 @@ import { LoadingSpinner } from "./components/LoadingSpinner";
 // Lazy load pages for better performance
 const Index = lazy(() => import("./pages/Index"));
 const Home = lazy(() => import("./pages/Home"));
+const Login = lazy(() => import("./pages/Login"));
+const Register = lazy(() => import("./pages/Register"));
 const Contacts = lazy(() => import("./pages/Contacts"));
 const Payments = lazy(() => import("./pages/Payments"));
 const BirthdayEvents = lazy(() => import("./pages/BirthdayEvents"));
@@ -32,6 +34,7 @@ const Reports = lazy(() => import("./pages/Reports"));
 const Install = lazy(() => import("./pages/Install"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const InstallPrompt = lazy(() => import("./components/InstallPrompt").then(m => ({ default: m.InstallPrompt })));
+const PrivateRoute = lazy(() => import("./components/PrivateRoute").then(m => ({ default: m.PrivateRoute })));
 
 // Loading fallback component
 const LoadingFallback = () => (
@@ -62,20 +65,22 @@ function AppWithTracking() {
     <Suspense fallback={<LoadingFallback />}>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/dashboard" element={<Index />} />
-        <Route path="/contacts" element={<Contacts />} />
-        <Route path="/customer/:id" element={<CustomerProfile />} />
-        <Route path="/payments" element={<Payments />} />
-        <Route path="/domains" element={<Domains />} />
-        <Route path="/domain/:id" element={<DomainProfile />} />
-        <Route path="/events" element={<Events />} />
-        <Route path="/tasks" element={<Tasks />} />
-        <Route path="/reports" element={<Reports />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/dashboard" element={<PrivateRoute><Index /></PrivateRoute>} />
+        <Route path="/contacts" element={<PrivateRoute><Contacts /></PrivateRoute>} />
+        <Route path="/customer/:id" element={<PrivateRoute><CustomerProfile /></PrivateRoute>} />
+        <Route path="/payments" element={<PrivateRoute><Payments /></PrivateRoute>} />
+        <Route path="/domains" element={<PrivateRoute><Domains /></PrivateRoute>} />
+        <Route path="/domain/:id" element={<PrivateRoute><DomainProfile /></PrivateRoute>} />
+        <Route path="/events" element={<PrivateRoute><Events /></PrivateRoute>} />
+        <Route path="/tasks" element={<PrivateRoute><Tasks /></PrivateRoute>} />
+        <Route path="/reports" element={<PrivateRoute><Reports /></PrivateRoute>} />
         <Route path="/install" element={<Install />} />
-        <Route path="/birthday-events" element={<BirthdayEvents />} />
-        <Route path="/therapy" element={<Therapy />} />
-        <Route path="/basketball" element={<Basketball />} />
-        <Route path="/school-workshops" element={<SchoolWorkshops />} />
+        <Route path="/birthday-events" element={<PrivateRoute><BirthdayEvents /></PrivateRoute>} />
+        <Route path="/therapy" element={<PrivateRoute><Therapy /></PrivateRoute>} />
+        <Route path="/basketball" element={<PrivateRoute><Basketball /></PrivateRoute>} />
+        <Route path="/school-workshops" element={<PrivateRoute><SchoolWorkshops /></PrivateRoute>} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>
