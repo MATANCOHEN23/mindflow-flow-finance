@@ -141,6 +141,20 @@ export function SmartClientWizard({ isOpen, onClose }: SmartClientWizardProps) {
 
   const handleSubmit = async () => {
     try {
+      // בדיקת כפילויות אימייל
+      if (wizardData.contactInfo.email && wizardData.contactInfo.email.trim()) {
+        const { data: existingContact } = await supabase
+          .from('contacts')
+          .select('id, first_name, last_name')
+          .eq('email', wizardData.contactInfo.email.trim().toLowerCase())
+          .limit(1);
+        
+        if (existingContact && existingContact.length > 0) {
+          toast.error(`האימייל כבר קיים במערכת עבור ${existingContact[0].first_name} ${existingContact[0].last_name}`);
+          return;
+        }
+      }
+
       // יצירת הלקוח
       const { data: newContact, error: contactError } = await supabase
         .from('contacts')
@@ -149,7 +163,7 @@ export function SmartClientWizard({ isOpen, onClose }: SmartClientWizardProps) {
           last_name: wizardData.contactInfo.lastName,
           phone: wizardData.contactInfo.phone,
           phone_parent: wizardData.contactInfo.parentPhone,
-          email: wizardData.contactInfo.email,
+          email: wizardData.contactInfo.email ? wizardData.contactInfo.email.trim().toLowerCase() : null,
           child_name: wizardData.contactInfo.childName,
           role_tags: [],
           notes: wizardData.notes
@@ -160,14 +174,18 @@ export function SmartClientWizard({ isOpen, onClose }: SmartClientWizardProps) {
       if (contactError) throw contactError;
 
       // שיוך התחומים
-      for (const domainId of wizardData.selectedDomains) {
-        await supabase
-          .from('contact_domains' as any)
-          .insert([{
-            contact_id: newContact.id,
-            domain_id: domainId,
-            status: 'active'
-          }]);
+      if (wizardData.selectedDomains.length > 0) {
+        const domainAssignments = wizardData.selectedDomains.map(domainId => ({
+          contact_id: newContact.id,
+          domain_id: domainId,
+          status: 'active'
+        }));
+
+        const { error: domainsError } = await supabase
+          .from('contact_domains')
+          .insert(domainAssignments);
+        
+        if (domainsError) throw domainsError;
       }
       
       toast.success('✅ הלקוח נוסף בהצלחה!');

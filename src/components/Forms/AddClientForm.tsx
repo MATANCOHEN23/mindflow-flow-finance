@@ -5,11 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Contact } from "@/types/database";
 import { Loader2 } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
+import { useDomains } from '@/hooks/useDomains';
 
 interface AddClientFormProps {
   isOpen: boolean;
@@ -30,6 +32,8 @@ const roleOptions = [
 
 export const AddClientForm = ({ isOpen, onClose, contact }: AddClientFormProps) => {
   const queryClient = useQueryClient();
+  const { data: allDomains } = useDomains();
+  
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
@@ -41,33 +45,49 @@ export const AddClientForm = ({ isOpen, onClose, contact }: AddClientFormProps) 
     notes: ''
   });
 
+  const [selectedDomains, setSelectedDomains] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const isEditing = !!contact;
 
   useEffect(() => {
-    if (contact) {
-      setFormData({
-        first_name: contact.first_name || '',
-        last_name: contact.last_name || '',
-        phone: contact.phone || '',
-        phone_parent: contact.phone_parent || '',
-        email: contact.email || '',
-        child_name: contact.child_name || '',
-        role_tags: contact.role_tags || [],
-        notes: contact.notes || ''
-      });
-    } else {
-      setFormData({
-        first_name: '',
-        last_name: '',
-        phone: '',
-        phone_parent: '',
-        email: '',
-        child_name: '',
-        role_tags: [],
-        notes: ''
-      });
-    }
+    const loadContactDomains = async () => {
+      if (contact) {
+        setFormData({
+          first_name: contact.first_name || '',
+          last_name: contact.last_name || '',
+          phone: contact.phone || '',
+          phone_parent: contact.phone_parent || '',
+          email: contact.email || '',
+          child_name: contact.child_name || '',
+          role_tags: contact.role_tags || [],
+          notes: contact.notes || ''
+        });
+        
+        // טעינת התחומים המקושרים
+        const { data: contactDomains } = await supabase
+          .from('contact_domains')
+          .select('domain_id')
+          .eq('contact_id', contact.id);
+        
+        if (contactDomains) {
+          setSelectedDomains(contactDomains.map(cd => cd.domain_id));
+        }
+      } else {
+        setFormData({
+          first_name: '',
+          last_name: '',
+          phone: '',
+          phone_parent: '',
+          email: '',
+          child_name: '',
+          role_tags: [],
+          notes: ''
+        });
+        setSelectedDomains([]);
+      }
+    };
+    
+    loadContactDomains();
   }, [contact]);
 
   const handleInputChange = (field: string, value: string) => {
@@ -94,24 +114,72 @@ export const AddClientForm = ({ isOpen, onClose, contact }: AddClientFormProps) 
     setIsLoading(true);
     
     try {
+      // בדיקת כפילויות אימייל
+      if (formData.email && formData.email.trim()) {
+        const emailToCheck = formData.email.trim().toLowerCase();
+        const { data: existingContact } = await supabase
+          .from('contacts')
+          .select('id, first_name, last_name')
+          .eq('email', emailToCheck)
+          .neq('id', contact?.id || '00000000-0000-0000-0000-000000000000')
+          .limit(1);
+        
+        if (existingContact && existingContact.length > 0) {
+          toast.error(`האימייל כבר קיים במערכת עבור ${existingContact[0].first_name} ${existingContact[0].last_name}`);
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      const contactData = {
+        ...formData,
+        email: formData.email ? formData.email.trim().toLowerCase() : null
+      };
+
       if (isEditing && contact) {
         const { data, error } = await supabase
           .from('contacts')
-          .update(formData)
+          .update(contactData)
           .eq('id', contact.id)
           .select()
           .single();
 
         if (error) throw error;
+        
+        // עדכון התחומים
+        await supabase.from('contact_domains').delete().eq('contact_id', contact.id);
+        
+        if (selectedDomains.length > 0) {
+          const domainAssignments = selectedDomains.map(domainId => ({
+            contact_id: contact.id,
+            domain_id: domainId,
+            status: 'active'
+          }));
+          
+          await supabase.from('contact_domains').insert(domainAssignments);
+        }
+        
         toast.success('✅ הלקוח עודכן בהצלחה!');
       } else {
         const { data, error } = await supabase
           .from('contacts')
-          .insert([formData])
+          .insert([contactData])
           .select()
           .single();
 
         if (error) throw error;
+        
+        // שיוך התחומים
+        if (selectedDomains.length > 0) {
+          const domainAssignments = selectedDomains.map(domainId => ({
+            contact_id: data.id,
+            domain_id: domainId,
+            status: 'active'
+          }));
+          
+          await supabase.from('contact_domains').insert(domainAssignments);
+        }
+        
         toast.success('✅ הלקוח נוסף בהצלחה!');
       }
       
@@ -119,6 +187,7 @@ export const AddClientForm = ({ isOpen, onClose, contact }: AddClientFormProps) 
       
       // Refresh the contacts list
       await queryClient.invalidateQueries({ queryKey: ['contacts'] });
+      await queryClient.invalidateQueries({ queryKey: ['contact-domains'] });
     } catch (error: any) {
       console.error('Error saving contact:', error);
       toast.error('❌ שגיאה בשמירת הלקוח: ' + (error.message || 'שגיאה לא ידועה'));
@@ -217,14 +286,36 @@ export const AddClientForm = ({ isOpen, onClose, contact }: AddClientFormProps) 
             <Label className="text-right font-semibold">תפקיד/יחס</Label>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
               {roleOptions.map((role) => (
-                <label key={role} className="flex items-center space-x-2 cursor-pointer">
-                  <input
-                    type="checkbox"
+                <label key={role} className="flex items-center space-x-2 space-x-reverse cursor-pointer">
+                  <Checkbox
                     checked={formData.role_tags.includes(role)}
-                    onChange={() => handleRoleToggle(role)}
-                    className="rounded border-gray-300"
+                    onCheckedChange={() => handleRoleToggle(role)}
                   />
                   <span className="text-sm">{role}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <Label className="text-right font-semibold">תחומים</Label>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-48 overflow-y-auto border rounded-lg p-3">
+              {allDomains?.filter(d => !d.parent_id).map((domain) => (
+                <label key={domain.id} className="flex items-center space-x-2 space-x-reverse cursor-pointer">
+                  <Checkbox
+                    checked={selectedDomains.includes(domain.id)}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setSelectedDomains([...selectedDomains, domain.id]);
+                      } else {
+                        setSelectedDomains(selectedDomains.filter(id => id !== domain.id));
+                      }
+                    }}
+                  />
+                  <span className="text-sm flex items-center gap-1">
+                    {domain.icon && <span>{domain.icon}</span>}
+                    {domain.name}
+                  </span>
                 </label>
               ))}
             </div>
