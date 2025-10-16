@@ -18,7 +18,9 @@ import { useDeals, useUpdateDeal } from '@/hooks/useDeals';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { DealColumn } from './DealColumn';
 import { DealCard } from './DealCard';
+import { DealCarousel } from './DealCarousel';
 import { toast } from 'sonner';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 type DealStatus = 'lead' | 'booked' | 'done';
 
@@ -33,6 +35,7 @@ export const DealBoard: React.FC = () => {
   const updateDealMutation = useUpdateDeal();
   const [activeId, setActiveId] = useState<string | null>(null);
   const [draggedDeal, setDraggedDeal] = useState<Deal | null>(null);
+  const isMobile = useIsMobile();
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -97,33 +100,39 @@ export const DealBoard: React.FC = () => {
   }
 
   return (
-    <div className="card p-6" dir="rtl">
-      <h2 className="text-2xl font-bold mb-6 text-center gradient-text">
+    <div className="card p-4 md:p-6" dir="rtl">
+      <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6 text-center gradient-text">
         🚀 לוח ניהול עסקאות 🚀
       </h2>
       
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-      >
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6" style={{ direction: 'rtl' }}>
-          {COLUMNS.map((column) => (
-            <DealColumn
-              key={column.id}
-              column={column}
-              deals={getDealsByStatus(column.id)}
-            />
-          ))}
-        </div>
+      {isMobile ? (
+        // Mobile: Carousel view
+        <DealCarousel columns={COLUMNS} getDealsByStatus={getDealsByStatus} />
+      ) : (
+        // Desktop: Grid with drag & drop
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+        >
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6" style={{ direction: 'rtl' }}>
+            {COLUMNS.map((column) => (
+              <DealColumn
+                key={column.id}
+                column={column}
+                deals={getDealsByStatus(column.id)}
+              />
+            ))}
+          </div>
 
-        <DragOverlay>
-          {activeId && draggedDeal ? (
-            <DealCard deal={draggedDeal} isDragging />
-          ) : null}
-        </DragOverlay>
-      </DndContext>
+          <DragOverlay>
+            {activeId && draggedDeal ? (
+              <DealCard deal={draggedDeal} isDragging />
+            ) : null}
+          </DragOverlay>
+        </DndContext>
+      )}
     </div>
   );
 };

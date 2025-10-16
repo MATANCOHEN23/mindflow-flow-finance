@@ -12,6 +12,7 @@
 @import './styles/vibrant-theme.css';
 @import './styles/modal-fixes.css';
 @import './styles/premium-enhancements.css';
+@import './styles/mobile.css';
 
 @tailwind base;
 @tailwind components;

@@ -1,0 +1,128 @@
+/* Mobile Touch Feedback & Responsive Styles */
+
+/* Touch feedback for interactive elements */
+.touch-feedback {
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+  touch-action: manipulation;
+  transition: transform 0.1s ease, background-color 0.2s ease;
+}
+
+.touch-feedback:active {
+  transform: scale(0.98);
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Ensure minimum touch target size */
+button, 
+a, 
+[role="button"],
+[role="link"],
+.clickable {
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Mobile typography adjustments */
+@media (max-width: 768px) {
+  body {
+    font-size: 14px;
+  }
+  
+  h1 {
+    font-size: 1.75rem;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+  }
+  
+  h3 {
+    font-size: 1.25rem;
+  }
+  
+  .text-base {
+    font-size: 0.875rem;
+  }
+  
+  /* Reduce padding on mobile */
+  .card {
+    padding: 1rem !important;
+  }
+  
+  .page-header-flyer {
+    padding: 1rem !important;
+  }
+  
+  /* Make buttons full-width on mobile when stacked */
+  .mobile-full-btn {
+    width: 100%;
+  }
+  
+  /* Adjust gaps and spacing */
+  .space-y-6 {
+    gap: 1rem;
+  }
+  
+  .gap-6 {
+    gap: 1rem;
+  }
+  
+  /* Floating button positioning on mobile */
+  .floating-add-btn {
+    bottom: 1.5rem;
+    right: 1.5rem;
+    width: 56px;
+    height: 56px;
+  }
+  
+  /* Carousel touch improvements */
+  .embla {
+    overflow: hidden;
+    cursor: grab;
+  }
+  
+  .embla:active {
+    cursor: grabbing;
+  }
+  
+  /* Card shadows on mobile */
+  .premium-card,
+  .brand-card {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Tablet adjustments */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .card {
+    padding: 1.5rem !important;
+  }
+  
+  button,
+  a {
+    min-height: 40px;
+    min-width: 40px;
+  }
+}
+
+/* Smooth scroll for mobile */
+@media (max-width: 768px) {
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Hide scrollbars on mobile for cleaner look */
+  .overflow-x-auto::-webkit-scrollbar,
+  .overflow-y-auto::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .overflow-x-auto,
+  .overflow-y-auto {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
