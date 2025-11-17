@@ -512,10 +512,7 @@ export type Database = {
       }
     }
     Functions: {
-      get_domain_full_path: {
-        Args: { domain_id: string }
-        Returns: string
-      }
+      get_domain_full_path: { Args: { domain_id: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
