@@ -20,7 +20,7 @@ import { format, parseISO } from 'date-fns';
 import { he } from 'date-fns/locale';
 
 export default function Events() {
-  const { data: events, isLoading, error } = useEvents();
+  const { data: events = [], isLoading, error } = useEvents();
   const [isEventFormOpen, setIsEventFormOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [isBulkDeleting, setIsBulkDeleting] = useState(false);
@@ -90,25 +90,37 @@ export default function Events() {
 
   // Filter events based on status and date range
   const filteredEvents = useMemo(() => {
-    if (!events) return [];
+    if (!Array.isArray(events) || events.length === 0) {
+      return [];
+    }
     
     return events.filter((event: any) => {
+      if (!event) return false;
+      
       // Filter by status
-      if (filterStatus !== 'all' && event.status !== filterStatus) {
+      if (filterStatus && filterStatus !== 'all' && event.status !== filterStatus) {
         return false;
       }
       
       // Filter by date range
       if (filterDateFrom && event.event_date) {
-        const eventDate = new Date(event.event_date);
-        const fromDate = new Date(filterDateFrom);
-        if (eventDate < fromDate) return false;
+        try {
+          const eventDate = new Date(event.event_date);
+          const fromDate = new Date(filterDateFrom);
+          if (eventDate < fromDate) return false;
+        } catch (e) {
+          console.error('Date parsing error:', e);
+        }
       }
       
       if (filterDateTo && event.event_date) {
-        const eventDate = new Date(event.event_date);
-        const toDate = new Date(filterDateTo);
-        if (eventDate > toDate) return false;
+        try {
+          const eventDate = new Date(event.event_date);
+          const toDate = new Date(filterDateTo);
+          if (eventDate > toDate) return false;
+        } catch (e) {
+          console.error('Date parsing error:', e);
+        }
       }
       
       return true;
