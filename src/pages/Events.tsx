@@ -20,7 +20,7 @@ import { format, parseISO } from 'date-fns';
 import { he } from 'date-fns/locale';
 
 export default function Events() {
-  const { data: events, isLoading } = useEvents();
+  const { data: events, isLoading, error } = useEvents();
   const [isEventFormOpen, setIsEventFormOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [isBulkDeleting, setIsBulkDeleting] = useState(false);
@@ -50,6 +50,27 @@ export default function Events() {
       <MainLayout>
         <div className="flex items-center justify-center min-h-screen">
           <PremiumLoader size="lg" />
+        </div>
+      </MainLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <MainLayout>
+        <div className="flex items-center justify-center min-h-screen">
+          <Card className="max-w-md">
+            <CardContent className="pt-6 text-center">
+              <div className="text-4xl mb-4">⚠️</div>
+              <h2 className="text-xl font-bold mb-2">שגיאה בטעינת אירועים</h2>
+              <p className="text-muted-foreground mb-4">
+                {error instanceof Error ? error.message : 'אירעה שגיאה לא צפויה'}
+              </p>
+              <Button onClick={() => window.location.reload()}>
+                רענן דף
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </MainLayout>
     );
@@ -179,7 +200,11 @@ export default function Events() {
               <CardContent className="space-y-3">
                 <div className="flex items-center gap-2 text-sm">
                   <Calendar className="w-4 h-4 text-primary" />
-                  <span>{event.event_date ? format(new Date(event.event_date), 'dd/MM/yyyy', { locale: he }) : 'לא נקבע'}</span>
+                  <span>
+                    {event.event_date 
+                      ? format(parseISO(event.event_date), 'dd/MM/yyyy', { locale: he })
+                      : 'לא נקבע'}
+                  </span>
                 </div>
                 {event.event_time && (
                   <div className="flex items-center gap-2 text-sm">
