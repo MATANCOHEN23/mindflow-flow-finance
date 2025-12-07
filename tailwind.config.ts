@@ -28,14 +28,15 @@ export default {
 				ring: 'hsl(var(--ring))',
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
+				// MC Brand Colors (from logo)
 				primary: {
-					DEFAULT: '#1e3a8a',  // Brand dark blue
-					light: '#3b82f6',    // Brand light blue
-					foreground: '#ffffff'
+					DEFAULT: 'hsl(210 60% 20%)',     // Navy blue
+					light: 'hsl(192 82% 42%)',       // Teal
+					foreground: 'hsl(0 0% 100%)'
 				},
 				secondary: {
-					DEFAULT: '#3b82f6',  // Brand light blue
-					foreground: '#ffffff'
+					DEFAULT: 'hsl(192 82% 42%)',     // Teal/Cyan
+					foreground: 'hsl(0 0% 100%)'
 				},
 				destructive: {
 					DEFAULT: 'hsl(var(--destructive))',
@@ -46,28 +47,34 @@ export default {
 					foreground: 'hsl(var(--muted-foreground))'
 				},
 				accent: {
-					DEFAULT: '#f97316',  // Brand orange
-					foreground: '#ffffff'
+					DEFAULT: 'hsl(25 95% 53%)',      // Orange
+					foreground: 'hsl(0 0% 100%)'
 				},
 				popover: {
 					DEFAULT: 'hsl(var(--popover))',
 					foreground: 'hsl(var(--popover-foreground))'
 				},
 				card: {
-					DEFAULT: '#ffffff',
-					foreground: '#1e3a8a'
+					DEFAULT: 'hsl(0 0% 100%)',
+					foreground: 'hsl(210 60% 20%)'
 				},
-				// Brand colors
-				orange: {
-					500: '#f97316',
-					600: '#ea580c',
-					700: '#c2410c'
+				// MC Brand Palette
+				mc: {
+					navy: 'hsl(210 60% 20%)',
+					teal: 'hsl(192 82% 42%)',
+					gold: 'hsl(43 74% 53%)',
+					orange: 'hsl(25 95% 53%)',
+					coral: 'hsl(11 84% 60%)'
 				},
-				blue: {
-					600: '#1e3a8a',
-					700: '#1e40af',
-					800: '#1e3a8a',
-					900: '#1e293b'
+				gold: {
+					DEFAULT: 'hsl(43 74% 53%)',
+					light: 'hsl(43 74% 63%)',
+					dark: 'hsl(43 74% 43%)'
+				},
+				teal: {
+					DEFAULT: 'hsl(192 82% 42%)',
+					light: 'hsl(192 82% 52%)',
+					dark: 'hsl(192 82% 32%)'
 				},
 				gray: {
 					50: '#f9fafb',

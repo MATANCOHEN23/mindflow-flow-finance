@@ -1,18 +1,57 @@
 
 :root {
-  /* Premium Color Palette */
-  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --gold-gradient: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
-  --orange-gradient: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-  --premium-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  /* ============================================
+     MC Brand Color Palette (Based on Logo)
+     ============================================ */
+  
+  /* Primary Brand Colors */
+  --mc-navy: 210 60% 20%;           /* #1E3A5A - Deep navy blue (outlines) */
+  --mc-teal: 192 82% 42%;           /* #0891B2 - Teal/Cyan (brain) */
+  --mc-gold: 43 74% 53%;            /* #D4AF37 - Gold (text, accents) */
+  --mc-orange: 25 95% 53%;          /* #F97316 - Orange (arm) */
+  --mc-coral: 11 84% 60%;           /* #EF6B4A - Coral/Red (arm gradient) */
+  
+  /* Gradient Definitions */
+  --primary-gradient: linear-gradient(135deg, hsl(192 82% 42%) 0%, hsl(210 60% 20%) 100%);
+  --gold-gradient: linear-gradient(135deg, hsl(43 74% 53%) 0%, hsl(43 74% 63%) 100%);
+  --orange-gradient: linear-gradient(135deg, hsl(25 95% 53%) 0%, hsl(11 84% 60%) 100%);
+  --arm-gradient: linear-gradient(135deg, hsl(25 95% 53%) 0%, hsl(0 84% 60%) 100%);
+  --brain-gradient: linear-gradient(135deg, hsl(192 82% 42%) 0%, hsl(192 70% 30%) 100%);
+  
+  /* Shadows with Brand Colors */
+  --premium-shadow: 0 20px 40px hsla(210 60% 20% / 0.15);
+  --gold-shadow: 0 10px 30px hsla(43 74% 53% / 0.25);
+  --teal-shadow: 0 10px 30px hsla(192 82% 42% / 0.25);
+  --glow-shadow: 0 0 40px hsla(43 74% 53% / 0.4);
+  
+  /* Glass Effects */
   --glass-bg: rgba(255, 255, 255, 0.95);
-  --premium-border: 1px solid rgba(255, 255, 255, 0.18);
+  --glass-border: 1px solid hsla(43 74% 53% / 0.3);
+  --premium-border: 1px solid hsla(43 74% 53% / 0.18);
   
   /* Typography */
-  --font-display: 'Heebo', sans-serif;
+  --font-display: 'Heebo', 'Assistant', sans-serif;
   --font-body: 'Assistant', sans-serif;
   
-  /* Brand Colors */
-  --sidebar-bg: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
-  --cta: #f97316;
+  /* Sidebar */
+  --sidebar-bg: linear-gradient(180deg, hsl(210 60% 15%) 0%, hsl(210 60% 20%) 100%);
+  --cta: hsl(25 95% 53%);
+  
+  /* Table Row Colors (for visual scanning) */
+  --row-teal: hsla(192 82% 42% / 0.08);
+  --row-coral: hsla(11 84% 60% / 0.08);
+  --row-gold: hsla(43 74% 53% / 0.08);
+  --row-hover: hsla(43 74% 53% / 0.15);
+  
+  /* Status Colors */
+  --status-success: 142 76% 36%;
+  --status-warning: 43 74% 53%;
+  --status-danger: 0 84% 60%;
+  --status-info: 192 82% 42%;
+}
+
+/* Dark mode adjustments */
+.dark {
+  --glass-bg: rgba(30, 58, 90, 0.95);
+  --glass-border: 1px solid hsla(43 74% 53% / 0.2);
 }
