@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      categories: {
+        Row: {
+          color: string | null
+          created_at: string | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          name_he: string
+          order_index: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          name_he: string
+          order_index?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          color?: string | null
+          created_at?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          name_he?: string
+          order_index?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       contact_domains: {
         Row: {
           contact_id: string | null
@@ -125,6 +161,7 @@ export type Database = {
           amount_paid: number | null
           amount_total: number | null
           category: string | null
+          category_id: string | null
           contact_id: string | null
           created_at: string | null
           custom_fields: Json | null
@@ -142,6 +179,7 @@ export type Database = {
           amount_paid?: number | null
           amount_total?: number | null
           category?: string | null
+          category_id?: string | null
           contact_id?: string | null
           created_at?: string | null
           custom_fields?: Json | null
@@ -159,6 +197,7 @@ export type Database = {
           amount_paid?: number | null
           amount_total?: number | null
           category?: string | null
+          category_id?: string | null
           contact_id?: string | null
           created_at?: string | null
           custom_fields?: Json | null
@@ -173,6 +212,13 @@ export type Database = {
           workflow_stage?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "deals_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "deals_contact_id_fkey"
             columns: ["contact_id"]
@@ -376,6 +422,57 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "deals"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      pricing_packages: {
+        Row: {
+          created_at: string | null
+          domain_id: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          name_he: string
+          price: number
+          price_per_session: number | null
+          sessions_count: number
+        }
+        Insert: {
+          created_at?: string | null
+          domain_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          name_he: string
+          price: number
+          price_per_session?: number | null
+          sessions_count: number
+        }
+        Update: {
+          created_at?: string | null
+          domain_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          name_he?: string
+          price?: number
+          price_per_session?: number | null
+          sessions_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pricing_packages_domain_id_fkey"
+            columns: ["domain_id"]
+            isOneToOne: false
+            referencedRelation: "domains"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pricing_packages_domain_id_fkey"
+            columns: ["domain_id"]
+            isOneToOne: false
+            referencedRelation: "revenue_by_domain"
+            referencedColumns: ["domain_id"]
           },
         ]
       }
