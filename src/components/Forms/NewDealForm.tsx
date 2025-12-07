@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useForm, Controller } from "react-hook-form";
 import { useSmartInsert } from "@/hooks/useSmartInsert";
 import { useContacts } from "@/hooks/useContacts";
+import { useCategories } from "@/hooks/useCategories";
 import { X } from "lucide-react";
 import { toast } from "sonner";
 
@@ -21,6 +22,7 @@ interface DealFormData {
   title: string;
   contact_id: string;
   category: string;
+  category_id: string;
   package_type: string;
   amount_total: number;
   next_action_date: string;
@@ -31,14 +33,8 @@ export const NewDealForm: React.FC<NewDealFormProps> = ({ isOpen, onClose }) => 
   const { register, handleSubmit, reset, control, formState: { errors } } = useForm<DealFormData>();
   const { smartInsert } = useSmartInsert();
   const { data: contacts } = useContacts();
+  const { categories, isLoading: categoriesLoading } = useCategories();
   const [isLoading, setIsLoading] = React.useState(false);
-
-  const categories = [
-    { value: 'birthday', label: '🎂 יום הולדת' },
-    { value: 'therapy', label: '🧠 טיפול' },
-    { value: 'basketball', label: '🏀 אימון כדורסל' },
-    { value: 'workshop', label: '🎓 סדנה בית ספר' }
-  ];
 
   const packageTypes = [
     { value: 'basic', label: 'חבילה בסיסית' },
@@ -49,10 +45,18 @@ export const NewDealForm: React.FC<NewDealFormProps> = ({ isOpen, onClose }) => 
   const onSubmit = async (data: DealFormData) => {
     setIsLoading(true);
     try {
+      const selectedCategory = categories.find(c => c.id === data.category_id);
       await smartInsert({
         table: 'deals',
         values: {
-          ...data,
+          title: data.title,
+          contact_id: data.contact_id || null,
+          category: selectedCategory?.name || null,
+          category_id: data.category_id || null,
+          package_type: data.package_type || null,
+          amount_total: data.amount_total,
+          next_action_date: data.next_action_date || null,
+          notes: data.notes || null,
           workflow_stage: 'lead',
           payment_status: 'pending' as const,
           amount_paid: 0,
@@ -123,19 +127,19 @@ export const NewDealForm: React.FC<NewDealFormProps> = ({ isOpen, onClose }) => 
           </div>
 
           <div>
-            <Label htmlFor="category">קטגוריה</Label>
+            <Label htmlFor="category_id">קטגוריה</Label>
             <Controller
-              name="category"
+              name="category_id"
               control={control}
               render={({ field }) => (
-                <Select onValueChange={field.onChange} value={field.value}>
+                <Select onValueChange={field.onChange} value={field.value} disabled={categoriesLoading}>
                   <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="בחר קטגוריה" />
+                    <SelectValue placeholder={categoriesLoading ? "טוען..." : "בחר קטגוריה"} />
                   </SelectTrigger>
                   <SelectContent>
                     {categories.map((category) => (
-                      <SelectItem key={category.value} value={category.value}>
-                        {category.label}
+                      <SelectItem key={category.id} value={category.id}>
+                        {category.icon} {category.name_he}
                       </SelectItem>
                     ))}
                   </SelectContent>
