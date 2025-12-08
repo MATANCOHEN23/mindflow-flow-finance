@@ -41,9 +41,14 @@ export const AddClientForm = ({ isOpen, onClose, contact }: AddClientFormProps) 
     phone_parent: '',
     email: '',
     child_name: '',
+    parent_name: '',
+    age: '',
+    group: '',
     role_tags: [] as string[],
     notes: ''
   });
+  
+  const [customProject, setCustomProject] = useState('');
 
   const [selectedDomains, setSelectedDomains] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -52,6 +57,7 @@ export const AddClientForm = ({ isOpen, onClose, contact }: AddClientFormProps) 
   useEffect(() => {
     const loadContactDomains = async () => {
       if (contact) {
+        const subCat = (contact as any).sub_category || {};
         setFormData({
           first_name: contact.first_name || '',
           last_name: contact.last_name || '',
@@ -59,9 +65,13 @@ export const AddClientForm = ({ isOpen, onClose, contact }: AddClientFormProps) 
           phone_parent: contact.phone_parent || '',
           email: contact.email || '',
           child_name: contact.child_name || '',
+          parent_name: subCat.parent_name || '',
+          age: subCat.age || '',
+          group: subCat.group || '',
           role_tags: contact.role_tags || [],
           notes: contact.notes || ''
         });
+        setCustomProject(subCat.custom_project || '');
         
         // טעינת התחומים המקושרים
         const { data: contactDomains } = await supabase
@@ -70,7 +80,7 @@ export const AddClientForm = ({ isOpen, onClose, contact }: AddClientFormProps) 
           .eq('contact_id', contact.id);
         
         if (contactDomains) {
-          setSelectedDomains(contactDomains.map(cd => cd.domain_id));
+          setSelectedDomains(contactDomains.map(cd => cd.domain_id).filter(Boolean) as string[]);
         }
       } else {
         setFormData({
@@ -80,10 +90,14 @@ export const AddClientForm = ({ isOpen, onClose, contact }: AddClientFormProps) 
           phone_parent: '',
           email: '',
           child_name: '',
+          parent_name: '',
+          age: '',
+          group: '',
           role_tags: [],
           notes: ''
         });
         setSelectedDomains([]);
+        setCustomProject('');
       }
     };
     
@@ -132,8 +146,20 @@ export const AddClientForm = ({ isOpen, onClose, contact }: AddClientFormProps) 
       }
 
       const contactData = {
-        ...formData,
-        email: formData.email ? formData.email.trim().toLowerCase() : null
+        first_name: formData.first_name,
+        last_name: formData.last_name || null,
+        phone: formData.phone || null,
+        phone_parent: formData.phone_parent || null,
+        email: formData.email ? formData.email.trim().toLowerCase() : null,
+        child_name: formData.child_name || null,
+        role_tags: formData.role_tags,
+        notes: formData.notes || null,
+        sub_category: {
+          parent_name: formData.parent_name || null,
+          age: formData.age || null,
+          group: formData.group || null,
+          custom_project: customProject || null
+        }
       };
 
       if (isEditing && contact) {
@@ -271,12 +297,48 @@ export const AddClientForm = ({ isOpen, onClose, contact }: AddClientFormProps) 
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="child_name" className="text-right font-semibold">שם הילד</Label>
+              <Label htmlFor="child_name" className="text-right font-semibold">שם פרטי (ילד)</Label>
               <Input
                 id="child_name"
                 value={formData.child_name}
                 onChange={(e) => handleInputChange('child_name', e.target.value)}
                 placeholder="הכנס שם הילד"
+                className="text-right"
+              />
+            </div>
+          </div>
+
+          {/* שדות נוספים */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="parent_name" className="text-right font-semibold">שם מלא הורה</Label>
+              <Input
+                id="parent_name"
+                value={formData.parent_name}
+                onChange={(e) => handleInputChange('parent_name', e.target.value)}
+                placeholder="שם הורה"
+                className="text-right"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="age" className="text-right font-semibold">גיל</Label>
+              <Input
+                id="age"
+                value={formData.age}
+                onChange={(e) => handleInputChange('age', e.target.value)}
+                placeholder="גיל"
+                className="text-right"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="group" className="text-right font-semibold">קבוצה</Label>
+              <Input
+                id="group"
+                value={formData.group}
+                onChange={(e) => handleInputChange('group', e.target.value)}
+                placeholder="שם קבוצה"
                 className="text-right"
               />
             </div>
@@ -298,26 +360,70 @@ export const AddClientForm = ({ isOpen, onClose, contact }: AddClientFormProps) 
           </div>
 
           <div className="space-y-3">
-            <Label className="text-right font-semibold">תחומים</Label>
+            <Label className="text-right font-semibold">פרויקט / תחום</Label>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-48 overflow-y-auto border rounded-lg p-3">
-              {allDomains?.filter(d => !d.parent_id).map((domain) => (
-                <label key={domain.id} className="flex items-center space-x-2 space-x-reverse cursor-pointer">
-                  <Checkbox
-                    checked={selectedDomains.includes(domain.id)}
-                    onCheckedChange={(checked) => {
-                      if (checked) {
-                        setSelectedDomains([...selectedDomains, domain.id]);
-                      } else {
-                        setSelectedDomains(selectedDomains.filter(id => id !== domain.id));
-                      }
-                    }}
-                  />
-                  <span className="text-sm flex items-center gap-1">
-                    {domain.icon && <span>{domain.icon}</span>}
-                    {domain.name}
-                  </span>
-                </label>
-              ))}
+              {allDomains?.filter(d => !d.parent_id).map((domain) => {
+                const subDomains = allDomains?.filter(sd => sd.parent_id === domain.id) || [];
+                return (
+                  <div key={domain.id} className="col-span-full border-b pb-2 mb-2 last:border-b-0">
+                    <label className="flex items-center space-x-2 space-x-reverse cursor-pointer font-semibold">
+                      <Checkbox
+                        checked={selectedDomains.includes(domain.id)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setSelectedDomains([...selectedDomains, domain.id]);
+                          } else {
+                            setSelectedDomains(selectedDomains.filter(id => id !== domain.id));
+                          }
+                        }}
+                      />
+                      <span className="text-sm flex items-center gap-1">
+                        {domain.icon && <span>{domain.icon}</span>}
+                        {domain.name}
+                      </span>
+                    </label>
+                    {selectedDomains.includes(domain.id) && subDomains.length > 0 && (
+                      <div className="mr-6 mt-2 space-y-1">
+                        {subDomains.map(sub => (
+                          <label key={sub.id} className="flex items-center space-x-2 space-x-reverse cursor-pointer text-muted-foreground">
+                            <Checkbox
+                              checked={selectedDomains.includes(sub.id)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setSelectedDomains([...selectedDomains, sub.id]);
+                                } else {
+                                  setSelectedDomains(selectedDomains.filter(id => id !== sub.id));
+                                }
+                              }}
+                            />
+                            <span className="text-xs">
+                              {sub.icon && <span className="ml-1">{sub.icon}</span>}
+                              {sub.name}
+                              {sub.pricing_value && (
+                                <span className="text-muted-foreground mr-1">
+                                  ({sub.pricing_type === 'percentage' ? `${sub.pricing_value}%` : `₪${sub.pricing_value}`})
+                                </span>
+                              )}
+                            </span>
+                          </label>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            
+            {/* הזנה ידנית */}
+            <div className="mt-3">
+              <Label htmlFor="customProject" className="text-right font-semibold">או הזן ידנית (אחר)</Label>
+              <Input
+                id="customProject"
+                value={customProject}
+                onChange={(e) => setCustomProject(e.target.value)}
+                placeholder="פרויקט/תחום אחר..."
+                className="text-right mt-1"
+              />
             </div>
           </div>
 
