@@ -231,8 +231,22 @@ const ContactRow = ({
       <TableCell>
         <Checkbox checked={isSelected} onCheckedChange={onToggleSelect} />
       </TableCell>
-      <TableCell className="font-semibold">{contact.first_name}</TableCell>
-      <TableCell>{contact.last_name || '-'}</TableCell>
+      <TableCell className="font-semibold">
+        <Link 
+          to={`/customer/${contact.id}`}
+          className="text-primary hover:underline hover:text-primary/80 transition-colors"
+        >
+          {contact.first_name}
+        </Link>
+      </TableCell>
+      <TableCell>
+        <Link 
+          to={`/customer/${contact.id}`}
+          className="hover:underline hover:text-primary/80 transition-colors"
+        >
+          {contact.last_name || '-'}
+        </Link>
+      </TableCell>
       <TableCell>
         <div className="flex flex-wrap gap-1">
           {contactDomains && contactDomains.length > 0 ? (
@@ -289,6 +303,16 @@ const ContactRow = ({
       </TableCell>
       <TableCell>
         <div className="flex gap-2">
+          <Link to={`/customer/${contact.id}`}>
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-8 w-8 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50 hover:border-blue-300"
+              title="צפה בפרופיל"
+            >
+              👁️
+            </Button>
+          </Link>
           <Button
             size="sm"
             variant="outline"

@@ -20,6 +20,10 @@ export const paymentsApi = {
             first_name,
             last_name
           )
+        ),
+        contact:contact_id (
+          first_name,
+          last_name
         )
       `)
       .order('payment_date', { ascending: false });
@@ -32,14 +36,18 @@ export const paymentsApi = {
     // Map the data to include contact name and deal title
     return (data || []).map(payment => {
       const deal = payment.deals as any;
-      const contact = deal?.contacts as any;
+      const dealContact = deal?.contacts as any;
+      const directContact = payment.contact as any;
+      
+      // Priority: direct contact_id > deal's contact
+      const contactInfo = directContact || dealContact;
       
       return {
         ...payment,
         status: (payment.status || 'pending') as 'pending' | 'paid' | 'overdue',
         deal_title: deal?.title || 'ללא עסקה',
-        contact_name: contact 
-          ? `${contact.first_name} ${contact.last_name || ''}`.trim()
+        contact_name: contactInfo 
+          ? `${contactInfo.first_name} ${contactInfo.last_name || ''}`.trim()
           : 'ללא לקוח'
       } as PaymentWithDetails;
     });
@@ -56,6 +64,10 @@ export const paymentsApi = {
             first_name,
             last_name
           )
+        ),
+        contact:contact_id (
+          first_name,
+          last_name
         )
       `)
       .eq('id', id)
@@ -67,14 +79,16 @@ export const paymentsApi = {
     }
 
     const deal = data.deals as any;
-    const contact = deal?.contacts as any;
+    const dealContact = deal?.contacts as any;
+    const directContact = data.contact as any;
+    const contactInfo = directContact || dealContact;
 
     return {
       ...data,
       status: (data.status || 'pending') as 'pending' | 'paid' | 'overdue',
       deal_title: deal?.title || 'ללא עסקה',
-      contact_name: contact 
-        ? `${contact.first_name} ${contact.last_name || ''}`.trim()
+      contact_name: contactInfo 
+        ? `${contactInfo.first_name} ${contactInfo.last_name || ''}`.trim()
         : 'ללא לקוח'
     } as PaymentWithDetails;
   },
