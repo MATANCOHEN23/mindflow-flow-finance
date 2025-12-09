@@ -94,6 +94,10 @@ export function SmartClientWizard({ isOpen, onClose }: SmartClientWizardProps) {
     if (isOpen) {
       queryClient.prefetchQuery({
         queryKey: ['domains-hierarchy'],
+        queryFn: async () => {
+          const { domainsApi } = await import('@/lib/api/domains');
+          return domainsApi.getHierarchy();
+        },
       });
     }
   }, [isOpen, queryClient]);

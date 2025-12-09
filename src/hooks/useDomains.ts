@@ -13,10 +13,16 @@ export const useDomains = () => {
 export const useDomainsHierarchy = () => {
   return useQuery({
     queryKey: ['domains-hierarchy'],
-    queryFn: domainsApi.getHierarchy,
+    queryFn: async () => {
+      console.log('🔄 Fetching domains hierarchy...');
+      const result = await domainsApi.getHierarchy();
+      console.log('✅ Domains hierarchy loaded:', result?.length, 'root domains');
+      return result;
+    },
     staleTime: 5 * 60 * 1000, // 5 minutes
     refetchOnWindowFocus: false,
     retry: 2,
+    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
   });
 };
 
