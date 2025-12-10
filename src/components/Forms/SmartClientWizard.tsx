@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, ChevronLeft, Check, X } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Check, X, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
@@ -51,6 +51,7 @@ interface SmartClientWizardProps {
 
 export function SmartClientWizard({ isOpen, onClose }: SmartClientWizardProps) {
   const [currentStep, setCurrentStep] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [wizardData, setWizardData] = useState<WizardData>({
     selectedDomains: [],
     contactInfo: {
@@ -154,6 +155,11 @@ export function SmartClientWizard({ isOpen, onClose }: SmartClientWizardProps) {
   };
 
   const handleSubmit = async () => {
+    if (isSubmitting) return;
+    
+    console.log('🚀 Starting customer save...', wizardData);
+    setIsSubmitting(true);
+    
     try {
       // בדיקת כפילויות אימייל
       if (wizardData.contactInfo.email && wizardData.contactInfo.email.trim()) {
@@ -207,6 +213,7 @@ export function SmartClientWizard({ isOpen, onClose }: SmartClientWizardProps) {
         if (domainsError) throw domainsError;
       }
       
+      console.log('✅ Customer saved successfully:', newContact);
       toast.success('✅ הלקוח נוסף בהצלחה!');
       
       setLastAction({ type: 'contact', id: newContact.id, timestamp: Date.now() });
@@ -215,11 +222,15 @@ export function SmartClientWizard({ isOpen, onClose }: SmartClientWizardProps) {
       // רענון חכם - רק נתוני הלקוחות
       await queryClient.invalidateQueries({ queryKey: ['contacts'] });
       await queryClient.invalidateQueries({ queryKey: ['contact-domains'] });
+      await queryClient.invalidateQueries({ queryKey: ['therapy-contacts'] });
+      await queryClient.invalidateQueries({ queryKey: ['basketball-contacts'] });
       
+      setIsSubmitting(false);
       onClose();
     } catch (error: any) {
-      console.error('Error creating contact:', error);
+      console.error('❌ Error creating contact:', error);
       toast.error('❌ שגיאה: ' + error.message);
+      setIsSubmitting(false);
     }
   };
 
@@ -466,53 +477,95 @@ export function SmartClientWizard({ isOpen, onClose }: SmartClientWizardProps) {
       case 3: // Summary
         return (
           <div className="space-y-6">
-            <div className="bg-accent/30 rounded-lg p-4">
-              <h3 className="text-lg font-semibold mb-3">סיכום הפרטים</h3>
+            <div className="bg-gradient-to-r from-primary/5 to-accent/5 rounded-xl p-5 border border-primary/20">
+              <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                📋 סיכום הפרטים
+              </h3>
               
-              <div className="space-y-2">
-                <div>
-                  <span className="font-semibold">שם:</span> {wizardData.contactInfo.firstName} {wizardData.contactInfo.lastName}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-muted-foreground">👤 שם:</span>
+                    <span className="font-bold">{wizardData.contactInfo.firstName} {wizardData.contactInfo.lastName}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-muted-foreground">📞 טלפון:</span>
+                    <span className="font-semibold" dir="ltr">{wizardData.contactInfo.phone}</span>
+                  </div>
+                  {wizardData.contactInfo.email && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-muted-foreground">✉️ אימייל:</span>
+                      <span className="font-semibold">{wizardData.contactInfo.email}</span>
+                    </div>
+                  )}
                 </div>
-                <div>
-                  <span className="font-semibold">טלפון:</span> {wizardData.contactInfo.phone}
+                
+                <div className="space-y-3">
+                  {wizardData.contactInfo.parentName && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-muted-foreground">👨‍👩‍👧 הורה:</span>
+                      <span className="font-semibold">{wizardData.contactInfo.parentName}</span>
+                    </div>
+                  )}
+                  {wizardData.contactInfo.parentPhone && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-muted-foreground">📱 טלפון הורה:</span>
+                      <span className="font-semibold" dir="ltr">{wizardData.contactInfo.parentPhone}</span>
+                    </div>
+                  )}
+                  {wizardData.contactInfo.childName && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-muted-foreground">👶 שם ילד/ה:</span>
+                      <span className="font-semibold">{wizardData.contactInfo.childName}</span>
+                    </div>
+                  )}
                 </div>
-                {wizardData.contactInfo.email && (
-                  <div>
-                    <span className="font-semibold">אימייל:</span> {wizardData.contactInfo.email}
-                  </div>
-                )}
-                {wizardData.contactInfo.parentPhone && (
-                  <div>
-                    <span className="font-semibold">טלפון הורה:</span> {wizardData.contactInfo.parentPhone}
-                  </div>
-                )}
-                {wizardData.contactInfo.childName && (
-                  <div>
-                    <span className="font-semibold">שם ילד/ה:</span> {wizardData.contactInfo.childName}
-                  </div>
-                )}
-                <div>
-                  <span className="font-semibold">מספר תחומים:</span> {wizardData.selectedDomains.length}
-                </div>
-                {wizardData.pricing.totalPrice > 0 && (
-                  <div className="pt-3 border-t mt-3">
-                    <span className="font-semibold">מחיר משוער:</span>{' '}
-                    <span className="text-xl font-bold text-primary">
-                      ₪{wizardData.pricing.totalPrice.toLocaleString()}
-                    </span>
-                  </div>
-                )}
-                {wizardData.notes && (
-                  <div>
-                    <span className="font-semibold">הערות:</span> {wizardData.notes}
-                  </div>
-                )}
               </div>
             </div>
 
+            {/* Selected domains */}
+            <div className="bg-accent/30 rounded-xl p-5">
+              <h4 className="font-bold mb-3 flex items-center gap-2">
+                🎯 תחומים שנבחרו ({wizardData.selectedDomains.length})
+              </h4>
+              <div className="flex flex-wrap gap-2">
+                {wizardData.pricing.breakdown?.map((item: any, index: number) => (
+                  <div 
+                    key={index}
+                    className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-primary/10 border border-primary/30"
+                  >
+                    <span className="text-lg">{item.domainIcon}</span>
+                    <span className="font-medium">{item.domainName}</span>
+                    {item.price > 0 && (
+                      <span className="text-sm text-primary font-bold">₪{item.price.toLocaleString()}</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Total price */}
+            {wizardData.pricing.totalPrice > 0 && (
+              <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 rounded-xl p-5 border-2 border-green-300">
+                <div className="flex justify-between items-center">
+                  <span className="text-lg font-bold">💰 סה"כ לתשלום:</span>
+                  <span className="text-3xl font-black text-green-700">
+                    ₪{wizardData.pricing.totalPrice.toLocaleString()}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {wizardData.notes && (
+              <div className="bg-muted/50 rounded-lg p-4">
+                <span className="font-bold">📝 הערות:</span>
+                <p className="mt-1 text-muted-foreground">{wizardData.notes}</p>
+              </div>
+            )}
+
             <div className="bg-blue-50 dark:bg-blue-950/30 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
-              <p className="text-sm text-blue-900 dark:text-blue-100">
-                ✅ הלקוח ישויך אוטומטית לכל התחומים שבחרת
+              <p className="text-sm text-blue-900 dark:text-blue-100 flex items-center gap-2">
+                ✅ הלקוח ישויך אוטומטית לכל התחומים שבחרת ויופיע בדפי הניהול הרלוונטיים
               </p>
             </div>
           </div>
@@ -616,10 +669,20 @@ export function SmartClientWizard({ isOpen, onClose }: SmartClientWizardProps) {
               <Button
                 type="button"
                 onClick={handleSubmit}
-                className="btn-premium gap-2"
+                disabled={isSubmitting}
+                className="btn-premium gap-2 bg-green-600 hover:bg-green-700"
               >
-                <Check className="w-4 h-4" />
-                שמור לקוח
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    שומר...
+                  </>
+                ) : (
+                  <>
+                    <Check className="w-4 h-4" />
+                    שמור לקוח
+                  </>
+                )}
               </Button>
             )}
           </div>
