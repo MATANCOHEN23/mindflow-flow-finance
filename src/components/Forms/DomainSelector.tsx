@@ -1,32 +1,20 @@
-import { useState, useEffect } from "react";
 import { useDomainsHierarchy } from "@/hooks/useDomains";
 import { DomainWithChildren } from "@/types/database";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { ChevronDown, ChevronLeft } from "lucide-react";
 import { PremiumLoader } from "@/components/PremiumLoader";
 
 interface DomainSelectorProps {
   selectedDomains: string[];
   onChange: (domains: string[]) => void;
+  showOnlyMainDomains?: boolean;
 }
 
-export function DomainSelector({ selectedDomains, onChange }: DomainSelectorProps) {
+export function DomainSelector({ selectedDomains, onChange, showOnlyMainDomains = true }: DomainSelectorProps) {
   const { data: hierarchy, isLoading } = useDomainsHierarchy();
-  const [expandedDomains, setExpandedDomains] = useState<Set<string>>(new Set());
 
-  const toggleExpand = (domainId: string) => {
-    const newExpanded = new Set(expandedDomains);
-    if (newExpanded.has(domainId)) {
-      newExpanded.delete(domainId);
-    } else {
-      newExpanded.add(domainId);
-    }
-    setExpandedDomains(newExpanded);
-  };
-
-  const toggleDomain = (domainId: string, hasChildren: boolean) => {
+  const toggleDomain = (domainId: string) => {
     const newSelected = [...selectedDomains];
     const index = newSelected.indexOf(domainId);
     
@@ -34,88 +22,26 @@ export function DomainSelector({ selectedDomains, onChange }: DomainSelectorProp
       newSelected.splice(index, 1);
     } else {
       newSelected.push(domainId);
-      // אם יש ילדים, הרחב אוטומטית
-      if (hasChildren) {
-        setExpandedDomains(prev => new Set([...prev, domainId]));
-      }
     }
     
     onChange(newSelected);
-  };
-
-  const renderDomain = (domain: DomainWithChildren, level: number = 0) => {
-    const hasChildren = domain.children && domain.children.length > 0;
-    const isExpanded = expandedDomains.has(domain.id);
-    const isSelected = selectedDomains.includes(domain.id);
-    const indent = level * 24;
-
-    return (
-      <div key={domain.id} className="w-full">
-        <div 
-          className={`flex items-center gap-2 py-2 px-3 rounded-lg hover:bg-accent/50 transition-colors cursor-pointer`}
-          style={{ paddingRight: `${indent + 12}px` }}
-        >
-          {hasChildren && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleExpand(domain.id);
-              }}
-              className="p-1 hover:bg-accent rounded"
-            >
-              {isExpanded ? (
-                <ChevronDown className="w-4 h-4 text-muted-foreground" />
-              ) : (
-                <ChevronLeft className="w-4 h-4 text-muted-foreground" />
-              )}
-            </button>
-          )}
-          
-          {!hasChildren && <div className="w-6" />}
-
-          <Checkbox
-            id={`domain-${domain.id}`}
-            checked={isSelected}
-            onCheckedChange={() => toggleDomain(domain.id, hasChildren)}
-          />
-
-          <label
-            htmlFor={`domain-${domain.id}`}
-            className="flex items-center gap-2 flex-1 cursor-pointer"
-          >
-            {domain.icon && <span className="text-xl">{domain.icon}</span>}
-            <span className={`${isSelected ? 'font-semibold' : ''}`}>
-              {domain.name}
-            </span>
-            {domain.pricing_type && (
-              <Badge variant="outline" className="text-xs">
-                {domain.pricing_type === 'percentage' && `${domain.pricing_value}%`}
-                {domain.pricing_type === 'fixed' && `₪${domain.pricing_value}`}
-                {domain.pricing_type === 'full' && '100%'}
-              </Badge>
-            )}
-          </label>
-        </div>
-
-        {hasChildren && isExpanded && (
-          <div className="mt-1">
-            {domain.children!.map(child => renderDomain(child, level + 1))}
-          </div>
-        )}
-      </div>
-    );
   };
 
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-8 space-y-2">
         <PremiumLoader size="md" />
-        <p className="text-sm text-muted-foreground">בונה היררכיית תחומים...</p>
+        <p className="text-sm text-muted-foreground">טוען תחומים...</p>
       </div>
     );
   }
 
-  if (!hierarchy || hierarchy.length === 0) {
+  // Filter to only main domains (level 1, no parent)
+  const mainDomains = showOnlyMainDomains 
+    ? hierarchy?.filter(d => d.level === 1 && !d.parent_id) || []
+    : hierarchy || [];
+
+  if (!mainDomains || mainDomains.length === 0) {
     return (
       <div className="text-center py-8">
         <div className="text-4xl mb-3">🏢</div>
@@ -127,30 +53,50 @@ export function DomainSelector({ selectedDomains, onChange }: DomainSelectorProp
 
   return (
     <div className="space-y-2">
-      <Label className="text-base font-semibold">בחר תחומים</Label>
-      <div className="border rounded-lg p-3 max-h-96 overflow-y-auto bg-background/50">
-        {hierarchy.map(domain => renderDomain(domain))}
+      <Label className="text-base font-semibold">בחר תחומים ראשיים</Label>
+      <p className="text-sm text-muted-foreground mb-3">בחר את התחומים הרלוונטיים ללקוח</p>
+      
+      <div className="grid grid-cols-2 gap-3">
+        {mainDomains.map((domain: DomainWithChildren) => {
+          const isSelected = selectedDomains.includes(domain.id);
+          
+          return (
+            <div 
+              key={domain.id}
+              onClick={() => toggleDomain(domain.id)}
+              className={`
+                flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all
+                ${isSelected 
+                  ? 'border-primary bg-primary/10 shadow-md' 
+                  : 'border-border hover:border-primary/50 hover:bg-accent/30'
+                }
+              `}
+            >
+              <Checkbox
+                id={`domain-${domain.id}`}
+                checked={isSelected}
+                onCheckedChange={() => toggleDomain(domain.id)}
+                className="pointer-events-none"
+              />
+              
+              <div className="flex items-center gap-2 flex-1">
+                <span className="text-2xl">{domain.icon || '📌'}</span>
+                <span className={`font-medium ${isSelected ? 'text-primary font-semibold' : ''}`}>
+                  {domain.name}
+                </span>
+              </div>
+            </div>
+          );
+        })}
       </div>
       
       {selectedDomains.length > 0 && (
-        <div className="flex flex-wrap gap-2 mt-3">
-          <Label className="w-full text-sm text-muted-foreground">תחומים נבחרים:</Label>
+        <div className="flex flex-wrap gap-2 mt-4 pt-3 border-t">
+          <Label className="w-full text-sm text-muted-foreground">נבחרו {selectedDomains.length} תחומים:</Label>
           {selectedDomains.map(domainId => {
-            // מצא את התחום בהיררכיה
-            const findDomain = (domains: DomainWithChildren[]): DomainWithChildren | null => {
-              for (const d of domains) {
-                if (d.id === domainId) return d;
-                if (d.children) {
-                  const found = findDomain(d.children);
-                  if (found) return found;
-                }
-              }
-              return null;
-            };
-            const domain = findDomain(hierarchy);
-            
+            const domain = mainDomains.find(d => d.id === domainId);
             return domain ? (
-              <Badge key={domainId} variant="secondary" className="gap-1">
+              <Badge key={domainId} variant="secondary" className="gap-1 text-sm py-1 px-3">
                 {domain.icon} {domain.name}
               </Badge>
             ) : null;

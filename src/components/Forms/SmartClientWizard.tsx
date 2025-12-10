@@ -21,10 +21,13 @@ interface WizardData {
   contactInfo: {
     firstName: string;
     lastName: string;
+    idNumber?: string;
     phone: string;
     email: string;
+    parentName?: string;
     parentPhone?: string;
     childName?: string;
+    mainChallenge?: string;
   };
   pricing: {
     totalPrice: number;
@@ -34,6 +37,7 @@ interface WizardData {
       price: number;
       explanation: string;
     }>;
+    selectedOptions?: Record<string, string>;
   };
   notes: string;
 }
@@ -52,12 +56,18 @@ export function SmartClientWizard({ isOpen, onClose }: SmartClientWizardProps) {
     contactInfo: {
       firstName: '',
       lastName: '',
+      idNumber: '',
       phone: '',
-      email: ''
+      email: '',
+      parentName: '',
+      parentPhone: '',
+      childName: '',
+      mainChallenge: ''
     },
     pricing: {
       totalPrice: 0,
-      breakdown: []
+      breakdown: [],
+      selectedOptions: {}
     },
     notes: ''
   });
@@ -170,7 +180,12 @@ export function SmartClientWizard({ isOpen, onClose }: SmartClientWizardProps) {
           email: wizardData.contactInfo.email ? wizardData.contactInfo.email.trim().toLowerCase() : null,
           child_name: wizardData.contactInfo.childName,
           role_tags: [],
-          notes: wizardData.notes
+          notes: wizardData.notes,
+          sub_category: {
+            id_number: wizardData.contactInfo.idNumber,
+            parent_name: wizardData.contactInfo.parentName,
+            main_challenge: wizardData.contactInfo.mainChallenge
+          }
         }])
         .select()
         .single();
@@ -216,12 +231,18 @@ export function SmartClientWizard({ isOpen, onClose }: SmartClientWizardProps) {
         contactInfo: {
           firstName: '',
           lastName: '',
+          idNumber: '',
           phone: '',
-          email: ''
+          email: '',
+          parentName: '',
+          parentPhone: '',
+          childName: '',
+          mainChallenge: ''
         },
         pricing: {
           totalPrice: 0,
-          breakdown: []
+          breakdown: [],
+          selectedOptions: {}
         },
         notes: ''
       });
@@ -245,6 +266,7 @@ export function SmartClientWizard({ isOpen, onClose }: SmartClientWizardProps) {
       case 1: // Contact Info
         return (
           <div className="space-y-4">
+            {/* Row 1: שם פרטי + שם משפחה */}
             <div className="grid grid-cols-2 gap-4">
               <div className="relative">
                 <Label htmlFor="firstName">שם פרטי *</Label>
@@ -268,11 +290,11 @@ export function SmartClientWizard({ isOpen, onClose }: SmartClientWizardProps) {
                       setSuggestions([]);
                     }
                   }}
-                  placeholder="שם פרטי"
+                  placeholder="הזן שם"
                   required
                 />
                 {suggestions.length > 0 && (
-                  <div className="absolute z-10 bg-white border rounded-lg shadow-lg mt-1 w-full">
+                  <div className="absolute z-10 bg-background border rounded-lg shadow-lg mt-1 w-full">
                     {suggestions.map(name => (
                       <button
                         key={name}
@@ -283,7 +305,7 @@ export function SmartClientWizard({ isOpen, onClose }: SmartClientWizardProps) {
                           });
                           setSuggestions([]);
                         }}
-                        className="w-full text-right p-2 hover:bg-gray-100"
+                        className="w-full text-right p-2 hover:bg-accent"
                       >
                         {name}
                       </button>
@@ -292,7 +314,7 @@ export function SmartClientWizard({ isOpen, onClose }: SmartClientWizardProps) {
                 )}
               </div>
               <div>
-                <Label htmlFor="lastName">שם משפחה</Label>
+                <Label htmlFor="lastName">שם משפחה *</Label>
                 <Input
                   id="lastName"
                   value={wizardData.contactInfo.lastName}
@@ -300,12 +322,27 @@ export function SmartClientWizard({ isOpen, onClose }: SmartClientWizardProps) {
                     ...wizardData,
                     contactInfo: { ...wizardData.contactInfo, lastName: e.target.value }
                   })}
-                  placeholder="שם משפחה"
+                  placeholder="הזן שם משפחה"
+                  required
                 />
               </div>
             </div>
 
+            {/* Row 2: תעודת זהות + טלפון */}
             <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="idNumber">תעודת זהות</Label>
+                <Input
+                  id="idNumber"
+                  value={wizardData.contactInfo.idNumber || ''}
+                  onChange={(e) => setWizardData({
+                    ...wizardData,
+                    contactInfo: { ...wizardData.contactInfo, idNumber: e.target.value }
+                  })}
+                  placeholder="הזן מספר ת.ז."
+                  dir="ltr"
+                />
+              </div>
               <div>
                 <Label htmlFor="phone">טלפון *</Label>
                 <Input
@@ -316,8 +353,25 @@ export function SmartClientWizard({ isOpen, onClose }: SmartClientWizardProps) {
                     ...wizardData,
                     contactInfo: { ...wizardData.contactInfo, phone: e.target.value }
                   })}
-                  placeholder="050-1234567"
+                  placeholder="05X-XXXXXXX"
                   required
+                  dir="ltr"
+                />
+              </div>
+            </div>
+
+            {/* Row 3: שם הורה + טלפון הורה */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="parentName">שם מלא (הורה)</Label>
+                <Input
+                  id="parentName"
+                  value={wizardData.contactInfo.parentName || ''}
+                  onChange={(e) => setWizardData({
+                    ...wizardData,
+                    contactInfo: { ...wizardData.contactInfo, parentName: e.target.value }
+                  })}
+                  placeholder="הזן שם הורה"
                 />
               </div>
               <div>
@@ -330,13 +384,15 @@ export function SmartClientWizard({ isOpen, onClose }: SmartClientWizardProps) {
                     ...wizardData,
                     contactInfo: { ...wizardData.contactInfo, parentPhone: e.target.value }
                   })}
-                  placeholder="050-1234567"
+                  placeholder="05X-XXXXXXX"
+                  dir="ltr"
                 />
               </div>
             </div>
 
+            {/* Row 4: אימייל */}
             <div>
-              <Label htmlFor="email">אימייל</Label>
+              <Label htmlFor="email">אימייל הורה</Label>
               <Input
                 id="email"
                 type="email"
@@ -346,9 +402,11 @@ export function SmartClientWizard({ isOpen, onClose }: SmartClientWizardProps) {
                   contactInfo: { ...wizardData.contactInfo, email: e.target.value }
                 })}
                 placeholder="example@email.com"
+                dir="ltr"
               />
             </div>
 
+            {/* Row 5: שם ילד (אם רלוונטי) */}
             <div>
               <Label htmlFor="childName">שם הילד/ה (אם רלוונטי)</Label>
               <Input
@@ -358,10 +416,37 @@ export function SmartClientWizard({ isOpen, onClose }: SmartClientWizardProps) {
                   ...wizardData,
                   contactInfo: { ...wizardData.contactInfo, childName: e.target.value }
                 })}
-                placeholder="שם הילד/ה"
+                placeholder="הזן שם"
               />
             </div>
 
+            {/* Row 6: אתגר מרכזי */}
+            <div>
+              <Label htmlFor="mainChallenge">אתגר מרכזי</Label>
+              <select
+                id="mainChallenge"
+                value={wizardData.contactInfo.mainChallenge || ''}
+                onChange={(e) => setWizardData({
+                  ...wizardData,
+                  contactInfo: { ...wizardData.contactInfo, mainChallenge: e.target.value }
+                })}
+                className="w-full h-10 px-3 py-2 rounded-md border border-input bg-background text-sm"
+              >
+                <option value="">בחר אתגר...</option>
+                <option value="anxiety">חרדה</option>
+                <option value="depression">דיכאון</option>
+                <option value="adhd">קשב וריכוז (ADHD)</option>
+                <option value="social">קשיים חברתיים</option>
+                <option value="behavior">בעיות התנהגות</option>
+                <option value="trauma">טראומה</option>
+                <option value="family">קשיים משפחתיים</option>
+                <option value="learning">קשיי למידה</option>
+                <option value="performance">ביצועים ומוטיבציה</option>
+                <option value="other">אחר</option>
+              </select>
+            </div>
+
+            {/* Row 7: הערות */}
             <div>
               <Label htmlFor="notes">הערות</Label>
               <Textarea
