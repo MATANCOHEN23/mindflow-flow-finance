@@ -10,9 +10,14 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { PrivateRoute } from "@/components/PrivateRoute";
 import { useUrlTracking } from "@/hooks/useUrlTracking";
 import { Suspense, lazy } from "react";
 import { LoadingSpinner } from "./components/LoadingSpinner";
+
+// Lazy load auth pages
+const Login = lazy(() => import("./pages/Login"));
+const Register = lazy(() => import("./pages/Register"));
 
 // Lazy load pages for better performance
 const Index = lazy(() => import("./pages/Index"));
@@ -63,23 +68,29 @@ function AppWithTracking() {
   return (
     <Suspense fallback={<LoadingFallback />}>
       <Routes>
+        {/* Public routes */}
         <Route path="/" element={<Home />} />
-        <Route path="/dashboard" element={<Index />} />
-        <Route path="/contacts" element={<Contacts />} />
-        <Route path="/customer/:id" element={<CustomerProfile />} />
-        <Route path="/deals" element={<Deals />} />
-        <Route path="/payments" element={<Payments />} />
-        <Route path="/domains" element={<Domains />} />
-        <Route path="/domain/:id" element={<DomainProfile />} />
-        <Route path="/events" element={<Events />} />
-        <Route path="/tasks" element={<Tasks />} />
-        <Route path="/reports" element={<Reports />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
         <Route path="/install" element={<Install />} />
-        <Route path="/system-tester" element={<SystemTesterPage />} />
-        <Route path="/birthday-events" element={<BirthdayEvents />} />
-        <Route path="/therapy" element={<Therapy />} />
-        <Route path="/basketball" element={<Basketball />} />
-        <Route path="/school-workshops" element={<SchoolWorkshops />} />
+        
+        {/* Protected routes - require authentication */}
+        <Route path="/dashboard" element={<PrivateRoute><Index /></PrivateRoute>} />
+        <Route path="/contacts" element={<PrivateRoute><Contacts /></PrivateRoute>} />
+        <Route path="/customer/:id" element={<PrivateRoute><CustomerProfile /></PrivateRoute>} />
+        <Route path="/deals" element={<PrivateRoute><Deals /></PrivateRoute>} />
+        <Route path="/payments" element={<PrivateRoute><Payments /></PrivateRoute>} />
+        <Route path="/domains" element={<PrivateRoute><Domains /></PrivateRoute>} />
+        <Route path="/domain/:id" element={<PrivateRoute><DomainProfile /></PrivateRoute>} />
+        <Route path="/events" element={<PrivateRoute><Events /></PrivateRoute>} />
+        <Route path="/tasks" element={<PrivateRoute><Tasks /></PrivateRoute>} />
+        <Route path="/reports" element={<PrivateRoute><Reports /></PrivateRoute>} />
+        <Route path="/system-tester" element={<PrivateRoute><SystemTesterPage /></PrivateRoute>} />
+        <Route path="/birthday-events" element={<PrivateRoute><BirthdayEvents /></PrivateRoute>} />
+        <Route path="/therapy" element={<PrivateRoute><Therapy /></PrivateRoute>} />
+        <Route path="/basketball" element={<PrivateRoute><Basketball /></PrivateRoute>} />
+        <Route path="/school-workshops" element={<PrivateRoute><SchoolWorkshops /></PrivateRoute>} />
+        
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>
