@@ -15,6 +15,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { useLastAction } from '@/hooks/useLastAction';
 import { useContacts } from '@/hooks/useContacts';
+import { normalizePhone, validatePhone } from '@/lib/phoneUtils';
 
 interface WizardData {
   selectedDomains: string[];
@@ -142,6 +143,16 @@ export function SmartClientWizard({ isOpen, onClose }: SmartClientWizardProps) {
         toast.error('יש למלא מספר טלפון');
         return;
       }
+      // Validate phone number format
+      if (!validatePhone(wizardData.contactInfo.phone)) {
+        toast.error('מספר טלפון לא תקין - יש להזין מספר ישראלי (05X-XXXX-XXX)');
+        return;
+      }
+      // Validate parent phone if provided
+      if (wizardData.contactInfo.parentPhone && !validatePhone(wizardData.contactInfo.parentPhone)) {
+        toast.error('מספר טלפון הורה לא תקין - יש להזין מספר ישראלי (05X-XXXX-XXX)');
+        return;
+      }
     }
     if (currentStep < STEPS.length - 1) {
       setCurrentStep(currentStep + 1);
@@ -175,14 +186,28 @@ export function SmartClientWizard({ isOpen, onClose }: SmartClientWizardProps) {
         }
       }
 
+      // Normalize and validate phone numbers before insertion
+      const normalizedPhone = normalizePhone(wizardData.contactInfo.phone);
+      const normalizedParentPhone = wizardData.contactInfo.parentPhone 
+        ? normalizePhone(wizardData.contactInfo.parentPhone) 
+        : null;
+
+      // Final validation before database insert
+      if (!validatePhone(normalizedPhone)) {
+        throw new Error('מספר טלפון לא תקין');
+      }
+      if (normalizedParentPhone && !validatePhone(normalizedParentPhone)) {
+        throw new Error('מספר טלפון הורה לא תקין');
+      }
+
       // יצירת הלקוח
       const { data: newContact, error: contactError } = await supabase
         .from('contacts')
         .insert([{
           first_name: wizardData.contactInfo.firstName,
           last_name: wizardData.contactInfo.lastName,
-          phone: wizardData.contactInfo.phone,
-          phone_parent: wizardData.contactInfo.parentPhone,
+          phone: normalizedPhone,
+          phone_parent: normalizedParentPhone,
           email: wizardData.contactInfo.email ? wizardData.contactInfo.email.trim().toLowerCase() : null,
           child_name: wizardData.contactInfo.childName,
           role_tags: [],
