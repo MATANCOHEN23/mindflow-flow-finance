@@ -4,9 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { login, getSession } from "@/lib/auth";
+import { login, getSession, guestLogin } from "@/lib/auth";
 import { z } from "zod";
+import { User } from "lucide-react";
 
 const loginSchema = z.object({
   email: z.string().trim().email("כתובת אימייל לא תקינה").max(255, "האימייל ארוך מדי"),
@@ -17,6 +19,7 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [guestLoading, setGuestLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -80,6 +83,25 @@ export default function Login() {
     }
   };
 
+  const handleGuestAccess = async () => {
+    setGuestLoading(true);
+    
+    try {
+      await guestLogin();
+      toast.success("נכנסת כאורח! 🎉");
+      navigate("/dashboard");
+    } catch (error: any) {
+      console.error("Guest login error:", error);
+      if (error.message.includes("Anonymous sign-ins are disabled")) {
+        toast.error("כניסת אורחים לא זמינה כרגע");
+      } else {
+        toast.error("שגיאה בכניסה כאורח. נסה שוב.");
+      }
+    } finally {
+      setGuestLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-blue-50 to-orange-100 p-4" dir="rtl">
       <Card className="w-full max-w-md">
@@ -98,7 +120,7 @@ export default function Login() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                disabled={loading}
+                disabled={loading || guestLoading}
                 className="text-right"
               />
             </div>
@@ -111,7 +133,7 @@ export default function Login() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                disabled={loading}
+                disabled={loading || guestLoading}
                 className="text-right"
               />
             </div>
@@ -120,10 +142,29 @@ export default function Login() {
             <Button 
               type="submit" 
               className="w-full"
-              disabled={loading}
+              disabled={loading || guestLoading}
             >
               {loading ? "מתחבר..." : "התחבר"}
             </Button>
+            
+            <div className="relative w-full">
+              <Separator className="my-2" />
+              <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-muted-foreground">
+                או
+              </span>
+            </div>
+            
+            <Button 
+              type="button"
+              variant="outline"
+              className="w-full gap-2"
+              onClick={handleGuestAccess}
+              disabled={loading || guestLoading}
+            >
+              <User className="h-4 w-4" />
+              {guestLoading ? "נכנס..." : "כניסה כאורח (דמו)"}
+            </Button>
+            
             <p className="text-sm text-center text-muted-foreground">
               אין לך חשבון?{" "}
               <Link to="/register" className="text-primary hover:underline font-medium">

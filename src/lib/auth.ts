@@ -39,3 +39,9 @@ export const getSession = async () => {
   if (error) throw error;
   return session;
 };
+
+export const guestLogin = async () => {
+  const { data, error } = await supabase.auth.signInAnonymously();
+  if (error) throw error;
+  return data;
+};
