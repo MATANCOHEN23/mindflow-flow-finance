@@ -13,11 +13,11 @@ export function SidebarFooter() {
           className="w-10 h-10 rounded-lg flex items-center justify-center text-white text-sm font-bold"
           style={{ background: 'var(--cta)' }}
         >
-          א
+          🔒
         </div>
         <div>
-          <p className="font-semibold text-white text-sm">משתמש אורח</p>
-          <p className="text-white/70 text-xs">גישה פתוחה</p>
+          <p className="font-semibold text-white text-sm">מערכת פרטית</p>
+          <p className="text-white/70 text-xs">גישה מלאה</p>
         </div>
       </div>
     </UISidebarFooter>
