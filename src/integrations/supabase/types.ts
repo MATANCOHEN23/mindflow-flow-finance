@@ -14,6 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
+      athletes: {
+        Row: {
+          age: number
+          clinician_id: string
+          code_unique: string
+          context_notes: string | null
+          created_at: string
+          id: string
+          parent_contact_minimal: Json
+          sport: string | null
+          updated_at: string
+        }
+        Insert: {
+          age: number
+          clinician_id: string
+          code_unique: string
+          context_notes?: string | null
+          created_at?: string
+          id?: string
+          parent_contact_minimal?: Json
+          sport?: string | null
+          updated_at?: string
+        }
+        Update: {
+          age?: number
+          clinician_id?: string
+          code_unique?: string
+          context_notes?: string | null
+          created_at?: string
+          id?: string
+          parent_contact_minimal?: Json
+          sport?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      audit_log: {
+        Row: {
+          action: string
+          actor: string
+          id: string
+          payload_minimal: Json
+          timestamp: string
+        }
+        Insert: {
+          action: string
+          actor: string
+          id?: string
+          payload_minimal?: Json
+          timestamp?: string
+        }
+        Update: {
+          action?: string
+          actor?: string
+          id?: string
+          payload_minimal?: Json
+          timestamp?: string
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           color: string | null
@@ -49,6 +109,41 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      chunks: {
+        Row: {
+          chunk_text: string
+          clinician_id: string
+          created_at: string
+          id: string
+          metadata_json: Json
+          source_id: string
+        }
+        Insert: {
+          chunk_text: string
+          clinician_id: string
+          created_at?: string
+          id?: string
+          metadata_json?: Json
+          source_id: string
+        }
+        Update: {
+          chunk_text?: string
+          clinician_id?: string
+          created_at?: string
+          id?: string
+          metadata_json?: Json
+          source_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chunks_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "sources"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       contact_domains: {
         Row: {
@@ -368,6 +463,93 @@ export type Database = {
           },
         ]
       }
+      measure_results: {
+        Row: {
+          athlete_id: string
+          clinician_id: string
+          created_at: string
+          date: string
+          id: string
+          interpretation_text: string | null
+          measure_id: string
+          raw_scores_json: Json
+        }
+        Insert: {
+          athlete_id: string
+          clinician_id: string
+          created_at?: string
+          date: string
+          id?: string
+          interpretation_text?: string | null
+          measure_id: string
+          raw_scores_json?: Json
+        }
+        Update: {
+          athlete_id?: string
+          clinician_id?: string
+          created_at?: string
+          date?: string
+          id?: string
+          interpretation_text?: string | null
+          measure_id?: string
+          raw_scores_json?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "measure_results_athlete_id_fkey"
+            columns: ["athlete_id"]
+            isOneToOne: false
+            referencedRelation: "athletes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "measure_results_measure_id_fkey"
+            columns: ["measure_id"]
+            isOneToOne: false
+            referencedRelation: "measures"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      measures: {
+        Row: {
+          age_range: string | null
+          citations: string | null
+          clinician_id: string
+          created_at: string
+          id: string
+          licensing_notes: string | null
+          name: string
+          purpose: string | null
+          scoring_notes: string | null
+          updated_at: string
+        }
+        Insert: {
+          age_range?: string | null
+          citations?: string | null
+          clinician_id: string
+          created_at?: string
+          id?: string
+          licensing_notes?: string | null
+          name: string
+          purpose?: string | null
+          scoring_notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          age_range?: string | null
+          citations?: string | null
+          clinician_id?: string
+          created_at?: string
+          id?: string
+          licensing_notes?: string | null
+          name?: string
+          purpose?: string | null
+          scoring_notes?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       payments: {
         Row: {
           amount: number
@@ -476,6 +658,124 @@ export type Database = {
           },
         ]
       }
+      protocols: {
+        Row: {
+          athlete_id: string
+          clinician_id: string
+          created_at: string
+          generated_text_he: string
+          id: string
+          parent_message_he: string
+          selected_technique_ids: string[]
+          session_no: number
+          sources_used_json: Json
+          status: string
+        }
+        Insert: {
+          athlete_id: string
+          clinician_id: string
+          created_at?: string
+          generated_text_he: string
+          id?: string
+          parent_message_he: string
+          selected_technique_ids?: string[]
+          session_no: number
+          sources_used_json?: Json
+          status?: string
+        }
+        Update: {
+          athlete_id?: string
+          clinician_id?: string
+          created_at?: string
+          generated_text_he?: string
+          id?: string
+          parent_message_he?: string
+          selected_technique_ids?: string[]
+          session_no?: number
+          sources_used_json?: Json
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "protocols_athlete_id_fkey"
+            columns: ["athlete_id"]
+            isOneToOne: false
+            referencedRelation: "athletes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sessions: {
+        Row: {
+          athlete_id: string
+          clinician_id: string
+          created_at: string
+          date: string
+          goals_json: Json
+          homework_json: Json
+          id: string
+          notes: string | null
+          updated_at: string
+        }
+        Insert: {
+          athlete_id: string
+          clinician_id: string
+          created_at?: string
+          date: string
+          goals_json?: Json
+          homework_json?: Json
+          id?: string
+          notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          athlete_id?: string
+          clinician_id?: string
+          created_at?: string
+          date?: string
+          goals_json?: Json
+          homework_json?: Json
+          id?: string
+          notes?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sessions_athlete_id_fkey"
+            columns: ["athlete_id"]
+            isOneToOne: false
+            referencedRelation: "athletes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sources: {
+        Row: {
+          clinician_id: string
+          created_at: string
+          id: string
+          text: string
+          title: string
+          type: string
+        }
+        Insert: {
+          clinician_id: string
+          created_at?: string
+          id?: string
+          text: string
+          title: string
+          type: string
+        }
+        Update: {
+          clinician_id?: string
+          created_at?: string
+          id?: string
+          text?: string
+          title?: string
+          type?: string
+        }
+        Relationships: []
+      }
       tasks: {
         Row: {
           assigned_to: string | null
@@ -545,6 +845,57 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      techniques: {
+        Row: {
+          age_max: number | null
+          age_min: number | null
+          clinician_id: string
+          contraindications: string | null
+          created_at: string
+          evidence_level: string
+          homework: string | null
+          id: string
+          name: string
+          script_he: string | null
+          source_refs: Json
+          steps_json: Json
+          target_problem: string | null
+          updated_at: string
+        }
+        Insert: {
+          age_max?: number | null
+          age_min?: number | null
+          clinician_id: string
+          contraindications?: string | null
+          created_at?: string
+          evidence_level?: string
+          homework?: string | null
+          id?: string
+          name: string
+          script_he?: string | null
+          source_refs?: Json
+          steps_json?: Json
+          target_problem?: string | null
+          updated_at?: string
+        }
+        Update: {
+          age_max?: number | null
+          age_min?: number | null
+          clinician_id?: string
+          contraindications?: string | null
+          created_at?: string
+          evidence_level?: string
+          homework?: string | null
+          id?: string
+          name?: string
+          script_he?: string | null
+          source_refs?: Json
+          steps_json?: Json
+          target_problem?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {
