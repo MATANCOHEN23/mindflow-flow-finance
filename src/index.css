@@ -17,3 +17,50 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ========================================
+   Global Scroll & Accessibility
+   ======================================== */
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--muted) / 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary) / 0.5);
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary) / 0.7);
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--primary) / 0.5) hsl(var(--muted) / 0.3);
+}
+
+/* Touch feedback for mobile */
+@media (hover: none) {
+  .touch-feedback {
+    transition: transform 0.1s ease, background-color 0.1s ease;
+  }
+  
+  .touch-feedback:active {
+    transform: scale(0.97);
+    background-color: hsl(var(--muted) / 0.2);
+  }
+}

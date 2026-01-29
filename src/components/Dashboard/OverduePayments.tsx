@@ -1,3 +1,5 @@
+import { openWhatsApp, getPaymentReminderMessage, sendBulkReminders } from '@/lib/whatsapp';
+import { toast } from 'sonner';
 
 interface OverduePayment {
   id: string;
@@ -7,6 +9,7 @@ interface OverduePayment {
   amountPaid: number;
   daysOverdue: number;
   paymentStatus: '✅' | '🟧' | '❌';
+  phone?: string; // Added for WhatsApp functionality
 }
 
 const overduePayments: OverduePayment[] = [
@@ -17,7 +20,8 @@ const overduePayments: OverduePayment[] = [
     amountTotal: 1200,
     amountPaid: 0,
     daysOverdue: 5,
-    paymentStatus: '❌'
+    paymentStatus: '❌',
+    phone: '050-1234567'
   },
   {
     id: '2',
@@ -26,7 +30,8 @@ const overduePayments: OverduePayment[] = [
     amountTotal: 800,
     amountPaid: 400,
     daysOverdue: 12,
-    paymentStatus: '🟧'
+    paymentStatus: '🟧',
+    phone: '052-9876543'
   },
   {
     id: '3',
@@ -35,7 +40,8 @@ const overduePayments: OverduePayment[] = [
     amountTotal: 2500,
     amountPaid: 0,
     daysOverdue: 3,
-    paymentStatus: '❌'
+    paymentStatus: '❌',
+    phone: '054-5556677'
   },
   {
     id: '4',
@@ -44,7 +50,8 @@ const overduePayments: OverduePayment[] = [
     amountTotal: 1800,
     amountPaid: 900,
     daysOverdue: 8,
-    paymentStatus: '🟧'
+    paymentStatus: '🟧',
+    phone: '053-1112233'
   },
 ];
 
@@ -56,6 +63,37 @@ export function OverduePayments() {
       case '❌': return 'trend-negative';
       default: return 'trend-negative';
     }
+  };
+
+  const handleSendReminder = (payment: OverduePayment) => {
+    if (!payment.phone) {
+      toast.error('אין מספר טלפון ללקוח זה');
+      return;
+    }
+    
+    const pendingAmount = payment.amountTotal - payment.amountPaid;
+    const message = getPaymentReminderMessage(payment.clientName, pendingAmount, payment.category);
+    openWhatsApp(payment.phone, message);
+    toast.success(`נפתח WhatsApp עבור ${payment.clientName} 📱`);
+  };
+
+  const handleSendAllReminders = () => {
+    const paymentsWithPhone = overduePayments
+      .filter(p => p.phone && p.paymentStatus !== '✅')
+      .map(p => ({
+        clientName: p.clientName,
+        phone: p.phone!,
+        amount: p.amountTotal - p.amountPaid,
+        category: p.category
+      }));
+    
+    if (paymentsWithPhone.length === 0) {
+      toast.error('אין תשלומים לשליחה');
+      return;
+    }
+    
+    sendBulkReminders(paymentsWithPhone);
+    toast.success(`נשלחות ${paymentsWithPhone.length} תזכורות WhatsApp 🚀`);
   };
 
   return (
@@ -77,6 +115,15 @@ export function OverduePayments() {
                   {payment.paymentStatus} {payment.paymentStatus === '✅' ? 'שולם' : 
                    payment.paymentStatus === '🟧' ? 'תשלום חלקי' : 'ממתין תשלום'}
                 </span>
+                {payment.phone && (
+                  <button
+                    onClick={() => handleSendReminder(payment)}
+                    className="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-full text-sm font-bold transition-colors"
+                    title="שלח תזכורת WhatsApp"
+                  >
+                    📱
+                  </button>
+                )}
               </div>
               <p className="text-cream/90 font-bold text-base">{payment.category}</p>
             </div>
@@ -95,12 +142,13 @@ export function OverduePayments() {
       
       <div className="mt-6 pt-6 border-t-2 border-gold/50">
         <button 
+          onClick={handleSendAllReminders}
           className="w-full btn-flyer py-4 px-6 rounded-xl font-black text-lg transition-all duration-300"
           aria-label="שלח תזכורות WhatsApp"
           tabIndex={0}
-          onKeyPress={(e) => e.key === 'Enter' && e.currentTarget.click()}
+          onKeyPress={(e) => e.key === 'Enter' && handleSendAllReminders()}
         >
-          📱 שלח תזכורות WhatsApp
+          📱 שלח תזכורות WhatsApp ({overduePayments.filter(p => p.paymentStatus !== '✅').length})
         </button>
       </div>
     </div>
