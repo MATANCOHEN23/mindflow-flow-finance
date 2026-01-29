@@ -27,11 +27,13 @@ import {
   Edit,
   Trash2,
   Plus,
-  MapPin
+  MapPin,
+  MessageCircle
 } from 'lucide-react';
 import { useState } from 'react';
 import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
+import { openWhatsApp, getGeneralContactMessage } from '@/lib/whatsapp';
 
 export default function CustomerProfile() {
   const { id } = useParams<{ id: string }>();
@@ -152,12 +154,26 @@ export default function CustomerProfile() {
                   <div className="flex items-center gap-2">
                     <Phone className="w-4 h-4 text-muted-foreground" />
                     <span>{contact.phone}</span>
+                    <button
+                      onClick={() => openWhatsApp(contact.phone!, getGeneralContactMessage(contact.first_name))}
+                      className="p-1 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white transition-colors"
+                      title="שלח הודעת WhatsApp"
+                    >
+                      <MessageCircle className="w-3 h-3" />
+                    </button>
                   </div>
                 )}
                 {contact.phone_parent && (
                   <div className="flex items-center gap-2">
                     <Phone className="w-4 h-4 text-muted-foreground" />
                     <span>הורה: {contact.phone_parent}</span>
+                    <button
+                      onClick={() => openWhatsApp(contact.phone_parent!, getGeneralContactMessage(contact.first_name))}
+                      className="p-1 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white transition-colors"
+                      title="שלח הודעת WhatsApp להורה"
+                    >
+                      <MessageCircle className="w-3 h-3" />
+                    </button>
                   </div>
                 )}
                 {contact.email && (
