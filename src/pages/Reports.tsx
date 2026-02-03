@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -20,57 +20,134 @@ import {
   EVENT_COLUMNS
 } from '@/lib/export/excelExporter';
 import { toast } from 'sonner';
+import { FilterBuilder } from '@/components/common/FilterBuilder';
+import { useDynamicFilter, FieldDefinition } from '@/hooks/useDynamicFilter';
+
+// Field definitions for each entity type
+const CONTACT_FIELDS: FieldDefinition[] = [
+  { key: 'first_name', label: 'שם פרטי', type: 'text' },
+  { key: 'last_name', label: 'שם משפחה', type: 'text' },
+  { key: 'email', label: 'אימייל', type: 'text' },
+  { key: 'phone_parent', label: 'טלפון הורה', type: 'text' },
+  { key: 'child_name', label: 'שם ילד', type: 'text' },
+  { key: 'notes', label: 'הערות', type: 'text' },
+];
+
+const DEAL_FIELDS: FieldDefinition[] = [
+  { key: 'title', label: 'כותרת', type: 'text' },
+  { key: 'amount_total', label: 'סכום כולל', type: 'number' },
+  { key: 'amount_paid', label: 'סכום ששולם', type: 'number' },
+  { key: 'workflow_stage', label: 'שלב', type: 'select', options: [
+    { value: 'lead', label: 'ליד' },
+    { value: 'qualified', label: 'מתעניין' },
+    { value: 'proposal', label: 'הצעה' },
+    { value: 'negotiation', label: 'משא ומתן' },
+    { value: 'closed_won', label: 'נסגר בהצלחה' },
+    { value: 'closed_lost', label: 'נסגר ללא הצלחה' },
+  ]},
+  { key: 'payment_status', label: 'סטטוס תשלום', type: 'select', options: [
+    { value: 'pending', label: 'ממתין' },
+    { value: 'partial', label: 'חלקי' },
+    { value: 'paid', label: 'שולם' },
+  ]},
+];
+
+const PAYMENT_FIELDS: FieldDefinition[] = [
+  { key: 'amount', label: 'סכום', type: 'number' },
+  { key: 'status', label: 'סטטוס', type: 'select', options: [
+    { value: 'pending', label: 'ממתין' },
+    { value: 'paid', label: 'שולם' },
+    { value: 'overdue', label: 'באיחור' },
+  ]},
+  { key: 'payment_method', label: 'אמצעי תשלום', type: 'select', options: [
+    { value: 'cash', label: 'מזומן' },
+    { value: 'credit', label: 'אשראי' },
+    { value: 'transfer', label: 'העברה' },
+    { value: 'check', label: 'המחאה' },
+  ]},
+  { key: 'notes', label: 'הערות', type: 'text' },
+];
+
+const EVENT_FIELDS: FieldDefinition[] = [
+  { key: 'title', label: 'כותרת', type: 'text' },
+  { key: 'location', label: 'מיקום', type: 'text' },
+  { key: 'status', label: 'סטטוס', type: 'select', options: [
+    { value: 'scheduled', label: 'מתוכנן' },
+    { value: 'completed', label: 'הושלם' },
+    { value: 'cancelled', label: 'בוטל' },
+  ]},
+  { key: 'participants_count', label: 'מספר משתתפים', type: 'number' },
+];
 
 export default function Reports() {
   const [reportType, setReportType] = useState('revenue');
   const [dateRange, setDateRange] = useState('month');
-  const [exportEntity, setExportEntity] = useState('contacts');
+  const [exportEntity, setExportEntity] = useState<'contacts' | 'deals' | 'payments' | 'events'>('contacts');
   
   const { data: contacts = [] } = useContacts();
   const { data: deals = [] } = useDeals();
   const { data: payments = [] } = usePayments();
   const { data: events = [] } = useEvents();
 
+  // Get current field definitions based on selected entity
+  const currentFieldDefinitions = useMemo(() => {
+    switch (exportEntity) {
+      case 'contacts': return CONTACT_FIELDS;
+      case 'deals': return DEAL_FIELDS;
+      case 'payments': return PAYMENT_FIELDS;
+      case 'events': return EVENT_FIELDS;
+      default: return CONTACT_FIELDS;
+    }
+  }, [exportEntity]);
+
+  // Get current raw data based on selected entity
+  const currentRawData = useMemo(() => {
+    switch (exportEntity) {
+      case 'contacts': return contacts;
+      case 'deals': return deals.map((deal: any) => ({
+        ...deal,
+        contact_name: deal.contacts 
+          ? `${deal.contacts.first_name || ''} ${deal.contacts.last_name || ''}`.trim()
+          : 'לא משויך'
+      }));
+      case 'payments': return payments.map((payment: any) => ({
+        ...payment,
+        contact_name: payment.contact 
+          ? `${payment.contact.first_name || ''} ${payment.contact.last_name || ''}`.trim()
+          : 'לא משויך',
+        deal_title: payment.deals?.title || 'לא משויך'
+      }));
+      case 'events': return events;
+      default: return [];
+    }
+  }, [exportEntity, contacts, deals, payments, events]);
+
+  // Use dynamic filter hook
+  const filter = useDynamicFilter(currentRawData, currentFieldDefinitions);
+
   const handleExportExcel = () => {
-    let data: any[] = [];
+    const data = filter.filteredData;
     let columns;
     let filename = '';
     let sheetName = '';
 
     switch (exportEntity) {
       case 'contacts':
-        data = contacts;
         columns = CONTACT_COLUMNS;
         filename = 'לקוחות';
         sheetName = 'לקוחות';
         break;
       case 'deals':
-        // Add contact name to deals
-        data = deals.map((deal: any) => ({
-          ...deal,
-          contact_name: deal.contacts 
-            ? `${deal.contacts.first_name || ''} ${deal.contacts.last_name || ''}`.trim()
-            : 'לא משויך'
-        }));
         columns = DEAL_COLUMNS;
         filename = 'עסקאות';
         sheetName = 'עסקאות';
         break;
       case 'payments':
-        // Add contact and deal info to payments
-        data = payments.map((payment: any) => ({
-          ...payment,
-          contact_name: payment.contact 
-            ? `${payment.contact.first_name || ''} ${payment.contact.last_name || ''}`.trim()
-            : 'לא משויך',
-          deal_title: payment.deals?.title || 'לא משויך'
-        }));
         columns = PAYMENT_COLUMNS;
         filename = 'תשלומים';
         sheetName = 'תשלומים';
         break;
       case 'events':
-        data = events;
         columns = EVENT_COLUMNS;
         filename = 'אירועים';
         sheetName = 'אירועים';
@@ -85,44 +162,33 @@ export default function Reports() {
       return;
     }
 
+    if (filter.hasActiveFilters) {
+      filename += '_מסונן';
+    }
+
     exportToExcel(data, { filename, sheetName, columns });
-    toast.success(`📊 הקובץ ${filename} הורד בהצלחה!`);
+    toast.success(`📊 הקובץ ${filename} הורד בהצלחה! (${data.length} רשומות)`);
   };
 
   const handleExportCSV = () => {
-    let data: any[] = [];
+    const data = filter.filteredData;
     let columns;
     let filename = '';
 
     switch (exportEntity) {
       case 'contacts':
-        data = contacts;
         columns = CONTACT_COLUMNS;
         filename = 'לקוחות';
         break;
       case 'deals':
-        data = deals.map((deal: any) => ({
-          ...deal,
-          contact_name: deal.contacts 
-            ? `${deal.contacts.first_name || ''} ${deal.contacts.last_name || ''}`.trim()
-            : 'לא משויך'
-        }));
         columns = DEAL_COLUMNS;
         filename = 'עסקאות';
         break;
       case 'payments':
-        data = payments.map((payment: any) => ({
-          ...payment,
-          contact_name: payment.contact 
-            ? `${payment.contact.first_name || ''} ${payment.contact.last_name || ''}`.trim()
-            : 'לא משויך',
-          deal_title: payment.deals?.title || 'לא משויך'
-        }));
         columns = PAYMENT_COLUMNS;
         filename = 'תשלומים';
         break;
       case 'events':
-        data = events;
         columns = EVENT_COLUMNS;
         filename = 'אירועים';
         break;
@@ -136,8 +202,12 @@ export default function Reports() {
       return;
     }
 
+    if (filter.hasActiveFilters) {
+      filename += '_מסונן';
+    }
+
     exportToCSV(data, { filename, columns });
-    toast.success(`📄 הקובץ ${filename} הורד בהצלחה!`);
+    toast.success(`📄 הקובץ ${filename} הורד בהצלחה! (${data.length} רשומות)`);
   };
 
   return (
@@ -164,7 +234,7 @@ export default function Reports() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="text-sm font-bold mb-2 block">בחר נתונים לייצוא</label>
-              <Select value={exportEntity} onValueChange={setExportEntity}>
+              <Select value={exportEntity} onValueChange={(v) => setExportEntity(v as 'contacts' | 'deals' | 'payments' | 'events')}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -189,16 +259,33 @@ export default function Reports() {
             <div className="flex items-end">
               <p className="text-sm text-muted-foreground">
                 סה"כ: <span className="font-bold text-foreground">
-                  {exportEntity === 'contacts' ? contacts.length :
-                   exportEntity === 'deals' ? deals.length :
-                   exportEntity === 'payments' ? payments.length :
-                   events.length} רשומות
+                  {filter.filteredData.length} מתוך {currentRawData.length} רשומות
                 </span>
+                {filter.hasActiveFilters && (
+                  <span className="text-primary mr-1">(מסונן)</span>
+                )}
               </p>
             </div>
           </div>
         </CardContent>
       </Card>
+
+      {/* Filter Builder */}
+      <FilterBuilder
+        conditions={filter.conditions}
+        combinator={filter.combinator}
+        fieldDefinitions={currentFieldDefinitions}
+        savedTemplates={filter.savedTemplates}
+        onAddCondition={filter.addCondition}
+        onUpdateCondition={filter.updateCondition}
+        onRemoveCondition={filter.removeCondition}
+        onClearConditions={filter.clearConditions}
+        onSetCombinator={filter.setCombinator}
+        onSaveTemplate={filter.saveAsTemplate}
+        onLoadTemplate={filter.loadTemplate}
+        onDeleteTemplate={filter.deleteTemplate}
+        resultCount={filter.filteredData.length}
+      />
 
       {/* Reports Section */}
       <Card className="premium-card">
