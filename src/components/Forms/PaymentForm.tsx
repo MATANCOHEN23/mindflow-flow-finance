@@ -27,12 +27,19 @@ export function PaymentForm({ isOpen, onClose, payment }: PaymentFormProps) {
   const updatePayment = useUpdatePayment();
 
   const [paymentType, setPaymentType] = useState<"deal" | "direct">("deal");
+  // Default due_date: today + 30 days
+  const getDefaultDueDate = () => {
+    const date = new Date();
+    date.setDate(date.getDate() + 30);
+    return format(date, 'yyyy-MM-dd');
+  };
+
   const [formData, setFormData] = useState({
     deal_id: "",
     contact_id: "",
     amount: "",
     payment_date: format(new Date(), 'yyyy-MM-dd'),
-    due_date: "",
+    due_date: getDefaultDueDate(),
     payment_method: "",
     status: "pending" as "pending" | "paid" | "overdue",
     is_deposit: false,
@@ -87,6 +94,12 @@ export function PaymentForm({ isOpen, onClose, payment }: PaymentFormProps) {
 
     if (paymentType === "direct" && !formData.contact_id) {
       toast.error("❌ יש לבחור לקוח");
+      return;
+    }
+
+    // ולידציה - תאריך לתשלום חובה
+    if (!formData.due_date) {
+      toast.error("❌ יש להזין תאריך יעד לתשלום");
       return;
     }
 
@@ -289,13 +302,17 @@ export function PaymentForm({ isOpen, onClose, payment }: PaymentFormProps) {
           </div>
 
           <div>
-            <Label htmlFor="due_date">תאריך לתשלום</Label>
+            <Label htmlFor="due_date">תאריך יעד לתשלום *</Label>
             <Input
               id="due_date"
               type="date"
+              required
               value={formData.due_date}
               onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
             />
+            <p className="text-xs text-muted-foreground mt-1">
+              ברירת מחדל: 30 יום מהיום
+            </p>
           </div>
 
           <div>
