@@ -43,6 +43,12 @@ export const NewDealForm: React.FC<NewDealFormProps> = ({ isOpen, onClose }) => 
   ];
 
   const onSubmit = async (data: DealFormData) => {
+    // ולידציה - חובה לבחור לקוח
+    if (!data.contact_id) {
+      toast.error('❌ יש לבחור לקוח לעסקה');
+      return;
+    }
+
     setIsLoading(true);
     try {
       const selectedCategory = categories.find(c => c.id === data.category_id);

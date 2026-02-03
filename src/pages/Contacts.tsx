@@ -5,29 +5,46 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { MainLayout } from "@/components/Layout/MainLayout";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { NewContactForm } from "@/components/Forms/NewContactForm";
 import { DeleteConfirmModal } from "@/components/DeleteConfirmModal";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { useContacts, useDeleteContact } from "@/hooks/useContacts";
 import { useContactDomains } from "@/hooks/useDomains";
-import { Edit, Trash2, Phone, Mail } from "lucide-react";
+import { Edit, Trash2, Phone, Mail, Filter } from "lucide-react";
 import { Contact } from "@/types/database";
 import { Link } from "react-router-dom";
 import { useBulkSelection } from "@/hooks/useBulkSelection";
 import { BulkActionsToolbar } from "@/components/common/BulkActionsToolbar";
+import { FilterBuilder } from "@/components/common/FilterBuilder";
+import { useDynamicFilter, FieldDefinition } from "@/hooks/useDynamicFilter";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+
+// Field definitions for contacts filter
+const CONTACT_FILTER_FIELDS: FieldDefinition[] = [
+  { key: 'first_name', label: 'שם פרטי', type: 'text' },
+  { key: 'last_name', label: 'שם משפחה', type: 'text' },
+  { key: 'email', label: 'אימייל', type: 'text' },
+  { key: 'phone_parent', label: 'טלפון הורה', type: 'text' },
+  { key: 'child_name', label: 'שם ילד', type: 'text' },
+  { key: 'notes', label: 'הערות', type: 'text' },
+];
 
 const Contacts = () => {
   const [isContactFormOpen, setIsContactFormOpen] = useState(false);
   const [deleteContact, setDeleteContact] = useState<Contact | null>(null);
   const [isBulkDeleting, setIsBulkDeleting] = useState(false);
+  const [showFilter, setShowFilter] = useState(false);
   
   const { data: contacts, isLoading, error } = useContacts();
   const deleteContactMutation = useDeleteContact();
   
-  const bulkSelection = useBulkSelection(contacts || []);
+  // Dynamic filter
+  const filter = useDynamicFilter(contacts || [], CONTACT_FILTER_FIELDS);
+  
+  // Use filtered data for bulk selection
+  const bulkSelection = useBulkSelection(filter.filteredData || []);
 
   const handleAddClient = () => {
     setIsContactFormOpen(true);
@@ -94,23 +111,52 @@ const Contacts = () => {
             <div>
               <h1 className="text-3xl font-bold text-white mb-2 glow-text">👥 ניהול לקוחות</h1>
               <p className="text-white/90 text-lg">
-                {contacts ? `${contacts.length} לקוחות במערכת` : 'טוען נתונים...'}
+                {filter.filteredData.length} מתוך {contacts?.length || 0} לקוחות
+                {filter.hasActiveFilters && <span className="mr-2">(מסונן)</span>}
               </p>
             </div>
-            <Button 
-              className="cta font-semibold px-6 py-3" 
-              onClick={handleAddClient}
-              disabled={isLoading}
-            >
-              ➕ הוסף לקוח חדש
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                variant={showFilter ? "secondary" : "outline"}
+                onClick={() => setShowFilter(!showFilter)}
+                className="font-semibold"
+              >
+                <Filter className="h-4 w-4 ml-2" />
+                סינון מתקדם
+              </Button>
+              <Button 
+                className="cta font-semibold px-6 py-3" 
+                onClick={handleAddClient}
+                disabled={isLoading}
+              >
+                ➕ הוסף לקוח חדש
+              </Button>
+            </div>
           </div>
         </div>
 
+        {/* Filter Builder */}
+        {showFilter && (
+          <FilterBuilder
+            conditions={filter.conditions}
+            combinator={filter.combinator}
+            fieldDefinitions={CONTACT_FILTER_FIELDS}
+            savedTemplates={filter.savedTemplates}
+            onAddCondition={filter.addCondition}
+            onUpdateCondition={filter.updateCondition}
+            onRemoveCondition={filter.removeCondition}
+            onClearConditions={filter.clearConditions}
+            onSetCombinator={filter.setCombinator}
+            onSaveTemplate={filter.saveAsTemplate}
+            onLoadTemplate={filter.loadTemplate}
+            onDeleteTemplate={filter.deleteTemplate}
+            resultCount={filter.filteredData.length}
+          />
+        )}
         <Card className="card p-0">
           <CardHeader className="brand-card-header">
             <CardTitle className="text-xl font-bold text-blue-600 text-center">
-              רשימת לקוחות
+              רשימת לקוחות ({filter.filteredData.length})
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
@@ -138,31 +184,44 @@ const Contacts = () => {
                 <TableBody>
                   {isLoading ? (
                     <TableRow>
-                      <TableCell colSpan={8} className="py-16">
+                      <TableCell colSpan={10} className="py-16">
                         <LoadingSpinner size="lg" className="justify-center" />
                         <p className="text-center mt-4 text-lg">טוען נתונים...</p>
                       </TableCell>
                     </TableRow>
-                  ) : !contacts || contacts.length === 0 ? (
+                  ) : filter.filteredData.length === 0 ? (
                     <TableRow className="table-row">
-                      <TableCell colSpan={9} className="py-16">
+                      <TableCell colSpan={10} className="py-16">
                         <div className="empty-state">
                           <div className="text-6xl mb-4">👥</div>
-                          <h3 className="text-2xl font-bold text-blue-600 mb-3">אין לקוחות במערכת</h3>
+                          <h3 className="text-2xl font-bold text-blue-600 mb-3">
+                            {filter.hasActiveFilters ? 'אין תוצאות לסינון' : 'אין לקוחות במערכת'}
+                          </h3>
                           <p className="text-lg text-gray-600 mb-6">
-                            לחץ על "הוסף לקוח חדש" כדי להתחיל
+                            {filter.hasActiveFilters 
+                              ? 'נסה לשנות את תנאי הסינון' 
+                              : 'לחץ על "הוסף לקוח חדש" כדי להתחיל'}
                           </p>
-                          <Button 
-                            className="cta text-lg px-8 py-3" 
-                            onClick={handleAddClient}
-                          >
-                            ➕ הוסף לקוח ראשון
-                          </Button>
+                          {filter.hasActiveFilters ? (
+                            <Button 
+                              variant="outline"
+                              onClick={filter.clearConditions}
+                            >
+                              🗑️ נקה סינון
+                            </Button>
+                          ) : (
+                            <Button 
+                              className="cta text-lg px-8 py-3" 
+                              onClick={handleAddClient}
+                            >
+                              ➕ הוסף לקוח ראשון
+                            </Button>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>
                   ) : (
-                    contacts.map((contact) => (
+                    filter.filteredData.map((contact) => (
                       <ContactRow 
                         key={contact.id} 
                         contact={contact} 
