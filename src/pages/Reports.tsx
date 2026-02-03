@@ -6,7 +6,7 @@ import { RevenueByDomainChart } from '@/components/Reports/RevenueByDomainChart'
 import { ClientGrowthChart } from '@/components/Reports/ClientGrowthChart';
 import { OverduePaymentsChart } from '@/components/Reports/OverduePaymentsChart';
 import { MainLayout } from '@/components/Layout/MainLayout';
-import { Download, FileSpreadsheet, Table } from 'lucide-react';
+import { Eye, FileSpreadsheet, Table } from 'lucide-react';
 import { useContacts } from '@/hooks/useContacts';
 import { useDeals } from '@/hooks/useDeals';
 import { usePayments } from '@/hooks/usePayments';
@@ -22,6 +22,7 @@ import {
 import { toast } from 'sonner';
 import { FilterBuilder } from '@/components/common/FilterBuilder';
 import { useDynamicFilter, FieldDefinition } from '@/hooks/useDynamicFilter';
+import { DataPreviewModal } from '@/components/Export/DataPreviewModal';
 
 // Field definitions for each entity type
 const CONTACT_FIELDS: FieldDefinition[] = [
@@ -83,6 +84,7 @@ export default function Reports() {
   const [reportType, setReportType] = useState('revenue');
   const [dateRange, setDateRange] = useState('month');
   const [exportEntity, setExportEntity] = useState<'contacts' | 'deals' | 'payments' | 'events'>('contacts');
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   
   const { data: contacts = [] } = useContacts();
   const { data: deals = [] } = useDeals();
@@ -125,42 +127,37 @@ export default function Reports() {
   // Use dynamic filter hook
   const filter = useDynamicFilter(currentRawData, currentFieldDefinitions);
 
-  const handleExportExcel = () => {
-    const data = filter.filteredData;
-    let columns;
-    let filename = '';
-    let sheetName = '';
-
+  // Get current columns for export
+  const currentColumns = useMemo(() => {
     switch (exportEntity) {
-      case 'contacts':
-        columns = CONTACT_COLUMNS;
-        filename = 'לקוחות';
-        sheetName = 'לקוחות';
-        break;
-      case 'deals':
-        columns = DEAL_COLUMNS;
-        filename = 'עסקאות';
-        sheetName = 'עסקאות';
-        break;
-      case 'payments':
-        columns = PAYMENT_COLUMNS;
-        filename = 'תשלומים';
-        sheetName = 'תשלומים';
-        break;
-      case 'events':
-        columns = EVENT_COLUMNS;
-        filename = 'אירועים';
-        sheetName = 'אירועים';
-        break;
-      default:
-        toast.error('בחר סוג נתונים לייצוא');
-        return;
+      case 'contacts': return CONTACT_COLUMNS;
+      case 'deals': return DEAL_COLUMNS;
+      case 'payments': return PAYMENT_COLUMNS;
+      case 'events': return EVENT_COLUMNS;
+      default: return CONTACT_COLUMNS;
     }
+  }, [exportEntity]);
 
-    if (data.length === 0) {
+  const entityNames: Record<string, string> = {
+    contacts: 'לקוחות',
+    deals: 'עסקאות',
+    payments: 'תשלומים',
+    events: 'אירועים'
+  };
+
+  const handleOpenPreview = () => {
+    if (filter.filteredData.length === 0) {
       toast.error('אין נתונים לייצוא');
       return;
     }
+    setIsPreviewOpen(true);
+  };
+
+  const handleExportExcel = (selectedColumnKeys: string[]) => {
+    const data = filter.filteredData;
+    const columns = currentColumns.filter(col => selectedColumnKeys.includes(col.key));
+    let filename = entityNames[exportEntity] || 'נתונים';
+    const sheetName = filename;
 
     if (filter.hasActiveFilters) {
       filename += '_מסונן';
@@ -170,37 +167,10 @@ export default function Reports() {
     toast.success(`📊 הקובץ ${filename} הורד בהצלחה! (${data.length} רשומות)`);
   };
 
-  const handleExportCSV = () => {
+  const handleExportCSV = (selectedColumnKeys: string[]) => {
     const data = filter.filteredData;
-    let columns;
-    let filename = '';
-
-    switch (exportEntity) {
-      case 'contacts':
-        columns = CONTACT_COLUMNS;
-        filename = 'לקוחות';
-        break;
-      case 'deals':
-        columns = DEAL_COLUMNS;
-        filename = 'עסקאות';
-        break;
-      case 'payments':
-        columns = PAYMENT_COLUMNS;
-        filename = 'תשלומים';
-        break;
-      case 'events':
-        columns = EVENT_COLUMNS;
-        filename = 'אירועים';
-        break;
-      default:
-        toast.error('בחר סוג נתונים לייצוא');
-        return;
-    }
-
-    if (data.length === 0) {
-      toast.error('אין נתונים לייצוא');
-      return;
-    }
+    const columns = currentColumns.filter(col => selectedColumnKeys.includes(col.key));
+    let filename = entityNames[exportEntity] || 'נתונים';
 
     if (filter.hasActiveFilters) {
       filename += '_מסונן';
@@ -247,13 +217,9 @@ export default function Reports() {
               </Select>
             </div>
             <div className="flex items-end gap-2">
-              <Button onClick={handleExportExcel} className="btn-premium gap-2 flex-1">
-                <Download className="w-4 h-4" />
-                ייצא Excel
-              </Button>
-              <Button onClick={handleExportCSV} variant="outline" className="gap-2 flex-1">
-                <Table className="w-4 h-4" />
-                ייצא CSV
+              <Button onClick={handleOpenPreview} className="btn-premium gap-2 flex-1">
+                <Eye className="w-4 h-4" />
+                תצוגה מקדימה וייצוא
               </Button>
             </div>
             <div className="flex items-end">
@@ -345,6 +311,17 @@ export default function Reports() {
           </CardContent>
         </Card>
       )}
+
+      {/* Data Preview Modal */}
+      <DataPreviewModal
+        isOpen={isPreviewOpen}
+        onClose={() => setIsPreviewOpen(false)}
+        data={filter.filteredData}
+        columns={currentColumns}
+        entityName={entityNames[exportEntity]}
+        onExportExcel={handleExportExcel}
+        onExportCSV={handleExportCSV}
+      />
       </div>
     </MainLayout>
   );
