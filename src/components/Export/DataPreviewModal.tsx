@@ -5,7 +5,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { Download, FileSpreadsheet, Table as TableIcon, Eye } from 'lucide-react';
+import { FileSpreadsheet, Table as TableIcon, Eye } from 'lucide-react';
+import { ExportColumn } from '@/lib/export/excelExporter';
 
 interface ColumnConfig {
   key: string;
@@ -17,7 +18,7 @@ interface DataPreviewModalProps {
   isOpen: boolean;
   onClose: () => void;
   data: any[];
-  columns: { key: string; label: string }[];
+  columns: ExportColumn[];
   entityName: string;
   onExportExcel: (selectedColumns: string[]) => void;
   onExportCSV: (selectedColumns: string[]) => void;
@@ -33,12 +34,12 @@ export function DataPreviewModal({
   onExportCSV,
 }: DataPreviewModalProps) {
   const [columnConfig, setColumnConfig] = useState<ColumnConfig[]>(() =>
-    columns.map(col => ({ ...col, selected: true }))
+    columns.map(col => ({ key: col.key, label: col.header, selected: true }))
   );
 
   // Update column config when columns prop changes
   React.useEffect(() => {
-    setColumnConfig(columns.map(col => ({ ...col, selected: true })));
+    setColumnConfig(columns.map(col => ({ key: col.key, label: col.header, selected: true })));
   }, [columns]);
 
   const selectedColumns = useMemo(() => 
