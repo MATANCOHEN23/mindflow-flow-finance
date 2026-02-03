@@ -1,61 +1,11 @@
 import { openWhatsApp, getPaymentReminderMessage, sendBulkReminders } from '@/lib/whatsapp';
 import { toast } from 'sonner';
-
-interface OverduePayment {
-  id: string;
-  clientName: string;
-  category: string;
-  amountTotal: number;
-  amountPaid: number;
-  daysOverdue: number;
-  paymentStatus: '✅' | '🟧' | '❌';
-  phone?: string; // Added for WhatsApp functionality
-}
-
-const overduePayments: OverduePayment[] = [
-  {
-    id: '1',
-    clientName: 'משה כהן',
-    category: '🏀 אימון כדורסל',
-    amountTotal: 1200,
-    amountPaid: 0,
-    daysOverdue: 5,
-    paymentStatus: '❌',
-    phone: '050-1234567'
-  },
-  {
-    id: '2',
-    clientName: 'שרה לוי',
-    category: '🧠 טיפול',
-    amountTotal: 800,
-    amountPaid: 400,
-    daysOverdue: 12,
-    paymentStatus: '🟧',
-    phone: '052-9876543'
-  },
-  {
-    id: '3',
-    clientName: 'דוד אברהם',
-    category: '🎂 יום הולדת',
-    amountTotal: 2500,
-    amountPaid: 0,
-    daysOverdue: 3,
-    paymentStatus: '❌',
-    phone: '054-5556677'
-  },
-  {
-    id: '4',
-    clientName: 'בית ספר השלום',
-    category: '🎓 סדנה',
-    amountTotal: 1800,
-    amountPaid: 900,
-    daysOverdue: 8,
-    paymentStatus: '🟧',
-    phone: '053-1112233'
-  },
-];
+import { useOverduePayments } from '@/hooks/useOverduePayments';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 export function OverduePayments() {
+  const { data: overduePayments = [], isLoading, error } = useOverduePayments();
+
   const getStatusClass = (status: string) => {
     switch (status) {
       case '✅': return 'trend-positive';
@@ -65,25 +15,24 @@ export function OverduePayments() {
     }
   };
 
-  const handleSendReminder = (payment: OverduePayment) => {
-    if (!payment.phone) {
+  const handleSendReminder = (payment: typeof overduePayments[0]) => {
+    if (!payment.clientPhone) {
       toast.error('אין מספר טלפון ללקוח זה');
       return;
     }
     
-    const pendingAmount = payment.amountTotal - payment.amountPaid;
-    const message = getPaymentReminderMessage(payment.clientName, pendingAmount, payment.category);
-    openWhatsApp(payment.phone, message);
+    const message = getPaymentReminderMessage(payment.clientName, payment.amountPending, payment.category);
+    openWhatsApp(payment.clientPhone, message);
     toast.success(`נפתח WhatsApp עבור ${payment.clientName} 📱`);
   };
 
   const handleSendAllReminders = () => {
     const paymentsWithPhone = overduePayments
-      .filter(p => p.phone && p.paymentStatus !== '✅')
+      .filter(p => p.clientPhone && p.paymentStatus !== '✅')
       .map(p => ({
         clientName: p.clientName,
-        phone: p.phone!,
-        amount: p.amountTotal - p.amountPaid,
+        phone: p.clientPhone!,
+        amount: p.amountPending,
         category: p.category
       }));
     
@@ -96,6 +45,43 @@ export function OverduePayments() {
     toast.success(`נשלחות ${paymentsWithPhone.length} תזכורות WhatsApp 🚀`);
   };
 
+  if (isLoading) {
+    return (
+      <div className="flyer-card">
+        <div className="flex items-center justify-center py-12">
+          <LoadingSpinner />
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flyer-card">
+        <div className="text-center py-8 text-red-400">
+          <p>שגיאה בטעינת תשלומים באיחור</p>
+          <p className="text-sm mt-2">{(error as Error).message}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (overduePayments.length === 0) {
+    return (
+      <div className="flyer-card">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-2xl font-black text-cream text-shadow">⚠️ תשלומים באיחור</h3>
+          <span className="bg-emerald-600 text-cream px-4 py-2 rounded-full text-lg font-black">
+            ✅ אין תשלומים באיחור
+          </span>
+        </div>
+        <div className="text-center py-8 text-cream/70">
+          <p className="text-lg">🎉 מצוין! כל התשלומים מעודכנים</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flyer-card">
       <div className="flex items-center justify-between mb-6">
@@ -105,17 +91,17 @@ export function OverduePayments() {
         </span>
       </div>
       
-      <div className="space-y-4">
+      <div className="space-y-4 max-h-96 overflow-y-auto">
         {overduePayments.map((payment) => (
           <div key={payment.id} className="flex items-center justify-between p-5 bg-gradient-to-r from-blue-600/50 to-blue-700/50 rounded-xl hover:from-blue-500/60 hover:to-blue-600/60 transition-all duration-300 border-2 border-gold/30 hover:border-gold hover:scale-102">
             <div className="flex-1">
-              <div className="flex items-center gap-4 mb-2">
+              <div className="flex items-center gap-4 mb-2 flex-wrap">
                 <h4 className="font-black text-cream text-lg text-shadow">{payment.clientName}</h4>
                 <span className={`px-4 py-2 rounded-full text-sm font-black ${getStatusClass(payment.paymentStatus)}`}>
                   {payment.paymentStatus} {payment.paymentStatus === '✅' ? 'שולם' : 
                    payment.paymentStatus === '🟧' ? 'תשלום חלקי' : 'ממתין תשלום'}
                 </span>
-                {payment.phone && (
+                {payment.clientPhone && (
                   <button
                     onClick={() => handleSendReminder(payment)}
                     className="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-full text-sm font-bold transition-colors"
@@ -125,12 +111,13 @@ export function OverduePayments() {
                   </button>
                 )}
               </div>
-              <p className="text-cream/90 font-bold text-base">{payment.category}</p>
+              <p className="text-cream/90 font-bold text-base">{payment.dealTitle}</p>
+              <p className="text-cream/70 text-sm">{payment.category}</p>
             </div>
             
             <div className="text-left orange-box">
               <p className="font-black text-xl">
-                ₪{payment.amountPaid.toLocaleString()} / ₪{payment.amountTotal.toLocaleString()}
+                ₪{payment.amountPending.toLocaleString()}
               </p>
               <p className="text-base font-bold">
                 ⏰ {payment.daysOverdue} ימים באיחור
